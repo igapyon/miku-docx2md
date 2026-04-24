@@ -1,0 +1,19 @@
+{
+  "name": "miku-docx2md",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:watch": "vitest",
+    "cli": "node scripts/miku-docx2md-cli.mjs",
+    "build": "node scripts/build-miku-docx2md.mjs"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.9",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0"
+  }
+}
