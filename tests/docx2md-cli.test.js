@@ -103,10 +103,62 @@ function createCliDocxBytes() {
       name: "word/document.xml",
       data: encoder.encode(
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
   <w:body>
     <w:p><w:r><w:t>Hello CLI</w:t></w:r></w:p>
-    <w:drawing/>
+    <w:drawing>
+      <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+        <wp:docPr id="1" name="CLI image" descr="CLI image alt"/>
+        <wp:extent cx="635000" cy="317500"/>
+      </wp:inline>
+      <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:graphicData>
+          <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:blipFill>
+              <a:blip r:embed="rIdImage1"/>
+            </pic:blipFill>
+          </pic:pic>
+        </a:graphicData>
+      </a:graphic>
+    </w:drawing>
+  </w:body>
+</w:document>`
+      )
+    },
+    {
+      name: "word/_rels/document.xml.rels",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/cli-image.png"/>
+</Relationships>`
+      )
+    },
+    {
+      name: "word/media/cli-image.png",
+      data: Uint8Array.from([137, 80, 78, 71])
+    }
+  ]);
+}
+
+function createCliNestedUnsupportedDocxBytes() {
+  const encoder = new TextEncoder();
+  return createStoredZip([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>
+    <w:p>
+      <w:r><w:t>Hello nested CLI</w:t></w:r>
+      <w:pict/>
+      <w:txbxContent>
+        <w:p><w:r><w:t>Textbox nested CLI</w:t></w:r></w:p>
+      </w:txbxContent>
+    </w:p>
   </w:body>
 </w:document>`
       )
@@ -121,6 +173,7 @@ describe("docx2md cli", () => {
       const inputPath = path.join(tempDir, "sample.docx");
       const outputPath = path.join(tempDir, "sample.md");
       const summaryPath = path.join(tempDir, "sample.summary.txt");
+      const assetsDirPath = path.join(tempDir, "sample.assets");
       writeFileSync(inputPath, createCliDocxBytes());
 
       const summaryOutput = execFileSync(
@@ -130,6 +183,8 @@ describe("docx2md cli", () => {
           inputPath,
           "--out",
           outputPath,
+          "--assets-dir",
+          assetsDirPath,
           "--summary-out",
           summaryPath,
           "--summary",
@@ -143,11 +198,81 @@ describe("docx2md cli", () => {
 
       const markdown = readFileSync(outputPath, "utf8");
       const summaryText = readFileSync(summaryPath, "utf8");
+      const assetBytes = readFileSync(path.join(assetsDirPath, "word/media/cli-image.png"));
+      const manifest = JSON.parse(readFileSync(path.join(assetsDirPath, "manifest.json"), "utf8"));
       expect(markdown).toContain("Hello CLI");
-      expect(markdown).toContain("<!-- unsupported: drawing -->");
+      expect(markdown).toContain("![CLI image alt](sample.assets/word/media/cli-image.png)");
+      expect(markdown).not.toContain("[Image: CLI image alt]");
+      expect(markdown).toContain("<!-- unsupported: drawing:image(word/media/cli-image.png):alt(CLI image alt):size-emu(635000x317500) -->");
       expect(summaryOutput).toContain("paragraphs: 1");
+      expect(summaryOutput).toContain("images: 1");
+      expect(summaryOutput).toContain("imageAssets: 1");
+      expect(summaryOutput).toContain("drawingLikeUnsupported: 1");
       expect(summaryOutput).toContain("unsupportedElements: 1");
       expect(summaryText).toContain("paragraphs: 1");
+      expect(summaryText).toContain("images: 1");
+      expect(summaryText).toContain("imageAssets: 1");
+      expect(summaryText).toContain("drawingLikeUnsupported: 1");
+      expect(summaryText).toContain("unsupportedCommentTraces: 1");
+      expect(Array.from(assetBytes)).toEqual([137, 80, 78, 71]);
+      expect(manifest).toEqual({
+        version: 1,
+        assets: [
+          {
+            kind: "image",
+            sourcePath: "word/media/cli-image.png",
+            mediaType: "image/png",
+            altText: "CLI image alt",
+            sourceTrace: "drawing:image(word/media/cli-image.png):alt(CLI image alt):size-emu(635000x317500)",
+            blockIndex: 1,
+            documentPosition: {
+              blockIndex: 1,
+              blockKind: "unsupported",
+              traceIndex: 0
+            },
+            size: 4
+          }
+        ]
+      });
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes nested unsupported traces adjacent to supported blocks in debug mode", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-nested-"));
+    try {
+      const inputPath = path.join(tempDir, "nested.docx");
+      const outputPath = path.join(tempDir, "nested.md");
+      const summaryPath = path.join(tempDir, "nested.summary.txt");
+      writeFileSync(inputPath, createCliNestedUnsupportedDocxBytes());
+
+      execFileSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--summary-out",
+          summaryPath,
+          "--debug"
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      const markdown = readFileSync(outputPath, "utf8");
+      const summaryText = readFileSync(summaryPath, "utf8");
+      expect(markdown).toContain("Hello nested CLI<br><br>Textbox nested CLI");
+      expect(markdown).toContain("<!-- unsupported: drawing -->");
+      expect(summaryText).toContain("paragraphs: 1");
+      expect(summaryText).toContain("images: 0");
+      expect(summaryText).toContain("imageAssets: 0");
+      expect(summaryText).toContain("drawingLikeUnsupported: 1");
+      expect(summaryText).toContain("unsupportedElements: 1");
       expect(summaryText).toContain("unsupportedCommentTraces: 1");
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

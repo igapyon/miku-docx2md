@@ -90,7 +90,7 @@ Current first-cut document handling direction includes:
 | Preserve nested lists | Implemented | Based on numbering structure |
 | Extract tables | Implemented | Structural Markdown tables |
 | Preserve merged table layout exactly | Not supported | Uses `←M←` / `↑M↑` placeholders instead |
-| Extract images and shapes | Not supported in first cut | Explicitly out of scope |
+| Extract images and shapes | Partially implemented | Resolved embedded images can be exported as sidecar files via CLI |
 | Reproduce Word appearance exactly | Not supported | Structure over visual fidelity |
 
 ## How it works
@@ -110,6 +110,7 @@ A basic Node.js CLI path is available in the repository.
 Options currently include:
 
 - `--out <file>`
+- `--assets-dir <dir>`
 - `--summary`
 - `--summary-out <file>`
 - `--debug`
@@ -119,10 +120,14 @@ Options currently include:
 Example:
 
 ```bash
-npm run cli -- ./sample.docx --out ./sample.md --summary --summary-out ./sample.summary.txt
+npm run cli -- ./sample.docx --out ./sample.md --assets-dir ./sample.assets --summary --summary-out ./sample.summary.txt
 ```
 
 `--debug` enables unsupported-element HTML comment traces in Markdown output.
+`--assets-dir` exports resolved embedded image files under the specified directory using their package-relative paths such as `word/media/example.png`, and generated Markdown switches from `[Image: ...]` placeholders to relative `![](...)` links when possible.
+When `[Content_Types].xml` is available, exported asset metadata prefers the package-declared content type over extension-based inference.
+Asset exports currently include `manifest.json` with exported file paths, media types, alt text, and byte sizes.
+The manifest also records the originating unsupported trace string, owning block index, and a finer `documentPosition` object with block kind and trace index for each exported image asset.
 
 ## Browser UI
 
@@ -133,6 +138,7 @@ A minimal browser UI is also available via `index.html`.
 - review summary counts
 - review generated Markdown
 - download Markdown and summary text
+- download resolved image assets as a ZIP archive when available
 - use built-in preview copy buttons
 - optionally enable unsupported-element HTML comments
 

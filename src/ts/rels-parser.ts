@@ -12,6 +12,7 @@
 
   function resolveZipPath(sourcePath: string, target: string): string {
     if (!target) return target;
+    if (target.startsWith("#")) return target;
     if (target.startsWith("/")) {
       return target.replace(/^\/+/, "");
     }

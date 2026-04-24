@@ -1234,6 +1234,7 @@ lht-preview-output {
               <button id="convertBtn" class="md-button md-button--accent" type="button">Convert to Markdown</button>
               <button id="downloadBtn" class="md-button" type="button" disabled>Save Markdown</button>
               <button id="downloadSummaryBtn" class="md-button" type="button" disabled>Save Summary</button>
+              <button id="downloadAssetsBtn" class="md-button" type="button" disabled>Save Assets ZIP</button>
               <button id="clearBtn" class="md-button" type="button">Clear</button>
             </div>
 
@@ -3597,6 +3598,8 @@ if (!customElements.get("lht-page-menu")) {
     function resolveZipPath(sourcePath, target) {
         if (!target)
             return target;
+        if (target.startsWith("#"))
+            return target;
         if (target.startsWith("/")) {
             return target.replace(/^\/+/, "");
         }
@@ -3651,6 +3654,17 @@ if (!customElements.get("lht-page-menu")) {
         const parsed = Number.parseInt(value, 10);
         return Number.isFinite(parsed) ? parsed : null;
     }
+    function parseStyleFlag(parent, localName) {
+        if (!parent)
+            return null;
+        const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
+        if (!element)
+            return null;
+        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        if (!value)
+            return true;
+        return value !== "false" && value !== "0";
+    }
     function parseStyles(bytes) {
         const styles = new Map();
         if (!bytes)
@@ -3663,17 +3677,26 @@ if (!customElements.get("lht-page-menu")) {
             const styleId = styleElement.getAttribute("w:styleId") || styleElement.getAttribute("styleId") || "";
             if (!styleId)
                 continue;
+            const styleType = styleElement.getAttribute("w:type") || styleElement.getAttribute("type") || "";
             const nameElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "name")[0]) || null;
             const basedOnElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "basedOn")[0]) || null;
             const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "pPr")[0]) || null;
+            const runProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "rPr")[0]) || null;
             const outlineLevelElement = paragraphProperties
                 ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "outlineLvl")[0]) || null)
                 : null;
             styles.set(styleId, {
                 styleId,
+                styleType,
                 name: (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("w:val")) || (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("val")) || "",
                 basedOn: (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("w:val")) || (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("val")) || "",
-                outlineLevel: parseInteger((outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("w:val")) || (outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("val")))
+                outlineLevel: parseInteger((outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("w:val")) || (outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("val"))),
+                textStyle: {
+                    bold: parseStyleFlag(runProperties, "b"),
+                    italic: parseStyleFlag(runProperties, "i"),
+                    strike: parseStyleFlag(runProperties, "strike"),
+                    underline: parseStyleFlag(runProperties, "u")
+                }
             });
         }
         return styles;
@@ -3794,6 +3817,17 @@ if (!customElements.get("lht-page-menu")) {
         const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
         return value !== "false" && value !== "0";
     }
+    function readStyleValue(parent, localName) {
+        if (!parent)
+            return null;
+        const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
+        if (!element)
+            return null;
+        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        if (!value)
+            return true;
+        return value !== "false" && value !== "0";
+    }
     function applyTextStyle(text, style) {
         if (!text)
             return "";
@@ -3816,6 +3850,22 @@ if (!customElements.get("lht-page-menu")) {
             underline: base.underline || override.underline
         };
     }
+    function applyStyleOverride(base, override) {
+        return {
+            bold: override.bold === null ? base.bold : override.bold,
+            italic: override.italic === null ? base.italic : override.italic,
+            strike: override.strike === null ? base.strike : override.strike,
+            underline: override.underline === null ? base.underline : override.underline
+        };
+    }
+    function emptyStyle() {
+        return {
+            bold: false,
+            italic: false,
+            strike: false,
+            underline: false
+        };
+    }
     function readRunStyle(runElement) {
         const properties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(runElement, "rPr")[0]) || null;
         return {
@@ -3825,15 +3875,154 @@ if (!customElements.get("lht-page-menu")) {
             underline: hasEnabledElement(properties, "u")
         };
     }
+    function readStyleOverrideFromRunProperties(properties) {
+        return {
+            bold: readStyleValue(properties, "b"),
+            italic: readStyleValue(properties, "i"),
+            strike: readStyleValue(properties, "strike"),
+            underline: readStyleValue(properties, "u")
+        };
+    }
+    function resolveTextStyleOverrideFromStyleId(styles, styleId, expectedStyleType) {
+        if (!styleId) {
+            return {
+                bold: null,
+                italic: null,
+                strike: null,
+                underline: null
+            };
+        }
+        const chain = (stylesParser === null || stylesParser === void 0 ? void 0 : stylesParser.resolveStyleChain(styles, styleId)) || [];
+        let resolved = {
+            bold: null,
+            italic: null,
+            strike: null,
+            underline: null
+        };
+        for (const style of chain.slice().reverse()) {
+            if (expectedStyleType && style.styleType && style.styleType !== expectedStyleType) {
+                continue;
+            }
+            resolved = {
+                bold: style.textStyle.bold === null ? resolved.bold : style.textStyle.bold,
+                italic: style.textStyle.italic === null ? resolved.italic : style.textStyle.italic,
+                strike: style.textStyle.strike === null ? resolved.strike : style.textStyle.strike,
+                underline: style.textStyle.underline === null ? resolved.underline : style.textStyle.underline
+            };
+        }
+        return resolved;
+    }
+    function getParagraphTextStyle(paragraph, styles) {
+        const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraph, "pPr")[0]) || null;
+        const paragraphStyleElement = paragraphProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "pStyle")[0]) || null) : null;
+        const paragraphStyleId = (paragraphStyleElement === null || paragraphStyleElement === void 0 ? void 0 : paragraphStyleElement.getAttribute("w:val")) || (paragraphStyleElement === null || paragraphStyleElement === void 0 ? void 0 : paragraphStyleElement.getAttribute("val")) || "";
+        const styleFromParagraphStyle = applyStyleOverride(emptyStyle(), resolveTextStyleOverrideFromStyleId(styles, paragraphStyleId, "paragraph"));
+        const paragraphRunProperties = paragraphProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "rPr")[0]) || null) : null;
+        return applyStyleOverride(styleFromParagraphStyle, readStyleOverrideFromRunProperties(paragraphRunProperties));
+    }
     function normalizeInlineText(text) {
         return text.replace(/\t/g, "    ").replace(/ {2,}/g, " ").trim();
     }
     function recordUnsupported(context, type) {
+        if (type.startsWith("drawing")) {
+            context.summary.drawingLikeUnsupported += 1;
+        }
+        if (type.startsWith("drawing:image(")) {
+            context.summary.images += 1;
+        }
         context.summary.unsupportedElements += 1;
+        context.summary.unsupportedCommentTraces += 1;
         return {
             kind: "unsupported",
             type
         };
+    }
+    function recordUnsupportedTrace(context, traces, type) {
+        if (type.startsWith("drawing")) {
+            context.summary.drawingLikeUnsupported += 1;
+        }
+        if (type.startsWith("drawing:image(")) {
+            context.summary.images += 1;
+        }
+        context.summary.unsupportedElements += 1;
+        context.summary.unsupportedCommentTraces += 1;
+        traces.push(type);
+    }
+    function classifyUnsupportedType(localName) {
+        switch (localName) {
+            case "drawing":
+            case "pict":
+            case "object":
+                return "drawing";
+            case "txbxContent":
+            case "textbox":
+            case "textBox":
+                return "textbox";
+            case "chart":
+                return "chart";
+            default:
+                return localName || "unknown";
+        }
+    }
+    function resolveImageTargetFromUnsupportedElement(element, relationships) {
+        const blips = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "blip")) || [];
+        for (const blip of blips) {
+            const relationshipId = blip.getAttribute("r:embed") || blip.getAttribute("embed") || "";
+            if (!relationshipId)
+                continue;
+            const relationship = relationships.get(relationshipId);
+            if (!relationship)
+                continue;
+            if (relationship.type.includes("/image")) {
+                return relationship.target;
+            }
+        }
+        return "";
+    }
+    function resolveImageAltTextFromUnsupportedElement(element) {
+        const metadataElements = [
+            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "docPr")) || []),
+            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "cNvPr")) || [])
+        ];
+        for (const metadataElement of metadataElements) {
+            const description = (metadataElement.getAttribute("descr") || "").trim();
+            if (description)
+                return description;
+            const title = (metadataElement.getAttribute("title") || "").trim();
+            if (title)
+                return title;
+        }
+        return "";
+    }
+    function resolveImageExtentFromUnsupportedElement(element) {
+        const extentElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "extent")) || [];
+        for (const extentElement of extentElements) {
+            const cx = (extentElement.getAttribute("cx") || "").trim();
+            const cy = (extentElement.getAttribute("cy") || "").trim();
+            if (cx && cy) {
+                return `${cx}x${cy}`;
+            }
+        }
+        return "";
+    }
+    function describeUnsupportedElement(element, relationships) {
+        const type = classifyUnsupportedType(element.localName || "unknown");
+        if (type === "drawing") {
+            const imageTarget = resolveImageTargetFromUnsupportedElement(element, relationships);
+            const imageAltText = resolveImageAltTextFromUnsupportedElement(element);
+            const imageExtent = resolveImageExtentFromUnsupportedElement(element);
+            if (imageTarget) {
+                const parts = [`drawing:image(${imageTarget})`];
+                if (imageAltText) {
+                    parts.push(`alt(${imageAltText})`);
+                }
+                if (imageExtent) {
+                    parts.push(`size-emu(${imageExtent})`);
+                }
+                return parts.join(":");
+            }
+        }
+        return type;
     }
     function normalizeAnchorName(name) {
         const normalized = String(name || "")
@@ -3861,15 +4050,43 @@ if (!customElements.get("lht-page-menu")) {
         }
         return anchors;
     }
-    function extractTextRuns(paragraph, relationships, context, inheritedStyle = { bold: false, italic: false, strike: false, underline: false }, suppressUnderline = false) {
-        var _a;
+    function normalizeRelationshipAnchorTarget(target) {
+        const normalizedTarget = String(target || "").trim();
+        if (!normalizedTarget)
+            return "";
+        if (normalizedTarget.startsWith("#")) {
+            return normalizeAnchorName(normalizedTarget.slice(1));
+        }
+        const fragmentIndex = normalizedTarget.indexOf("#");
+        if (fragmentIndex < 0)
+            return "";
+        const targetPath = normalizedTarget.slice(0, fragmentIndex);
+        if (targetPath && targetPath !== "word/document.xml")
+            return "";
+        return normalizeAnchorName(normalizedTarget.slice(fragmentIndex + 1));
+    }
+    function claimUniqueAnchorIds(anchorIds, emittedAnchorIds) {
+        const uniqueAnchorIds = [];
+        for (const anchorId of anchorIds) {
+            if (emittedAnchorIds.has(anchorId))
+                continue;
+            emittedAnchorIds.add(anchorId);
+            uniqueAnchorIds.push(anchorId);
+        }
+        return uniqueAnchorIds;
+    }
+    function extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, inheritedStyle = emptyStyle(), suppressUnderline = false) {
         const pieces = [];
         for (const child of Array.from(paragraph.childNodes || [])) {
             if (child.nodeType !== 1)
                 continue;
             const element = child;
             if (element.localName === "r") {
-                const style = mergeStyle(inheritedStyle, readRunStyle(element));
+                const properties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(element, "rPr")[0]) || null;
+                const runStyleElement = properties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(properties, "rStyle")[0]) || null) : null;
+                const runStyleId = (runStyleElement === null || runStyleElement === void 0 ? void 0 : runStyleElement.getAttribute("w:val")) || (runStyleElement === null || runStyleElement === void 0 ? void 0 : runStyleElement.getAttribute("val")) || "";
+                const styleFromRunStyle = resolveTextStyleOverrideFromStyleId(styles, runStyleId, "character");
+                const style = applyStyleOverride(applyStyleOverride(inheritedStyle, styleFromRunStyle), readStyleOverrideFromRunProperties(properties));
                 const effectiveStyle = suppressUnderline ? { ...style, underline: false } : style;
                 const textElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(element, "t")) || [];
                 for (const textElement of textElements) {
@@ -3880,16 +4097,32 @@ if (!customElements.get("lht-page-menu")) {
                     pieces.push("<br>".repeat(breakElements.length));
                 }
             }
+            else if (element.localName === "txbxContent") {
+                const textboxText = extractTextboxText(element, relationships, styles, numbering, context, unsupportedTypes);
+                if (textboxText) {
+                    if (pieces.length > 0) {
+                        pieces.push("<br><br>");
+                    }
+                    pieces.push(textboxText);
+                }
+            }
             else if (element.localName === "hyperlink") {
-                const linkText = extractTextRuns(element, relationships, context, inheritedStyle, true);
+                const linkText = extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, inheritedStyle, true);
                 const relationshipId = element.getAttribute("r:id") || "";
                 const anchor = normalizeAnchorName(element.getAttribute("w:anchor") || element.getAttribute("anchor") || "");
-                if (relationshipId && relationships.has(relationshipId)) {
+                const relationship = relationshipId ? relationships.get(relationshipId) || null : null;
+                const relationshipAnchor = relationship ? normalizeRelationshipAnchorTarget(relationship.target) : "";
+                if ((relationship === null || relationship === void 0 ? void 0 : relationship.mode) === "External") {
                     context.summary.links += 1;
                     context.summary.externalLinks += 1;
-                    pieces.push(`[${linkText}](${((_a = relationships.get(relationshipId)) === null || _a === void 0 ? void 0 : _a.target) || ""})`);
+                    pieces.push(`[${linkText}](${relationship.target})`);
                 }
-                else if (anchor) {
+                else if (relationshipAnchor && context.knownAnchorIds.has(relationshipAnchor)) {
+                    context.summary.links += 1;
+                    context.summary.internalLinks += 1;
+                    pieces.push(`[${linkText}](#${relationshipAnchor})`);
+                }
+                else if (anchor && context.knownAnchorIds.has(anchor)) {
                     context.summary.links += 1;
                     context.summary.internalLinks += 1;
                     pieces.push(`[${linkText}](#${anchor})`);
@@ -3902,7 +4135,7 @@ if (!customElements.get("lht-page-menu")) {
                 continue;
             }
             else {
-                context.summary.unsupportedElements += 1;
+                recordUnsupportedTrace(context, unsupportedTypes, describeUnsupportedElement(element, relationships));
             }
         }
         return normalizeInlineText(pieces.join(""));
@@ -3977,33 +4210,53 @@ if (!customElements.get("lht-page-menu")) {
             return "restart";
         return null;
     }
-    function extractCellText(cell, relationships, numbering, context) {
+    function extractCellText(cell, relationships, styles, numbering, context, tableUnsupportedTypes) {
         const paragraphs = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "p")) || [];
         const parts = paragraphs
-            .map((paragraph) => renderCellParagraph(paragraph, relationships, numbering, context))
+            .map((paragraph) => renderCellParagraph(paragraph, relationships, styles, numbering, context, tableUnsupportedTypes))
             .filter((text) => !!text);
         return parts.join("<br><br>").trim();
     }
-    function renderCellParagraph(paragraph, relationships, numbering, context) {
-        const text = extractTextRuns(paragraph, relationships, context);
+    function renderCellParagraph(paragraph, relationships, styles, numbering, context, unsupportedTypes) {
+        const text = extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(paragraph, styles));
         if (!text)
             return "";
+        return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
+    }
+    function renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes) {
         const listMetadata = getListMetadata(paragraph, numbering);
         if (!listMetadata) {
+            const level = getHeadingLevel(paragraph, styles);
+            if (level) {
+                return `${"#".repeat(Math.max(1, Math.min(level, 6)))} ${text}`;
+            }
             return text;
         }
         const indent = "&nbsp;&nbsp;&nbsp;&nbsp;".repeat(Math.max(0, listMetadata.indent));
         const marker = listMetadata.listKind === "ordered" ? "1." : "-";
         return `${indent}${marker} ${text}`;
     }
-    function parseTableElement(table, relationships, numbering, context) {
+    function extractTextboxText(textboxContent, relationships, styles, numbering, context, unsupportedTypes) {
+        const paragraphs = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(textboxContent, "p")) || [];
+        const parts = paragraphs
+            .map((paragraph) => {
+            const text = extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(paragraph, styles));
+            if (!text)
+                return "";
+            return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
+        })
+            .filter((text) => !!text);
+        return parts.join("<br><br>").trim();
+    }
+    function parseTableElement(table, relationships, styles, numbering, context) {
         const rows = [];
+        const unsupportedTypes = [];
         for (const rowElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(table, "tr")) || []) {
             const row = [];
             for (const cellElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(rowElement, "tc")) || []) {
                 const span = getGridSpan(cellElement);
                 const verticalMergeState = getVerticalMergeState(cellElement);
-                const text = extractCellText(cellElement, relationships, numbering, context);
+                const text = extractCellText(cellElement, relationships, styles, numbering, context, unsupportedTypes);
                 if (verticalMergeState === "continue") {
                     for (let index = 0; index < span; index += 1) {
                         row.push(index === 0 ? "↑M↑" : "←M←");
@@ -4025,7 +4278,8 @@ if (!customElements.get("lht-page-menu")) {
         }
         return {
             kind: "table",
-            rows
+            rows,
+            unsupportedTypes: unsupportedTypes.length ? unsupportedTypes : undefined
         };
     }
     function parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes) {
@@ -4039,26 +4293,38 @@ if (!customElements.get("lht-page-menu")) {
             headings: 0,
             listItems: 0,
             tables: 0,
+            images: 0,
+            imageAssets: 0,
+            drawingLikeUnsupported: 0,
             links: 0,
             internalLinks: 0,
             externalLinks: 0,
-            unsupportedElements: 0
+            unsupportedElements: 0,
+            unsupportedCommentTraces: 0
         };
-        const context = { summary };
         const blocks = [];
         if (!body) {
             return { blocks, summary };
         }
+        const knownAnchorIds = new Set();
+        for (const paragraphElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(body, "p")) || []) {
+            for (const anchorId of extractParagraphAnchors(paragraphElement)) {
+                knownAnchorIds.add(anchorId);
+            }
+        }
+        const emittedAnchorIds = new Set();
+        const context = { summary, knownAnchorIds };
         for (const child of Array.from(body.childNodes || [])) {
             if (child.nodeType !== 1)
                 continue;
             const element = child;
             if (element.localName === "p") {
-                const text = extractTextRuns(element, relationships, context);
+                const unsupportedTypes = [];
+                const text = extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(element, styles));
                 const level = getHeadingLevel(element, styles);
                 const listMetadata = getListMetadata(element, numbering);
                 if (text) {
-                    const anchorIds = extractParagraphAnchors(element);
+                    const anchorIds = claimUniqueAnchorIds(extractParagraphAnchors(element), emittedAnchorIds);
                     if (listMetadata) {
                         summary.listItems += 1;
                     }
@@ -4074,16 +4340,17 @@ if (!customElements.get("lht-page-menu")) {
                         level: level || undefined,
                         listKind: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.listKind,
                         indent: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.indent,
-                        anchorIds
+                        anchorIds,
+                        unsupportedTypes: unsupportedTypes.length ? unsupportedTypes : undefined
                     });
                 }
             }
             else if (element.localName === "tbl") {
                 summary.tables += 1;
-                blocks.push(parseTableElement(element, relationships, numbering, context));
+                blocks.push(parseTableElement(element, relationships, styles, numbering, context));
             }
             else {
-                blocks.push(recordUnsupported(context, element.localName || "unknown"));
+                blocks.push(recordUnsupported(context, describeUnsupportedElement(element, relationships)));
             }
         }
         return { blocks, summary };
@@ -4102,6 +4369,7 @@ if (!customElements.get("lht-page-menu")) {
 (() => {
     const moduleRegistry = getDocx2mdModuleRegistry();
     const zipIo = moduleRegistry.getModule("zipIo");
+    const textDecoder = new TextDecoder("utf-8");
     const documentParser = moduleRegistry.getModule("documentParser");
     async function parseDocx(arrayBuffer) {
         const files = await (zipIo === null || zipIo === void 0 ? void 0 : zipIo.unzipEntries(arrayBuffer));
@@ -4115,19 +4383,177 @@ if (!customElements.get("lht-page-menu")) {
         const relationshipsBytes = files.get("word/_rels/document.xml.rels");
         const stylesBytes = files.get("word/styles.xml");
         const numberingBytes = files.get("word/numbering.xml");
-        return (documentParser === null || documentParser === void 0 ? void 0 : documentParser.parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes)) || {
+        const parsedDocument = (documentParser === null || documentParser === void 0 ? void 0 : documentParser.parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes)) || {
             blocks: [],
             summary: {
                 paragraphs: 0,
                 headings: 0,
                 listItems: 0,
                 tables: 0,
+                images: 0,
+                imageAssets: 0,
+                drawingLikeUnsupported: 0,
                 links: 0,
                 internalLinks: 0,
                 externalLinks: 0,
-                unsupportedElements: 0
+                unsupportedElements: 0,
+                unsupportedCommentTraces: 0
             }
         };
+        const contentTypes = parseContentTypes(files.get("[Content_Types].xml"));
+        const assets = collectImageAssets(parsedDocument.blocks, files, contentTypes);
+        return {
+            ...parsedDocument,
+            summary: {
+                ...parsedDocument.summary,
+                imageAssets: assets.length
+            },
+            assets
+        };
+    }
+    function parseImageTrace(type) {
+        const prefix = "drawing:image(";
+        if (!type.startsWith(prefix))
+            return null;
+        const afterPrefix = type.slice(prefix.length);
+        const suffixMarkerIndexes = [
+            afterPrefix.indexOf("):alt("),
+            afterPrefix.indexOf("):size-emu(")
+        ].filter((index) => index >= 0);
+        const sourcePathEnd = suffixMarkerIndexes.length > 0
+            ? Math.min(...suffixMarkerIndexes)
+            : (afterPrefix.endsWith(")") ? afterPrefix.length - 1 : -1);
+        if (sourcePathEnd < 0)
+            return null;
+        const sourcePath = afterPrefix.slice(0, sourcePathEnd);
+        if (!sourcePath)
+            return null;
+        const suffix = afterPrefix.slice(sourcePathEnd + 1);
+        let altText = "";
+        if (suffix) {
+            if (suffix.startsWith(":alt(")) {
+                const altAndRest = suffix.slice(":alt(".length);
+                const sizeMarkerIndex = altAndRest.lastIndexOf("):size-emu(");
+                const altEnd = sizeMarkerIndex >= 0
+                    ? sizeMarkerIndex
+                    : (altAndRest.endsWith(")") ? altAndRest.length - 1 : -1);
+                if (altEnd < 0)
+                    return null;
+                altText = altAndRest.slice(0, altEnd);
+                const rest = altAndRest.slice(altEnd + 1);
+                if (rest && !/^:size-emu\([^)]+\)$/.test(rest))
+                    return null;
+            }
+            else if (!/^:size-emu\([^)]+\)$/.test(suffix)) {
+                return null;
+            }
+        }
+        return {
+            sourcePath,
+            altText
+        };
+    }
+    function inferImageMediaType(sourcePath) {
+        const normalized = sourcePath.toLowerCase();
+        if (normalized.endsWith(".png"))
+            return "image/png";
+        if (normalized.endsWith(".jpg") || normalized.endsWith(".jpeg"))
+            return "image/jpeg";
+        if (normalized.endsWith(".gif"))
+            return "image/gif";
+        if (normalized.endsWith(".bmp"))
+            return "image/bmp";
+        if (normalized.endsWith(".webp"))
+            return "image/webp";
+        if (normalized.endsWith(".svg"))
+            return "image/svg+xml";
+        if (normalized.endsWith(".tif") || normalized.endsWith(".tiff"))
+            return "image/tiff";
+        return "application/octet-stream";
+    }
+    function normalizePackagePath(filePath) {
+        return String(filePath || "").replace(/^\/+/, "");
+    }
+    function getPathExtension(filePath) {
+        const normalized = normalizePackagePath(filePath);
+        const lastSegment = normalized.split("/").pop() || "";
+        const extensionIndex = lastSegment.lastIndexOf(".");
+        if (extensionIndex < 0)
+            return "";
+        return lastSegment.slice(extensionIndex + 1).toLowerCase();
+    }
+    function parseContentTypes(contentTypesBytes) {
+        const parsed = {
+            defaults: new Map(),
+            overrides: new Map()
+        };
+        if (!contentTypesBytes || typeof DOMParser !== "function") {
+            return parsed;
+        }
+        const xml = textDecoder.decode(contentTypesBytes);
+        const document = new DOMParser().parseFromString(xml, "application/xml");
+        const defaultElements = Array.from(document.getElementsByTagName("Default"));
+        const overrideElements = Array.from(document.getElementsByTagName("Override"));
+        for (const element of defaultElements) {
+            const extension = (element.getAttribute("Extension") || "").trim().toLowerCase();
+            const contentType = (element.getAttribute("ContentType") || "").trim();
+            if (!extension || !contentType)
+                continue;
+            parsed.defaults.set(extension, contentType);
+        }
+        for (const element of overrideElements) {
+            const partName = normalizePackagePath((element.getAttribute("PartName") || "").trim());
+            const contentType = (element.getAttribute("ContentType") || "").trim();
+            if (!partName || !contentType)
+                continue;
+            parsed.overrides.set(partName, contentType);
+        }
+        return parsed;
+    }
+    function resolveImageMediaType(sourcePath, contentTypes) {
+        const normalizedSourcePath = normalizePackagePath(sourcePath);
+        const overrideType = contentTypes.overrides.get(normalizedSourcePath);
+        if (overrideType)
+            return overrideType;
+        const extensionType = contentTypes.defaults.get(getPathExtension(normalizedSourcePath));
+        if (extensionType)
+            return extensionType;
+        return inferImageMediaType(normalizedSourcePath);
+    }
+    function collectImageAssets(blocks, files, contentTypes) {
+        const assets = [];
+        const seen = new Set();
+        for (const [blockIndex, block] of blocks.entries()) {
+            const traceTypes = block.kind === "unsupported"
+                ? [block.type]
+                : (block.unsupportedTypes || []);
+            for (const [traceIndex, traceType] of traceTypes.entries()) {
+                const parsedTrace = parseImageTrace(traceType);
+                if (!parsedTrace)
+                    continue;
+                if (seen.has(parsedTrace.sourcePath))
+                    continue;
+                const bytes = files.get(parsedTrace.sourcePath);
+                if (!bytes)
+                    continue;
+                seen.add(parsedTrace.sourcePath);
+                assets.push({
+                    kind: "image",
+                    sourcePath: parsedTrace.sourcePath,
+                    mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+                    altText: parsedTrace.altText,
+                    sourceTrace: traceType,
+                    blockIndex,
+                    documentPosition: {
+                        blockIndex,
+                        blockKind: block.kind,
+                        traceIndex
+                    },
+                    bytes
+                });
+            }
+        }
+        return assets;
     }
     function escapeTableCell(text) {
         return String(text || "").replace(/\|/g, "\\|");
@@ -4149,38 +4575,108 @@ if (!customElements.get("lht-page-menu")) {
             return "";
         return anchorIds.map((anchorId) => `<a id="${String(anchorId)}"></a>`).join("\n");
     }
+    function escapeHtmlCommentText(text) {
+        return String(text || "")
+            .replace(/--/g, "- -")
+            .replace(/>/g, "&gt;");
+    }
+    function renderUnsupportedComment(type) {
+        return `<!-- unsupported: ${escapeHtmlCommentText(type)} -->`;
+    }
+    function renderUnsupportedComments(unsupportedTypes) {
+        if (!unsupportedTypes || unsupportedTypes.length === 0)
+            return "";
+        return unsupportedTypes.map((type) => renderUnsupportedComment(type)).join("\n");
+    }
+    function escapeMarkdownImageAltText(text) {
+        return String(text || "")
+            .replace(/\s+/g, " ")
+            .replace(/[\[\]]/g, "")
+            .trim();
+    }
+    function formatImagePlaceholderAltText(text) {
+        return String(text || "").replace(/\s+/g, " ").trim();
+    }
+    function escapeMarkdownLinkDestination(destination) {
+        return String(destination || "")
+            .replace(/%/g, "%25")
+            .replace(/\s/g, (match) => encodeURIComponent(match))
+            .replace(/\(/g, "%28")
+            .replace(/\)/g, "%29")
+            .replace(/</g, "%3C")
+            .replace(/>/g, "%3E");
+    }
+    function renderImagePlaceholder(type, options) {
+        var _a;
+        const parsedImageTrace = parseImageTrace(type);
+        if (!parsedImageTrace || !parsedImageTrace.altText)
+            return "";
+        const resolvedPath = ((_a = options === null || options === void 0 ? void 0 : options.imagePathResolver) === null || _a === void 0 ? void 0 : _a.call(options, parsedImageTrace.sourcePath)) || "";
+        if (resolvedPath) {
+            return `![${escapeMarkdownImageAltText(parsedImageTrace.altText)}](${escapeMarkdownLinkDestination(resolvedPath)})`;
+        }
+        return `[Image: ${formatImagePlaceholderAltText(parsedImageTrace.altText)}]`;
+    }
+    function renderUnsupportedPlaceholders(unsupportedTypes, options) {
+        if (!unsupportedTypes || unsupportedTypes.length === 0)
+            return "";
+        return unsupportedTypes
+            .map((type) => renderImagePlaceholder(type, options))
+            .filter((text) => text !== "")
+            .join("\n");
+    }
     function renderMarkdown(parsedDocument, options) {
         const includeUnsupportedComments = !!(options === null || options === void 0 ? void 0 : options.includeUnsupportedComments);
         return parsedDocument.blocks
             .map((block) => {
             if (block.kind === "table") {
-                return renderTable(block.rows);
+                const table = renderTable(block.rows);
+                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+                const withPlaceholders = placeholders ? `${table}\n${placeholders}` : table;
+                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
             }
             if (block.kind === "unsupported") {
-                return includeUnsupportedComments ? `<!-- unsupported: ${block.type} -->` : "";
+                const placeholder = renderImagePlaceholder(block.type, options);
+                if (includeUnsupportedComments) {
+                    const comment = renderUnsupportedComment(block.type);
+                    return placeholder ? `${placeholder}\n${comment}` : comment;
+                }
+                return placeholder;
             }
             if (block.kind === "heading") {
                 const anchors = renderAnchors(block.anchorIds);
                 const headingLine = `${"#".repeat(Math.max(1, Math.min(block.level || 1, 6)))} ${block.text}`;
-                return anchors ? `${anchors}\n${headingLine}` : headingLine;
+                const content = anchors ? `${anchors}\n${headingLine}` : headingLine;
+                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+                const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
             }
             if (block.kind === "listItem") {
                 const indent = "    ".repeat(Math.max(0, block.indent || 0));
                 const marker = block.listKind === "ordered" ? "1." : "-";
                 const listLine = `${indent}${marker} ${block.text}`;
                 const anchors = renderAnchors(block.anchorIds);
-                return anchors ? `${anchors}\n${listLine}` : listLine;
+                const content = anchors ? `${anchors}\n${listLine}` : listLine;
+                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+                const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
             }
             const anchors = renderAnchors(block.anchorIds);
-            return anchors ? `${anchors}\n${block.text}` : block.text;
+            const content = anchors ? `${anchors}\n${block.text}` : block.text;
+            const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+            const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+            const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+            return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
         })
             .filter((block) => block !== "")
             .join("\n\n");
     }
     function createSummary(parsedDocument) {
         return {
-            ...parsedDocument.summary,
-            unsupportedCommentTraces: parsedDocument.summary.unsupportedElements
+            ...parsedDocument.summary
         };
     }
     function createSummaryText(parsedDocument) {
@@ -4190,6 +4686,9 @@ if (!customElements.get("lht-page-menu")) {
             `headings: ${summary.headings}`,
             `listItems: ${summary.listItems}`,
             `tables: ${summary.tables}`,
+            `images: ${summary.images}`,
+            `imageAssets: ${summary.imageAssets}`,
+            `drawingLikeUnsupported: ${summary.drawingLikeUnsupported}`,
             `links: ${summary.links}`,
             `internalLinks: ${summary.internalLinks}`,
             `externalLinks: ${summary.externalLinks}`,
@@ -4197,11 +4696,27 @@ if (!customElements.get("lht-page-menu")) {
             `unsupportedCommentTraces: ${summary.unsupportedCommentTraces}`
         ].join("\n");
     }
+    function createAssetsManifestText(parsedDocument) {
+        return JSON.stringify({
+            version: 1,
+            assets: (parsedDocument.assets || []).map((asset) => ({
+                kind: asset.kind,
+                sourcePath: asset.sourcePath,
+                mediaType: asset.mediaType,
+                altText: asset.altText,
+                sourceTrace: asset.sourceTrace,
+                blockIndex: asset.blockIndex,
+                documentPosition: asset.documentPosition,
+                size: asset.bytes.length
+            }))
+        }, null, 2);
+    }
     moduleRegistry.registerModule("docx2md", {
         parseDocx,
         renderMarkdown,
         createSummary,
-        createSummaryText
+        createSummaryText,
+        createAssetsManifestText
     });
 })();
   </script>
@@ -4255,8 +4770,14 @@ window.addEventListener("DOMContentLoaded", () => {
     function getSummaryDownloadFileName(fileName) {
         return fileName.replace(/\.docx$/i, "") + ".summary.txt";
     }
+    function getAssetsDownloadFileName(fileName) {
+        return fileName.replace(/\.docx$/i, "") + ".assets.zip";
+    }
     function getSummaryText() {
         return getPreview("summaryPreview").getText();
+    }
+    function hasDownloadableAssets() {
+        return !!currentParsedDocument && currentParsedDocument.assets.length > 0;
     }
     function showToast(message) {
         const toast = getElement("toast");
@@ -4290,9 +4811,13 @@ window.addEventListener("DOMContentLoaded", () => {
         getElement("convertBtn").disabled = !hasSelection;
         getElement("downloadBtn").disabled = !hasRendered;
         getElement("downloadSummaryBtn").disabled = !hasRendered;
+        getElement("downloadAssetsBtn").disabled = !hasDownloadableAssets();
     }
     function triggerDownload(fileName, content) {
         const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        triggerBlobDownload(fileName, blob);
+    }
+    function triggerBlobDownload(fileName, blob) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -4301,6 +4826,97 @@ window.addEventListener("DOMContentLoaded", () => {
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
+    }
+    function createStoredZip(entries) {
+        const encoder = new TextEncoder();
+        const localChunks = [];
+        const centralChunks = [];
+        let offset = 0;
+        for (const entry of entries) {
+            const nameBytes = encoder.encode(entry.name);
+            const dataBytes = entry.data;
+            const localHeader = new Uint8Array(30 + nameBytes.length);
+            const localView = new DataView(localHeader.buffer);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, 0, true);
+            localView.setUint16(12, 0, true);
+            localView.setUint32(14, 0, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            localView.setUint16(28, 0, true);
+            localHeader.set(nameBytes, 30);
+            localChunks.push(localHeader, dataBytes);
+            const centralHeader = new Uint8Array(46 + nameBytes.length);
+            const centralView = new DataView(centralHeader.buffer);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, 0, true);
+            centralView.setUint16(14, 0, true);
+            centralView.setUint32(16, 0, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint16(30, 0, true);
+            centralView.setUint16(32, 0, true);
+            centralView.setUint16(34, 0, true);
+            centralView.setUint16(36, 0, true);
+            centralView.setUint32(38, 0, true);
+            centralView.setUint32(42, offset, true);
+            centralHeader.set(nameBytes, 46);
+            centralChunks.push(centralHeader);
+            offset += localHeader.length + dataBytes.length;
+        }
+        const centralDirectoryOffset = offset;
+        const centralDirectorySize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const eocd = new Uint8Array(22);
+        const eocdView = new DataView(eocd.buffer);
+        eocdView.setUint32(0, 0x06054b50, true);
+        eocdView.setUint16(4, 0, true);
+        eocdView.setUint16(6, 0, true);
+        eocdView.setUint16(8, entries.length, true);
+        eocdView.setUint16(10, entries.length, true);
+        eocdView.setUint32(12, centralDirectorySize, true);
+        eocdView.setUint32(16, centralDirectoryOffset, true);
+        eocdView.setUint16(20, 0, true);
+        const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
+            + centralDirectorySize
+            + eocd.length;
+        const out = new Uint8Array(totalLength);
+        let cursor = 0;
+        for (const chunk of localChunks) {
+            out.set(chunk, cursor);
+            cursor += chunk.length;
+        }
+        for (const chunk of centralChunks) {
+            out.set(chunk, cursor);
+            cursor += chunk.length;
+        }
+        out.set(eocd, cursor);
+        return out;
+    }
+    function createAssetsZipBlob() {
+        if (!currentParsedDocument || currentParsedDocument.assets.length === 0) {
+            return null;
+        }
+        const manifestBytes = new TextEncoder().encode(docx2md.createAssetsManifestText(currentParsedDocument));
+        const zipBytes = createStoredZip([
+            {
+                name: "manifest.json",
+                data: manifestBytes
+            },
+            ...currentParsedDocument.assets.map((asset) => ({
+                name: asset.sourcePath,
+                data: asset.bytes
+            }))
+        ]);
+        return new Blob([zipBytes], { type: "application/zip" });
     }
     let currentParsedDocument = null;
     let currentFileName = "";
@@ -4397,6 +5013,19 @@ window.addEventListener("DOMContentLoaded", () => {
             triggerDownload(getSummaryDownloadFileName(currentFileName), getSummaryText());
             setStatus(`Downloaded ${getSummaryDownloadFileName(currentFileName)}`);
             showToast("Summary saved");
+        });
+        getElement("downloadAssetsBtn").addEventListener("click", () => {
+            if (!currentParsedDocument || !currentFileName) {
+                return;
+            }
+            const assetsZip = createAssetsZipBlob();
+            if (!assetsZip) {
+                setStatus("No image assets available.");
+                return;
+            }
+            triggerBlobDownload(getAssetsDownloadFileName(currentFileName), assetsZip);
+            setStatus(`Downloaded ${getAssetsDownloadFileName(currentFileName)}`);
+            showToast("Assets ZIP saved");
         });
         getElement("clearBtn").addEventListener("click", () => {
             fileInput.value = "";

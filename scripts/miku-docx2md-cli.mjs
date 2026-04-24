@@ -9,6 +9,7 @@ function printHelp() {
 
 Options:
   --out <file>                    Write Markdown to this file
+  --assets-dir <dir>              Export resolved embedded image assets into this directory
   --summary                       Print summary to stdout
   --summary-out <file>            Write summary text to this file
   --debug                         Include unsupported-element HTML comments in Markdown output
@@ -25,6 +26,7 @@ function parseArgs(argv) {
   const options = {
     inputPath: null,
     outPath: null,
+    assetsDir: null,
     summaryOutPath: null,
     summary: false,
     includeUnsupportedComments: false,
@@ -59,6 +61,15 @@ function parseArgs(argv) {
       options.outPath = value;
       continue;
     }
+    if (arg === "--assets-dir") {
+      const value = argv[index + 1];
+      if (!value) {
+        throw new Error("Missing value for --assets-dir");
+      }
+      index += 1;
+      options.assetsDir = value;
+      continue;
+    }
     if (arg === "--summary-out") {
       const value = argv[index + 1];
       if (!value) {
@@ -89,6 +100,15 @@ async function writeTextFile(outputPath, content) {
   await fs.writeFile(outputPath, content, "utf8");
 }
 
+async function writeBinaryFile(outputPath, content) {
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, content);
+}
+
+function toPosixPath(filePath) {
+  return filePath.split(path.sep).join("/");
+}
+
 async function main() {
   const api = loadDocx2mdNodeApi();
   const options = parseArgs(process.argv.slice(2));
@@ -101,10 +121,29 @@ async function main() {
   const inputPath = path.resolve(options.inputPath);
   const inputBytes = await fs.readFile(inputPath);
   const parsed = await api.parseDocx(toArrayBuffer(inputBytes));
+  const resolvedOutputPath = options.outPath ? path.resolve(options.outPath) : null;
+  const resolvedAssetsDir = options.assetsDir ? path.resolve(options.assetsDir) : null;
   const markdown = api.renderMarkdown(parsed, {
-    includeUnsupportedComments: options.includeUnsupportedComments
+    includeUnsupportedComments: options.includeUnsupportedComments,
+    imagePathResolver: resolvedAssetsDir
+      ? (sourcePath) => {
+        const exportedAssetPath = path.join(resolvedAssetsDir, sourcePath);
+        const relativeBase = resolvedOutputPath
+          ? path.dirname(resolvedOutputPath)
+          : process.cwd();
+        return toPosixPath(path.relative(relativeBase, exportedAssetPath) || path.basename(exportedAssetPath));
+      }
+      : undefined
   });
   const summaryText = api.createSummaryText(parsed);
+  const assetsManifestText = api.createAssetsManifestText(parsed);
+
+  if (resolvedAssetsDir) {
+    await writeTextFile(path.join(resolvedAssetsDir, "manifest.json"), assetsManifestText);
+    for (const asset of parsed.assets || []) {
+      await writeBinaryFile(path.join(resolvedAssetsDir, asset.sourcePath), asset.bytes);
+    }
+  }
 
   if (options.summary) {
     console.log(summaryText);
@@ -114,8 +153,8 @@ async function main() {
     await writeTextFile(path.resolve(options.summaryOutPath), summaryText);
   }
 
-  if (options.outPath) {
-    await writeTextFile(path.resolve(options.outPath), markdown);
+  if (resolvedOutputPath) {
+    await writeTextFile(resolvedOutputPath, markdown);
   } else {
     process.stdout.write(markdown);
   }

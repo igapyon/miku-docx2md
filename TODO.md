@@ -49,6 +49,42 @@
 
 - [x] Normalize internal bookmark anchors and internal hyperlink fragments
 - [x] Preserve list-like paragraphs inside table cells as simplified inline list text
-- [ ] Decide whether table-cell headings need dedicated rendering or current simplified text is sufficient
-- [ ] Classify unsupported elements in more detail than raw local-name passthrough where useful
-- [ ] Expand implementation docs for style inheritance depth and direct-format precedence
+- [x] Classify unsupported elements in more detail than raw local-name passthrough where useful
+- [x] Preserve heading-like paragraphs inside table cells as simplified heading text
+- [x] Expand implementation docs for style inheritance depth and direct-format precedence
+
+## Phase 7: Next Expansion Candidates
+
+- [x] Emit debug unsupported-comment traces for unsupported elements nested inside supported blocks
+- [x] Allow limited plain-text extraction for `txbxContent` while keeping textbox layout unsupported
+- [x] Emit placeholder-like debug traces for unsupported image references with relationship targets when resolvable
+- [x] Add focused tests for nested unsupported traces in CLI output as needed
+
+## Phase 8: Richer Image Diagnostics
+
+- [x] Include image alt text in debug traces when drawing metadata exposes `descr` or `title`
+- [x] Include image dimensions from drawing metadata in debug traces when `wp:extent` is available
+- [x] Emit a minimal non-debug placeholder for images when meaningful alt text is available
+
+## Phase 9: Image Observability
+
+- [x] Count image references in conversion summary output
+- [x] Distinguish resolved embedded images from generic drawing-like unsupported objects in summary output
+
+## Phase 10: Image Asset Export
+
+- [x] Expose resolved embedded image package entries as parse-result assets in Node-oriented flows
+- [x] Count extracted image assets separately from image references in summary output
+- [x] Add CLI support for exporting resolved embedded image assets into a sidecar directory
+- [x] Emit relative `![](...)` image links in Markdown when sidecar asset export is enabled explicitly
+
+## Phase 11: Image Asset Metadata
+
+- [x] Prefer `[Content_Types].xml` declarations over extension inference when reporting exported image asset media types
+- [x] Expose downloadable image asset export in the browser UI as a ZIP archive
+
+## Phase 12: Asset Export Packaging
+
+- [x] Include `manifest.json` in CLI and browser asset exports
+- [x] Include source trace strings and owning block indexes in asset manifests
+- [x] Include finer manifest document positions with block kind and trace index

@@ -83,10 +83,12 @@ Current behavior:
 - external hyperlink targets are preserved as-is
 - internal package targets are resolved relative to `word/document.xml`
 - missing relationship ids do not fail the whole conversion
+- unresolved internal anchors fall back to plain link text rather than emitting broken Markdown fragments
 
 For hyperlink rendering:
 
-- `r:id` with a known relationship becomes an external Markdown link
+- `r:id` with a known external relationship becomes an external Markdown link
+- `r:id` with an internal fragment target becomes an internal Markdown link only when the normalized target matches a known bookmark owner
 - missing or broken relationship ids fall back to plain link text unless a `w:anchor` target is available
 
 ## 7. Style and Heading Resolution
@@ -98,6 +100,7 @@ Current behavior:
 - style resolution walks the style chain returned by `styles.xml`
 - style-chain heading names and outline levels are both considered
 - paragraph-local `outlineLvl` acts as a fallback when style-based heading detection does not resolve a level
+- cyclic `basedOn` chains are cut off safely during resolution
 
 Heading levels are clamped to Markdown heading range `1..6`.
 
@@ -105,6 +108,11 @@ Heading levels are clamped to Markdown heading range `1..6`.
 
 Current behavior:
 
+- paragraph styles may contribute inherited text formatting
+- paragraph-level direct run properties under `pPr/rPr` override inherited paragraph-style text formatting
+- character styles referenced by `rStyle` may contribute inherited run formatting
+- direct run formatting under `rPr` overrides both paragraph-derived and character-style-derived text formatting
+- explicit `w:val="0"` / `false` on supported run-format flags disables inherited formatting for that scope
 - run formatting supports bold, italic, strike, and underline
 - wrapper order is:
   - underline
@@ -123,8 +131,11 @@ Hyperlink text suppresses underline wrapping so that link syntax is not nested w
 Current behavior:
 
 - external hyperlinks render as `[text](url)`
-- internal hyperlinks with `w:anchor` render as `[text](#anchor)`
+- internal hyperlinks with `w:anchor` render as `[text](#anchor)` only when the normalized anchor matches a known bookmark owner
+- internal hyperlinks with relationship fragment targets such as `#anchor` follow the same known-anchor check
 - paragraph bookmarks from `bookmarkStart` are collected as block anchor ids
+- known-anchor resolution is limited to top-level document paragraphs that can emit block anchors
+- duplicate normalized bookmark anchors are emitted only for the first owning block
 - bookmark names starting with `_` are ignored
 - known paragraph bookmarks render as HTML anchors before the block:
   - `<a id="anchor"></a>`
@@ -152,6 +163,7 @@ Current behavior:
 - each cell is read from `w:tc`
 - cell text is built from paragraph content
 - multiple paragraphs inside a cell are joined by `<br><br>`
+- heading-like paragraphs inside table cells are preserved as simplified heading text such as `## Heading`
 - list paragraphs inside table cells are preserved as simplified inline list text using `-` or `1.`
 - nested list depth inside table cells is represented with repeated `&nbsp;&nbsp;&nbsp;&nbsp;`
 - horizontal merge placeholders use `←M←`
@@ -182,13 +194,60 @@ Current summary fields are:
 - `headings`
 - `listItems`
 - `tables`
+- `images`
+- `imageAssets`
+- `drawingLikeUnsupported`
 - `links`
 - `internalLinks`
 - `externalLinks`
 - `unsupportedElements`
 - `unsupportedCommentTraces`
 
-`unsupportedCommentTraces` currently mirrors `unsupportedElements`.
+`unsupportedCommentTraces` currently counts both standalone unsupported blocks and unsupported traces attached to supported blocks.
+
+Unsupported element traces currently use a small normalized category set for common cases:
+
+- `drawing` for drawing-like elements such as `drawing`, `pict`, and `object`
+- `textbox` for textbox-like elements such as `txbxContent`
+- `chart` for `chart`
+- otherwise the raw `localName` is used
+
+When unsupported traces are rendered as debug HTML comments, comment-breaking sequences from source metadata are sanitized so the debug output does not prematurely close the comment.
+
+For drawing-like unsupported elements, when an embedded image relationship can be resolved safely, the current debug trace may include the package target in a form such as:
+
+- `drawing:image(word/media/example.png)`
+
+When drawing metadata exposes image alt text through attributes such as `descr` or `title`, the current debug trace may append that metadata in a form such as:
+
+- `drawing:image(word/media/example.png):alt(Example alt text)`
+
+Image trace parsing preserves alt text that contains ordinary parentheses.
+
+When drawing metadata exposes `wp:extent`, the current debug trace may append the EMU size in a form such as:
+
+- `drawing:image(word/media/example.png):size-emu(914400x457200)`
+
+When unsupported content is found inside a supported paragraph or table, the trace is attached to that owning block and rendered as an adjacent HTML comment only in debug-style output.
+
+Current textbox handling is a limited compromise:
+
+- `txbxContent` nested inside a supported block may contribute plain extracted paragraph text
+- textbox paragraphs inside that extracted content may still be simplified as heading-like text or inline list-like text
+- textbox layout, positioning, and shape semantics remain unsupported
+
+Current image handling is also a limited compromise:
+
+- normal Markdown output still does not embed extracted image files automatically
+- when meaningful image alt text is available, normal Markdown may include a lightweight placeholder such as `[Image: Example alt text]`
+- debug-style output still emits the fuller unsupported trace with relationship target and any available metadata
+- the current Node-facing parse result may expose resolved embedded image package entries as `assets`
+- the current CLI may export those resolved embedded image assets when `--assets-dir <dir>` is specified
+- when `--assets-dir <dir>` is used, the current CLI also switches image placeholders to relative Markdown image links when an alt text is available
+- generated Markdown image destinations are percent-escaped for characters that would otherwise break inline Markdown links, such as spaces and parentheses
+- generated Markdown image alt text is collapsed to one line, and square brackets are removed only for image-link syntax
+- the current asset metadata prefers `[Content_Types].xml` declarations when available and falls back to extension-based media-type inference otherwise
+- current asset exports also include `manifest.json` with asset path, media type, alt text, byte size, originating unsupported trace, owning block index, and a finer `documentPosition` object with block kind and per-block trace index
 
 ## 14. Browser UI and CLI
 
@@ -200,6 +259,7 @@ Current browser UI behavior:
 - uses `lht-page-hero`, `lht-file-select`, `lht-switch-help`, `lht-preview-output`, `lht-loading-overlay`, `lht-error-alert`, and `lht-toast`
 - allows file selection first and explicit conversion second
 - supports Markdown save and summary save
+- supports image-asset ZIP save when resolved embedded image assets are available
 - uses `lht-preview-output` built-in copy actions for preview text
 - toggles unsupported HTML comments via a switch
 
@@ -210,6 +270,7 @@ Page-local CSS lives in `src/css/app.css`.
 Current CLI options include:
 
 - `--out <file>`
+- `--assets-dir <dir>`
 - `--summary`
 - `--summary-out <file>`
 - `--debug`
@@ -222,6 +283,4 @@ Current CLI options include:
 
 The main remaining implementation questions are:
 
-- whether table-cell headings or other richer block structures need dedicated rendering beyond simplified inline text
-- broader unsupported-element classification detail
-- fuller implementation-aligned documentation for `styles.xml` inheritance depth
+- no major open items are currently recorded in this document
