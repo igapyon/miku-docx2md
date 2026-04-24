@@ -9,7 +9,11 @@ const ROOT = process.cwd();
 const TARGETS = [
   {
     srcHtml: "index-src.html",
-    outHtml: "index.html",
+    outHtml: "index.html"
+  },
+  {
+    srcHtml: "miku-docx2md-src.html",
+    outHtml: "miku-docx2md.html",
     tsOrder: DOCX2MD_APP_TS_ORDER
   }
 ];
@@ -41,6 +45,10 @@ async function loadTypeScriptModule() {
 }
 
 function transpileTypeScript(tsOrder, tsModule) {
+  if (!tsOrder) {
+    return;
+  }
+
   for (const relTsPath of tsOrder) {
     const tsPath = path.resolve(ROOT, relTsPath);
     const jsPath = path.resolve(ROOT, relTsPath.replace("/ts/", "/js/").replace(/\.ts$/, ".js"));

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>miku-docx2md</title>
+  <meta name="description" content="miku-docx2md is a local browser tool that reads Word (.docx) files and converts supported structure into Markdown." />
+  <link rel="stylesheet" href="lht-cmn/css/components.css" />
+  <link rel="stylesheet" href="src/css/app.css" />
+  <script src="lht-cmn/vendor/material-web-outlined-text-field.bundle.js"></script>
+  <script src="lht-cmn/js/components.js" defer></script>
+</head>
+<body class="md-page">
+  <main class="md-shell">
+    <section class="md-card md-panel">
+      <lht-page-hero
+        title="miku-docx2md"
+        subtitle="Analyze a Word document (.docx) and convert supported structure to Markdown."
+        icon="📝"
+        help-label="About miku-docx2md"
+        help-wide
+        menu-home-href="./index.html"
+        menu-home-label="Back to Home">
+        Read a local <span class="md-inline-code">.docx</span> file, preserve supported text structure, and generate GitHub-compatible Markdown / HTML.
+      </lht-page-hero>
+
+      <section class="md-section md-stack-md">
+        <h2 class="md-section-title">Input</h2>
+        <div class="md-grid md-grid--two">
+          <div class="md-panel md-stack-md">
+            <lht-file-select
+              id="docxFileSelect"
+              input-id="docxFileInput"
+              button-id="docxFileSelectBtn"
+              file-name-id="docxFileName"
+              accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              button-label="Select docx File"
+              placeholder="No file selected"
+              show-file-name>
+            </lht-file-select>
+
+            <lht-switch-help switch-id="debugComments" label="Include unsupported HTML comments" help-label="About debug comments">
+              Unsupported elements are omitted by default. Enable this only when you want Markdown output to include debug-oriented <span class="md-inline-code">&lt;!-- unsupported: ... --&gt;</span> traces.
+            </lht-switch-help>
+
+            <div class="md-actions">
+              <button id="convertBtn" class="md-button md-button--accent" type="button">Convert to Markdown</button>
+              <button id="downloadBtn" class="md-button" type="button" disabled>Save Markdown</button>
+              <button id="downloadSummaryBtn" class="md-button" type="button" disabled>Save Summary</button>
+              <button id="downloadAssetsBtn" class="md-button" type="button" disabled>Save Assets ZIP</button>
+              <button id="clearBtn" class="md-button" type="button">Clear</button>
+            </div>
+
+            <div id="statusText" class="md-status-box">Loading UI ...</div>
+            <div class="md-caption">Processing stays local in your browser. No data is sent to a server.</div>
+          </div>
+
+          <div class="md-panel md-stack-sm">
+            <h2 class="md-section-title">Summary</h2>
+            <lht-preview-output id="summaryPreview" preview-id="summaryOutput" preview-tag="pre" placeholder="No conversion yet."></lht-preview-output>
+          </div>
+        </div>
+      </section>
+
+      <section class="md-section md-stack-sm">
+        <h2 class="md-section-title">Markdown</h2>
+        <lht-preview-output id="markdownPreview" preview-id="markdownOutput" preview-tag="pre" placeholder="Markdown will appear here."></lht-preview-output>
+      </section>
+
+      <lht-loading-overlay id="loadingOverlay" text="Analyzing docx"></lht-loading-overlay>
+      <lht-error-alert id="errorAlert"></lht-error-alert>
+      <lht-toast id="toast"></lht-toast>
+    </section>
+  </main>
+
+  <script src="src/js/module-registry.js"></script>
+  <script src="src/js/zip-io.js"></script>
+  <script src="src/js/xml-utils.js"></script>
+  <script src="src/js/rels-parser.js"></script>
+  <script src="src/js/styles-parser.js"></script>
+  <script src="src/js/numbering-parser.js"></script>
+  <script src="src/js/document-parser.js"></script>
+  <script src="src/js/core.js"></script>
+  <script src="src/js/main.js"></script>
+</body>
+</html>

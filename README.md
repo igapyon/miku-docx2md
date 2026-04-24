@@ -18,12 +18,14 @@
 
 ## 使い方: ブラウザ
 
-`index.html` をブラウザで開きます。
+`index.html` はランディングページです。変換本体は `miku-docx2md.html` で開きます。
 
-1. `.docx` ファイルを選択します。
-2. 変換ボタンを押します。
-3. Markdown と summary を確認します。
-4. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
+1. `index.html` を開きます。
+2. `miku-docx2md.html` へ進みます。
+3. `.docx` ファイルを選択します。
+4. 変換ボタンを押します。
+5. Markdown と summary を確認します。
+6. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
 
 画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。
 
@@ -100,7 +102,7 @@ asset 出力先には `manifest.json` も作成されます。manifest には as
 npm run build
 ```
 
-`index-src.html` と `src/ts/` から、配布用の `index.html` と `src/js/` を再生成します。
+`index-src.html`、`miku-docx2md-src.html`、`src/ts/` から、配布用の `index.html`、`miku-docx2md.html`、`src/js/` を再生成します。
 
 ## テスト
 
@@ -111,6 +113,7 @@ npm run test:unit
 ## 詳細ドキュメント
 
 - 利用者向け補足: [docs/usage.md](./docs/usage.md)
+- 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
 - 仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
 - 実装仕様: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
 - upstream 参照方針: [docs/upstream.md](./docs/upstream.md)

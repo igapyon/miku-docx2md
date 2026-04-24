@@ -88,3 +88,34 @@
 - [x] Include `manifest.json` in CLI and browser asset exports
 - [x] Include source trace strings and owning block indexes in asset manifests
 - [x] Include finer manifest document positions with block kind and trace index
+
+## Phase 13: Real Document Quality Pass
+
+- [ ] Collect a small local validation set of real `.docx` documents
+- [ ] Run browser conversion against the validation set
+- [ ] Run CLI conversion against the validation set
+- [ ] Compare Markdown readability for headings, lists, links, tables, and image placeholders
+- [ ] Review generated summaries for obviously wrong counts
+- [ ] Review debug output for unsupported trace usefulness
+- [ ] Verify image asset export and `manifest.json` on documents with embedded images
+- [ ] Record recurring incompatibilities as focused fixtures or known limitations
+
+## Phase 14: Release Readiness
+
+- [ ] Re-read README from a first-time user perspective
+- [ ] Re-read `docs/usage.md` for CLI and browser workflow accuracy
+- [ ] Confirm generated `index.html` and `miku-docx2md.html` are in sync with source files
+- [ ] Run `npm run build`
+- [ ] Run `npm run test:unit`
+- [ ] Prepare release notes from user-visible changes
+
+## Phase 15: Refactoring
+
+- [ ] Review `miku-xlsx2md` module boundaries before cutting files
+- [ ] Split DOCX package loading and relationship/content-type resolution out of `core.ts` where useful
+- [ ] Split document XML block parsing, inline run parsing, table parsing, and drawing/image extraction out of `document-parser.ts`
+- [ ] Extract Markdown rendering/escaping helpers into focused modules instead of keeping rendering logic inside parser orchestration
+- [ ] Extract asset manifest construction and browser ZIP packaging into focused modules
+- [ ] Keep CLI and browser behavior unchanged while refactoring by adding or preserving focused regression tests
+- [ ] Update `scripts/lib/docx2md-module-order.mjs` and generated `src/js/` order whenever TypeScript modules are split
+- [ ] Re-run `npm run build` and `npm run test:unit` after each refactoring slice
