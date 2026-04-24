@@ -1,0 +1,60 @@
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+(() => {
+  const moduleRegistry = getDocx2mdModuleRegistry();
+  const textDecoder = new TextDecoder("utf-8");
+
+  function decodeXmlText(bytes) {
+    return textDecoder.decode(bytes);
+  }
+
+  function parseXml(bytes) {
+    return new DOMParser().parseFromString(decodeXmlText(bytes), "application/xml");
+  }
+
+  function getChildrenByLocalName(parent, localName) {
+    const results = [];
+    const childNodes = parent.childNodes || [];
+    for (let index = 0; index < childNodes.length; index += 1) {
+      const child = childNodes[index];
+      if (child.nodeType === 1 && child.localName === localName) {
+        results.push(child);
+      }
+    }
+    return results;
+  }
+
+  function findDescendantsByLocalName(parent, localName) {
+    const results = [];
+    const stack = [parent];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const childNodes = current.childNodes || [];
+      for (let index = 0; index < childNodes.length; index += 1) {
+        const child = childNodes[index];
+        if (child.nodeType === 1) {
+          if (child.localName === localName) {
+            results.push(child);
+          }
+          stack.push(child);
+        }
+      }
+    }
+    return results;
+  }
+
+  function getTextContent(node) {
+    return String((node && node.textContent) || "");
+  }
+
+  moduleRegistry.registerModule("xmlUtils", {
+    decodeXmlText,
+    parseXml,
+    getChildrenByLocalName,
+    findDescendantsByLocalName,
+    getTextContent
+  });
+})();

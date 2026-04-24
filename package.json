@@ -1,0 +1,16 @@
+{
+  "name": "miku-docx2md",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.9",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0"
+  }
+}
