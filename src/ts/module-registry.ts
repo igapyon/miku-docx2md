@@ -23,6 +23,7 @@
 
   const globalObject = globalThis as typeof globalThis & {
     __docx2mdModuleRegistry?: ModuleRegistry;
+    getDocx2mdModuleRegistry?: () => ModuleRegistry;
   };
 
   globalObject.__docx2mdModuleRegistry ??= createModuleRegistry();

@@ -8,6 +8,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!docx2md) {
         throw new Error("docx2md core module is not loaded");
     }
+    const docx2mdApi = docx2md;
+    const browserZip = moduleRegistry.getModule("browserZip");
+    if (!browserZip) {
+        throw new Error("browser ZIP module is not loaded");
+    }
+    const browserZipApi = browserZip;
     function getElement(id) {
         const element = document.getElementById(id);
         if (!element) {
@@ -36,18 +42,21 @@ window.addEventListener("DOMContentLoaded", () => {
     function getCurrentMarkdown() {
         if (!currentParsedDocument)
             return "";
-        return docx2md.renderMarkdown(currentParsedDocument, {
+        return docx2mdApi.renderMarkdown(currentParsedDocument, {
             includeUnsupportedComments: getDebugEnabled()
         });
     }
+    function getOutputBaseName(fileName) {
+        return fileName.replace(/\.docx$/i, "");
+    }
     function getDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".md";
+        return getOutputBaseName(fileName) + ".md";
     }
     function getSummaryDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".summary.txt";
+        return getOutputBaseName(fileName) + ".summary.txt";
     }
     function getAssetsDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".assets.zip";
+        return getOutputBaseName(fileName) + ".assets.zip";
     }
     function getSummaryText() {
         return getPreview("summaryPreview").getText();
@@ -103,117 +112,28 @@ window.addEventListener("DOMContentLoaded", () => {
         link.remove();
         URL.revokeObjectURL(url);
     }
-    function createCrc32Table() {
-        const table = new Uint32Array(256);
-        for (let index = 0; index < table.length; index += 1) {
-            let value = index;
-            for (let bit = 0; bit < 8; bit += 1) {
-                value = (value & 1) ? ((value >>> 1) ^ 0xedb88320) : (value >>> 1);
-            }
-            table[index] = value >>> 0;
-        }
-        return table;
-    }
-    const crc32Table = createCrc32Table();
-    function calculateCrc32(bytes) {
-        let crc = 0xffffffff;
-        for (const byte of bytes) {
-            crc = (crc >>> 8) ^ crc32Table[(crc ^ byte) & 0xff];
-        }
-        return (crc ^ 0xffffffff) >>> 0;
-    }
-    function createStoredZip(entries) {
-        const encoder = new TextEncoder();
-        const localChunks = [];
-        const centralChunks = [];
-        const utf8FileNameFlag = 0x0800;
-        let offset = 0;
-        for (const entry of entries) {
-            const nameBytes = encoder.encode(entry.name);
-            const dataBytes = entry.data;
-            const crc32 = calculateCrc32(dataBytes);
-            const localHeader = new Uint8Array(30 + nameBytes.length);
-            const localView = new DataView(localHeader.buffer);
-            localView.setUint32(0, 0x04034b50, true);
-            localView.setUint16(4, 20, true);
-            localView.setUint16(6, utf8FileNameFlag, true);
-            localView.setUint16(8, 0, true);
-            localView.setUint16(10, 0, true);
-            localView.setUint16(12, 0, true);
-            localView.setUint32(14, crc32, true);
-            localView.setUint32(18, dataBytes.length, true);
-            localView.setUint32(22, dataBytes.length, true);
-            localView.setUint16(26, nameBytes.length, true);
-            localView.setUint16(28, 0, true);
-            localHeader.set(nameBytes, 30);
-            localChunks.push(localHeader, dataBytes);
-            const centralHeader = new Uint8Array(46 + nameBytes.length);
-            const centralView = new DataView(centralHeader.buffer);
-            centralView.setUint32(0, 0x02014b50, true);
-            centralView.setUint16(4, 20, true);
-            centralView.setUint16(6, 20, true);
-            centralView.setUint16(8, utf8FileNameFlag, true);
-            centralView.setUint16(10, 0, true);
-            centralView.setUint16(12, 0, true);
-            centralView.setUint16(14, 0, true);
-            centralView.setUint32(16, crc32, true);
-            centralView.setUint32(20, dataBytes.length, true);
-            centralView.setUint32(24, dataBytes.length, true);
-            centralView.setUint16(28, nameBytes.length, true);
-            centralView.setUint16(30, 0, true);
-            centralView.setUint16(32, 0, true);
-            centralView.setUint16(34, 0, true);
-            centralView.setUint16(36, 0, true);
-            centralView.setUint32(38, 0, true);
-            centralView.setUint32(42, offset, true);
-            centralHeader.set(nameBytes, 46);
-            centralChunks.push(centralHeader);
-            offset += localHeader.length + dataBytes.length;
-        }
-        const centralDirectoryOffset = offset;
-        const centralDirectorySize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
-        const eocd = new Uint8Array(22);
-        const eocdView = new DataView(eocd.buffer);
-        eocdView.setUint32(0, 0x06054b50, true);
-        eocdView.setUint16(4, 0, true);
-        eocdView.setUint16(6, 0, true);
-        eocdView.setUint16(8, entries.length, true);
-        eocdView.setUint16(10, entries.length, true);
-        eocdView.setUint32(12, centralDirectorySize, true);
-        eocdView.setUint32(16, centralDirectoryOffset, true);
-        eocdView.setUint16(20, 0, true);
-        const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-            + centralDirectorySize
-            + eocd.length;
-        const out = new Uint8Array(totalLength);
-        let cursor = 0;
-        for (const chunk of localChunks) {
-            out.set(chunk, cursor);
-            cursor += chunk.length;
-        }
-        for (const chunk of centralChunks) {
-            out.set(chunk, cursor);
-            cursor += chunk.length;
-        }
-        out.set(eocd, cursor);
-        return out;
+    function createAssetsZipEntries(parsedDocument) {
+        const manifestBytes = new TextEncoder().encode(docx2mdApi.createAssetsManifestText(parsedDocument));
+        return [
+            {
+                name: "manifest.json",
+                data: manifestBytes
+            },
+            ...parsedDocument.assets.map((asset) => ({
+                name: asset.sourcePath,
+                data: asset.bytes
+            }))
+        ];
     }
     function createAssetsZipBlob() {
         if (!currentParsedDocument || currentParsedDocument.assets.length === 0) {
             return null;
         }
-        const manifestBytes = new TextEncoder().encode(docx2md.createAssetsManifestText(currentParsedDocument));
-        const zipBytes = createStoredZip([
-            {
-                name: "manifest.json",
-                data: manifestBytes
-            },
-            ...currentParsedDocument.assets.map((asset) => ({
-                name: asset.sourcePath,
-                data: asset.bytes
-            }))
-        ]);
+        const zipBytes = browserZipApi.createStoredZip(createAssetsZipEntries(currentParsedDocument));
         return new Blob([zipBytes], { type: "application/zip" });
+    }
+    function canDownloadRenderedDocument() {
+        return !!currentParsedDocument && !!currentFileName;
     }
     let currentParsedDocument = null;
     let currentFileName = "";
@@ -232,7 +152,7 @@ window.addEventListener("DOMContentLoaded", () => {
             resetRenderedState();
             return;
         }
-        setSummaryText(docx2md.createSummaryText(currentParsedDocument));
+        setSummaryText(docx2mdApi.createSummaryText(currentParsedDocument));
         setMarkdownText(getCurrentMarkdown());
         updateActionState();
     }
@@ -255,7 +175,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setStatus(`Loading ${selectedFile.name} ...`);
         try {
             const arrayBuffer = await selectedFile.arrayBuffer();
-            currentParsedDocument = await docx2md.parseDocx(arrayBuffer);
+            currentParsedDocument = await docx2mdApi.parseDocx(arrayBuffer);
             renderParsedDocument();
             setStatus(`Converted ${selectedFile.name}`);
             showToast("Converted to Markdown");
@@ -263,6 +183,38 @@ window.addEventListener("DOMContentLoaded", () => {
         finally {
             setLoading(false);
         }
+    }
+    function downloadMarkdown() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const fileName = getDownloadFileName(currentFileName);
+        triggerDownload(fileName, getCurrentMarkdown());
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Markdown saved");
+    }
+    function downloadSummary() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const fileName = getSummaryDownloadFileName(currentFileName);
+        triggerDownload(fileName, getSummaryText());
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Summary saved");
+    }
+    function downloadAssets() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const assetsZip = createAssetsZipBlob();
+        if (!assetsZip) {
+            setStatus("No image assets available.");
+            return;
+        }
+        const fileName = getAssetsDownloadFileName(currentFileName);
+        triggerBlobDownload(fileName, assetsZip);
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Assets ZIP saved");
     }
     function bindEvents() {
         const fileInput = getInputElement("docxFileInput");
@@ -296,33 +248,13 @@ window.addEventListener("DOMContentLoaded", () => {
             }
         });
         getElement("downloadBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            triggerDownload(getDownloadFileName(currentFileName), getCurrentMarkdown());
-            setStatus(`Downloaded ${getDownloadFileName(currentFileName)}`);
-            showToast("Markdown saved");
+            downloadMarkdown();
         });
         getElement("downloadSummaryBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            triggerDownload(getSummaryDownloadFileName(currentFileName), getSummaryText());
-            setStatus(`Downloaded ${getSummaryDownloadFileName(currentFileName)}`);
-            showToast("Summary saved");
+            downloadSummary();
         });
         getElement("downloadAssetsBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            const assetsZip = createAssetsZipBlob();
-            if (!assetsZip) {
-                setStatus("No image assets available.");
-                return;
-            }
-            triggerBlobDownload(getAssetsDownloadFileName(currentFileName), assetsZip);
-            setStatus(`Downloaded ${getAssetsDownloadFileName(currentFileName)}`);
-            showToast("Assets ZIP saved");
+            downloadAssets();
         });
         getElement("clearBtn").addEventListener("click", () => {
             fileInput.value = "";

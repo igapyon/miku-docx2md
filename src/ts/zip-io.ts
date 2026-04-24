@@ -35,7 +35,7 @@
   async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
     if (typeof DecompressionStream === "function") {
       try {
-        const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+        const stream = new Blob([data as unknown as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
         const buffer = await new Response(stream).arrayBuffer();
         return new Uint8Array(buffer);
       } catch (_error) {
@@ -49,19 +49,16 @@
     throw new Error("This environment does not support ZIP deflate decompression.");
   }
 
-  async function unzipEntries(arrayBuffer: ArrayBuffer): Promise<Map<string, Uint8Array>> {
-    const view = new DataView(arrayBuffer);
-    let eocdOffset = -1;
+  function findEndOfCentralDirectoryOffset(view: DataView): number {
     for (let offset = view.byteLength - 22; offset >= Math.max(0, view.byteLength - 0x10000 - 22); offset -= 1) {
       if (readUint32LE(view, offset) === 0x06054b50) {
-        eocdOffset = offset;
-        break;
+        return offset;
       }
     }
-    if (eocdOffset < 0) {
-      throw new Error("ZIP end-of-central-directory record was not found.");
-    }
+    throw new Error("ZIP end-of-central-directory record was not found.");
+  }
 
+  function readCentralDirectory(arrayBuffer: ArrayBuffer, view: DataView, eocdOffset: number): ZipEntryRecord[] {
     const centralDirectorySize = readUint32LE(view, eocdOffset + 12);
     const centralDirectoryOffset = readUint32LE(view, eocdOffset + 16);
     const endOffset = centralDirectoryOffset + centralDirectorySize;
@@ -87,28 +84,36 @@
       });
       cursor += 46 + fileNameLength + extraFieldLength + fileCommentLength;
     }
+    return entries;
+  }
+
+  async function extractZipEntry(arrayBuffer: ArrayBuffer, view: DataView, entry: ZipEntryRecord): Promise<Uint8Array> {
+    const localOffset = entry.localHeaderOffset;
+    if (readUint32LE(view, localOffset) !== 0x04034b50) {
+      throw new Error(`ZIP local header is invalid: ${entry.name}`);
+    }
+    const fileNameLength = readUint16LE(view, localOffset + 26);
+    const extraFieldLength = readUint16LE(view, localOffset + 28);
+    const dataOffset = localOffset + 30 + fileNameLength + extraFieldLength;
+    const compressedData = new Uint8Array(arrayBuffer, dataOffset, entry.compressedSize);
+
+    if (entry.compressionMethod === 0) {
+      return new Uint8Array(compressedData);
+    }
+    if (entry.compressionMethod === 8) {
+      return inflateRaw(compressedData);
+    }
+    throw new Error(`Unsupported compression method: ${entry.name} (method=${entry.compressionMethod})`);
+  }
+
+  async function unzipEntries(arrayBuffer: ArrayBuffer): Promise<Map<string, Uint8Array>> {
+    const view = new DataView(arrayBuffer);
+    const eocdOffset = findEndOfCentralDirectoryOffset(view);
+    const entries = readCentralDirectory(arrayBuffer, view, eocdOffset);
 
     const files = new Map<string, Uint8Array>();
     for (const entry of entries) {
-      const localOffset = entry.localHeaderOffset;
-      if (readUint32LE(view, localOffset) !== 0x04034b50) {
-        throw new Error(`ZIP local header is invalid: ${entry.name}`);
-      }
-      const fileNameLength = readUint16LE(view, localOffset + 26);
-      const extraFieldLength = readUint16LE(view, localOffset + 28);
-      const dataOffset = localOffset + 30 + fileNameLength + extraFieldLength;
-      const compressedData = new Uint8Array(arrayBuffer, dataOffset, entry.compressedSize);
-
-      let fileData: Uint8Array;
-      if (entry.compressionMethod === 0) {
-        fileData = new Uint8Array(compressedData);
-      } else if (entry.compressionMethod === 8) {
-        fileData = await inflateRaw(compressedData);
-      } else {
-        throw new Error(`Unsupported compression method: ${entry.name} (method=${entry.compressionMethod})`);
-      }
-
-      files.set(entry.name, fileData);
+      files.set(entry.name, await extractZipEntry(arrayBuffer, view, entry));
     }
     return files;
   }

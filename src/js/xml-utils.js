@@ -45,11 +45,23 @@
     function getTextContent(node) {
         return String((node === null || node === void 0 ? void 0 : node.textContent) || "");
     }
+    function getAttributeValue(element, name, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(name)) || fallback;
+    }
+    function getWordAttributeValue(element, localName, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(`w:${localName}`)) || (element === null || element === void 0 ? void 0 : element.getAttribute(localName)) || fallback;
+    }
+    function getNamespacedAttributeValue(element, namespacePrefix, localName, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(`${namespacePrefix}:${localName}`)) || (element === null || element === void 0 ? void 0 : element.getAttribute(localName)) || fallback;
+    }
     moduleRegistry.registerModule("xmlUtils", {
         decodeXmlText,
         parseXml,
         getChildrenByLocalName,
         findDescendantsByLocalName,
-        getTextContent
+        getTextContent,
+        getAttributeValue,
+        getWordAttributeValue,
+        getNamespacedAttributeValue
     });
 })();

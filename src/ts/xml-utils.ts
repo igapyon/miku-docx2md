@@ -52,11 +52,31 @@
     return String(node?.textContent || "");
   }
 
+  function getAttributeValue(element: Element | null | undefined, name: string, fallback: string = ""): string {
+    return element?.getAttribute(name) || fallback;
+  }
+
+  function getWordAttributeValue(element: Element | null | undefined, localName: string, fallback: string = ""): string {
+    return element?.getAttribute(`w:${localName}`) || element?.getAttribute(localName) || fallback;
+  }
+
+  function getNamespacedAttributeValue(
+    element: Element | null | undefined,
+    namespacePrefix: string,
+    localName: string,
+    fallback: string = ""
+  ): string {
+    return element?.getAttribute(`${namespacePrefix}:${localName}`) || element?.getAttribute(localName) || fallback;
+  }
+
   moduleRegistry.registerModule("xmlUtils", {
     decodeXmlText,
     parseXml,
     getChildrenByLocalName,
     findDescendantsByLocalName,
-    getTextContent
+    getTextContent,
+    getAttributeValue,
+    getWordAttributeValue,
+    getNamespacedAttributeValue
   });
 })();

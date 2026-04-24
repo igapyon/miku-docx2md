@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>miku-docx2md</title>
   <meta name="description" content="miku-docx2md is a local browser tool that reads Word (.docx) files and converts supported structure into Markdown." />
-  
-  
-  
-  
+
+
+
+
   <style>
 /*
  * lht-cmn components.css
@@ -1262,18 +1262,33 @@ lht-preview-output {
     </section>
   </main>
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <script>
-(()=>{function s(o,e,t,r){var i=arguments.length,n=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,e,t,r);else for(var d=o.length-1;d>=0;d--)(a=o[d])&&(n=(i<3?a(n):i>3?a(e,t,n):a(e,t))||n);return i>3&&n&&Object.defineProperty(e,t,n),n}var E=o=>(e,t)=>{t!==void 0?t.addInitializer(()=>{customElements.define(o,e)}):customElements.define(o,e)};var Qe=globalThis,et=Qe.ShadowRoot&&(Qe.ShadyCSS===void 0||Qe.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,Bt=Symbol(),$r=new WeakMap,Ne=class{constructor(e,t,r){if(this._$cssResult$=!0,r!==Bt)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o,t=this.t;if(et&&e===void 0){let r=t!==void 0&&t.length===1;r&&(e=$r.get(t)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),r&&$r.set(t,e))}return e}toString(){return this.cssText}},Tr=o=>new Ne(typeof o=="string"?o:o+"",void 0,Bt),g=(o,...e)=>{let t=o.length===1?o[0]:e.reduce((r,i,n)=>r+(a=>{if(a._$cssResult$===!0)return a.cssText;if(typeof a=="number")return a;throw Error("Value passed to 'css' function must be a 'css' function result: "+a+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+o[n+1],o[0]);return new Ne(t,o,Bt)},Sr=(o,e)=>{if(et)o.adoptedStyleSheets=e.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(let t of e){let r=document.createElement("style"),i=Qe.litNonce;i!==void 0&&r.setAttribute("nonce",i),r.textContent=t.cssText,o.appendChild(r)}},Ft=et?o=>o:o=>o instanceof CSSStyleSheet?(e=>{let t="";for(let r of e.cssRules)t+=r.cssText;return Tr(t)})(o):o;var{is:Io,defineProperty:ko,getOwnPropertyDescriptor:Oo,getOwnPropertyNames:Ro,getOwnPropertySymbols:Po,getPrototypeOf:Lo}=Object,ce=globalThis,Ir=ce.trustedTypes,Do=Ir?Ir.emptyScript:"",zo=ce.reactiveElementPolyfillSupport,Be=(o,e)=>o,Fe={toAttribute(o,e){switch(e){case Boolean:o=o?Do:null;break;case Object:case Array:o=o==null?o:JSON.stringify(o)}return o},fromAttribute(o,e){let t=o;switch(e){case Boolean:t=o!==null;break;case Number:t=o===null?null:Number(o);break;case Object:case Array:try{t=JSON.parse(o)}catch{t=null}}return t}},tt=(o,e)=>!Io(o,e),kr={attribute:!0,type:String,converter:Fe,reflect:!1,useDefault:!1,hasChanged:tt};Symbol.metadata??(Symbol.metadata=Symbol("metadata")),ce.litPropertyMetadata??(ce.litPropertyMetadata=new WeakMap);var re=class extends HTMLElement{static addInitializer(e){this._$Ei(),(this.l??(this.l=[])).push(e)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(e,t=kr){if(t.state&&(t.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(e)&&((t=Object.create(t)).wrapped=!0),this.elementProperties.set(e,t),!t.noAccessor){let r=Symbol(),i=this.getPropertyDescriptor(e,r,t);i!==void 0&&ko(this.prototype,e,i)}}static getPropertyDescriptor(e,t,r){let{get:i,set:n}=Oo(this.prototype,e)??{get(){return this[t]},set(a){this[t]=a}};return{get:i,set(a){let d=i?.call(this);n?.call(this,a),this.requestUpdate(e,d,r)},configurable:!0,enumerable:!0}}static getPropertyOptions(e){return this.elementProperties.get(e)??kr}static _$Ei(){if(this.hasOwnProperty(Be("elementProperties")))return;let e=Lo(this);e.finalize(),e.l!==void 0&&(this.l=[...e.l]),this.elementProperties=new Map(e.elementProperties)}static finalize(){if(this.hasOwnProperty(Be("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(Be("properties"))){let t=this.properties,r=[...Ro(t),...Po(t)];for(let i of r)this.createProperty(i,t[i])}let e=this[Symbol.metadata];if(e!==null){let t=litPropertyMetadata.get(e);if(t!==void 0)for(let[r,i]of t)this.elementProperties.set(r,i)}this._$Eh=new Map;for(let[t,r]of this.elementProperties){let i=this._$Eu(t,r);i!==void 0&&this._$Eh.set(i,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(e){let t=[];if(Array.isArray(e)){let r=new Set(e.flat(1/0).reverse());for(let i of r)t.unshift(Ft(i))}else e!==void 0&&t.push(Ft(e));return t}static _$Eu(e,t){let r=t.attribute;return r===!1?void 0:typeof r=="string"?r:typeof e=="string"?e.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(e=>this.enableUpdating=e),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(e=>e(this))}addController(e){(this._$EO??(this._$EO=new Set)).add(e),this.renderRoot!==void 0&&this.isConnected&&e.hostConnected?.()}removeController(e){this._$EO?.delete(e)}_$E_(){let e=new Map,t=this.constructor.elementProperties;for(let r of t.keys())this.hasOwnProperty(r)&&(e.set(r,this[r]),delete this[r]);e.size>0&&(this._$Ep=e)}createRenderRoot(){let e=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return Sr(e,this.constructor.elementStyles),e}connectedCallback(){this.renderRoot??(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),this._$EO?.forEach(e=>e.hostConnected?.())}enableUpdating(e){}disconnectedCallback(){this._$EO?.forEach(e=>e.hostDisconnected?.())}attributeChangedCallback(e,t,r){this._$AK(e,r)}_$ET(e,t){let r=this.constructor.elementProperties.get(e),i=this.constructor._$Eu(e,r);if(i!==void 0&&r.reflect===!0){let n=(r.converter?.toAttribute!==void 0?r.converter:Fe).toAttribute(t,r.type);this._$Em=e,n==null?this.removeAttribute(i):this.setAttribute(i,n),this._$Em=null}}_$AK(e,t){let r=this.constructor,i=r._$Eh.get(e);if(i!==void 0&&this._$Em!==i){let n=r.getPropertyOptions(i),a=typeof n.converter=="function"?{fromAttribute:n.converter}:n.converter?.fromAttribute!==void 0?n.converter:Fe;this._$Em=i;let d=a.fromAttribute(t,n.type);this[i]=d??this._$Ej?.get(i)??d,this._$Em=null}}requestUpdate(e,t,r,i=!1,n){if(e!==void 0){let a=this.constructor;if(i===!1&&(n=this[e]),r??(r=a.getPropertyOptions(e)),!((r.hasChanged??tt)(n,t)||r.useDefault&&r.reflect&&n===this._$Ej?.get(e)&&!this.hasAttribute(a._$Eu(e,r))))return;this.C(e,t,r)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(e,t,{useDefault:r,reflect:i,wrapped:n},a){r&&!(this._$Ej??(this._$Ej=new Map)).has(e)&&(this._$Ej.set(e,a??t??this[e]),n!==!0||a!==void 0)||(this._$AL.has(e)||(this.hasUpdated||r||(t=void 0),this._$AL.set(e,t)),i===!0&&this._$Em!==e&&(this._$Eq??(this._$Eq=new Set)).add(e))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}let e=this.scheduleUpdate();return e!=null&&await e,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??(this.renderRoot=this.createRenderRoot()),this._$Ep){for(let[i,n]of this._$Ep)this[i]=n;this._$Ep=void 0}let r=this.constructor.elementProperties;if(r.size>0)for(let[i,n]of r){let{wrapped:a}=n,d=this[i];a!==!0||this._$AL.has(i)||d===void 0||this.C(i,void 0,n,d)}}let e=!1,t=this._$AL;try{e=this.shouldUpdate(t),e?(this.willUpdate(t),this._$EO?.forEach(r=>r.hostUpdate?.()),this.update(t)):this._$EM()}catch(r){throw e=!1,this._$EM(),r}e&&this._$AE(t)}willUpdate(e){}_$AE(e){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(e)),this.updated(e)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(e){return!0}update(e){this._$Eq&&(this._$Eq=this._$Eq.forEach(t=>this._$ET(t,this[t]))),this._$EM()}updated(e){}firstUpdated(e){}};re.elementStyles=[],re.shadowRootOptions={mode:"open"},re[Be("elementProperties")]=new Map,re[Be("finalized")]=new Map,zo?.({ReactiveElement:re}),(ce.reactiveElementVersions??(ce.reactiveElementVersions=[])).push("2.1.2");var Mo={attribute:!0,type:String,converter:Fe,reflect:!1,hasChanged:tt},No=(o=Mo,e,t)=>{let{kind:r,metadata:i}=t,n=globalThis.litPropertyMetadata.get(i);if(n===void 0&&globalThis.litPropertyMetadata.set(i,n=new Map),r==="setter"&&((o=Object.create(o)).wrapped=!0),n.set(t.name,o),r==="accessor"){let{name:a}=t;return{set(d){let c=e.get.call(this);e.set.call(this,d),this.requestUpdate(a,c,o,!0,d)},init(d){return d!==void 0&&this.C(a,void 0,o,d),d}}}if(r==="setter"){let{name:a}=t;return function(d){let c=this[a];e.call(this,d),this.requestUpdate(a,c,o,!0,d)}}throw Error("Unsupported decorator location: "+r)};function l(o){return(e,t)=>typeof t=="object"?No(o,e,t):((r,i,n)=>{let a=i.hasOwnProperty(n);return i.constructor.createProperty(n,r),a?Object.getOwnPropertyDescriptor(i,n):void 0})(o,e,t)}function k(o){return l({...o,state:!0,attribute:!1})}var Q=(o,e,t)=>(t.configurable=!0,t.enumerable=!0,Reflect.decorate&&typeof e!="object"&&Object.defineProperty(o,e,t),t);function S(o,e){return(t,r,i)=>{let n=a=>a.renderRoot?.querySelector(o)??null;if(e){let{get:a,set:d}=typeof r=="object"?t:i??(()=>{let c=Symbol();return{get(){return this[c]},set(h){this[c]=h}}})();return Q(t,r,{get(){let c=a.call(this);return c===void 0&&(c=n(this),(c!==null||this.hasUpdated)&&d.call(this,c)),c}})}return Q(t,r,{get(){return n(this)}})}}var Bo;function Or(o){return(e,t)=>Q(e,t,{get(){return(this.renderRoot??Bo??(Bo=document.createDocumentFragment())).querySelectorAll(o)}})}function N(o){return(e,t)=>{let{slot:r,selector:i}=o??{},n="slot"+(r?`[name=${r}]`:":not([name])");return Q(e,t,{get(){let a=this.renderRoot?.querySelector(n),d=a?.assignedElements(o)??[];return i===void 0?d:d.filter(c=>c.matches(i))}})}}function rt(o){return(e,t)=>{let{slot:r}=o??{},i="slot"+(r?`[name=${r}]`:":not([name])");return Q(e,t,{get(){return this.renderRoot?.querySelector(i)?.assignedNodes(o)??[]}})}}var qe=globalThis,Rr=o=>o,ot=qe.trustedTypes,Pr=ot?ot.createPolicy("lit-html",{createHTML:o=>o}):void 0,qt="$lit$",oe=`lit$${Math.random().toFixed(9).slice(2)}$`,Vt="?"+oe,Fo=`<${Vt}>`,_e=document,Ve=()=>_e.createComment(""),He=o=>o===null||typeof o!="object"&&typeof o!="function",Ht=Array.isArray,Br=o=>Ht(o)||typeof o?.[Symbol.iterator]=="function",Ut=`[ 	
-\f\r]`,Ue=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Lr=/-->/g,Dr=/>/g,ye=RegExp(`>|${Ut}(?:([^\\s"'>=/]+)(${Ut}*=${Ut}*(?:[^ 	
+(()=>{function s(o,e,t,r){var i=arguments.length,n=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,e,t,r);else for(var d=o.length-1;d>=0;d--)(a=o[d])&&(n=(i<3?a(n):i>3?a(e,t,n):a(e,t))||n);return i>3&&n&&Object.defineProperty(e,t,n),n}var E=o=>(e,t)=>{t!==void 0?t.addInitializer(()=>{customElements.define(o,e)}):customElements.define(o,e)};var Qe=globalThis,et=Qe.ShadowRoot&&(Qe.ShadyCSS===void 0||Qe.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,Bt=Symbol(),$r=new WeakMap,Ne=class{constructor(e,t,r){if(this._$cssResult$=!0,r!==Bt)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o,t=this.t;if(et&&e===void 0){let r=t!==void 0&&t.length===1;r&&(e=$r.get(t)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),r&&$r.set(t,e))}return e}toString(){return this.cssText}},Tr=o=>new Ne(typeof o=="string"?o:o+"",void 0,Bt),g=(o,...e)=>{let t=o.length===1?o[0]:e.reduce((r,i,n)=>r+(a=>{if(a._$cssResult$===!0)return a.cssText;if(typeof a=="number")return a;throw Error("Value passed to 'css' function must be a 'css' function result: "+a+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+o[n+1],o[0]);return new Ne(t,o,Bt)},Sr=(o,e)=>{if(et)o.adoptedStyleSheets=e.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(let t of e){let r=document.createElement("style"),i=Qe.litNonce;i!==void 0&&r.setAttribute("nonce",i),r.textContent=t.cssText,o.appendChild(r)}},Ft=et?o=>o:o=>o instanceof CSSStyleSheet?(e=>{let t="";for(let r of e.cssRules)t+=r.cssText;return Tr(t)})(o):o;var{is:Io,defineProperty:ko,getOwnPropertyDescriptor:Oo,getOwnPropertyNames:Ro,getOwnPropertySymbols:Po,getPrototypeOf:Lo}=Object,ce=globalThis,Ir=ce.trustedTypes,Do=Ir?Ir.emptyScript:"",zo=ce.reactiveElementPolyfillSupport,Be=(o,e)=>o,Fe={toAttribute(o,e){switch(e){case Boolean:o=o?Do:null;break;case Object:case Array:o=o==null?o:JSON.stringify(o)}return o},fromAttribute(o,e){let t=o;switch(e){case Boolean:t=o!==null;break;case Number:t=o===null?null:Number(o);break;case Object:case Array:try{t=JSON.parse(o)}catch{t=null}}return t}},tt=(o,e)=>!Io(o,e),kr={attribute:!0,type:String,converter:Fe,reflect:!1,useDefault:!1,hasChanged:tt};Symbol.metadata??(Symbol.metadata=Symbol("metadata")),ce.litPropertyMetadata??(ce.litPropertyMetadata=new WeakMap);var re=class extends HTMLElement{static addInitializer(e){this._$Ei(),(this.l??(this.l=[])).push(e)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(e,t=kr){if(t.state&&(t.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(e)&&((t=Object.create(t)).wrapped=!0),this.elementProperties.set(e,t),!t.noAccessor){let r=Symbol(),i=this.getPropertyDescriptor(e,r,t);i!==void 0&&ko(this.prototype,e,i)}}static getPropertyDescriptor(e,t,r){let{get:i,set:n}=Oo(this.prototype,e)??{get(){return this[t]},set(a){this[t]=a}};return{get:i,set(a){let d=i?.call(this);n?.call(this,a),this.requestUpdate(e,d,r)},configurable:!0,enumerable:!0}}static getPropertyOptions(e){return this.elementProperties.get(e)??kr}static _$Ei(){if(this.hasOwnProperty(Be("elementProperties")))return;let e=Lo(this);e.finalize(),e.l!==void 0&&(this.l=[...e.l]),this.elementProperties=new Map(e.elementProperties)}static finalize(){if(this.hasOwnProperty(Be("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(Be("properties"))){let t=this.properties,r=[...Ro(t),...Po(t)];for(let i of r)this.createProperty(i,t[i])}let e=this[Symbol.metadata];if(e!==null){let t=litPropertyMetadata.get(e);if(t!==void 0)for(let[r,i]of t)this.elementProperties.set(r,i)}this._$Eh=new Map;for(let[t,r]of this.elementProperties){let i=this._$Eu(t,r);i!==void 0&&this._$Eh.set(i,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(e){let t=[];if(Array.isArray(e)){let r=new Set(e.flat(1/0).reverse());for(let i of r)t.unshift(Ft(i))}else e!==void 0&&t.push(Ft(e));return t}static _$Eu(e,t){let r=t.attribute;return r===!1?void 0:typeof r=="string"?r:typeof e=="string"?e.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(e=>this.enableUpdating=e),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(e=>e(this))}addController(e){(this._$EO??(this._$EO=new Set)).add(e),this.renderRoot!==void 0&&this.isConnected&&e.hostConnected?.()}removeController(e){this._$EO?.delete(e)}_$E_(){let e=new Map,t=this.constructor.elementProperties;for(let r of t.keys())this.hasOwnProperty(r)&&(e.set(r,this[r]),delete this[r]);e.size>0&&(this._$Ep=e)}createRenderRoot(){let e=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return Sr(e,this.constructor.elementStyles),e}connectedCallback(){this.renderRoot??(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),this._$EO?.forEach(e=>e.hostConnected?.())}enableUpdating(e){}disconnectedCallback(){this._$EO?.forEach(e=>e.hostDisconnected?.())}attributeChangedCallback(e,t,r){this._$AK(e,r)}_$ET(e,t){let r=this.constructor.elementProperties.get(e),i=this.constructor._$Eu(e,r);if(i!==void 0&&r.reflect===!0){let n=(r.converter?.toAttribute!==void 0?r.converter:Fe).toAttribute(t,r.type);this._$Em=e,n==null?this.removeAttribute(i):this.setAttribute(i,n),this._$Em=null}}_$AK(e,t){let r=this.constructor,i=r._$Eh.get(e);if(i!==void 0&&this._$Em!==i){let n=r.getPropertyOptions(i),a=typeof n.converter=="function"?{fromAttribute:n.converter}:n.converter?.fromAttribute!==void 0?n.converter:Fe;this._$Em=i;let d=a.fromAttribute(t,n.type);this[i]=d??this._$Ej?.get(i)??d,this._$Em=null}}requestUpdate(e,t,r,i=!1,n){if(e!==void 0){let a=this.constructor;if(i===!1&&(n=this[e]),r??(r=a.getPropertyOptions(e)),!((r.hasChanged??tt)(n,t)||r.useDefault&&r.reflect&&n===this._$Ej?.get(e)&&!this.hasAttribute(a._$Eu(e,r))))return;this.C(e,t,r)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(e,t,{useDefault:r,reflect:i,wrapped:n},a){r&&!(this._$Ej??(this._$Ej=new Map)).has(e)&&(this._$Ej.set(e,a??t??this[e]),n!==!0||a!==void 0)||(this._$AL.has(e)||(this.hasUpdated||r||(t=void 0),this._$AL.set(e,t)),i===!0&&this._$Em!==e&&(this._$Eq??(this._$Eq=new Set)).add(e))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}let e=this.scheduleUpdate();return e!=null&&await e,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??(this.renderRoot=this.createRenderRoot()),this._$Ep){for(let[i,n]of this._$Ep)this[i]=n;this._$Ep=void 0}let r=this.constructor.elementProperties;if(r.size>0)for(let[i,n]of r){let{wrapped:a}=n,d=this[i];a!==!0||this._$AL.has(i)||d===void 0||this.C(i,void 0,n,d)}}let e=!1,t=this._$AL;try{e=this.shouldUpdate(t),e?(this.willUpdate(t),this._$EO?.forEach(r=>r.hostUpdate?.()),this.update(t)):this._$EM()}catch(r){throw e=!1,this._$EM(),r}e&&this._$AE(t)}willUpdate(e){}_$AE(e){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(e)),this.updated(e)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(e){return!0}update(e){this._$Eq&&(this._$Eq=this._$Eq.forEach(t=>this._$ET(t,this[t]))),this._$EM()}updated(e){}firstUpdated(e){}};re.elementStyles=[],re.shadowRootOptions={mode:"open"},re[Be("elementProperties")]=new Map,re[Be("finalized")]=new Map,zo?.({ReactiveElement:re}),(ce.reactiveElementVersions??(ce.reactiveElementVersions=[])).push("2.1.2");var Mo={attribute:!0,type:String,converter:Fe,reflect:!1,hasChanged:tt},No=(o=Mo,e,t)=>{let{kind:r,metadata:i}=t,n=globalThis.litPropertyMetadata.get(i);if(n===void 0&&globalThis.litPropertyMetadata.set(i,n=new Map),r==="setter"&&((o=Object.create(o)).wrapped=!0),n.set(t.name,o),r==="accessor"){let{name:a}=t;return{set(d){let c=e.get.call(this);e.set.call(this,d),this.requestUpdate(a,c,o,!0,d)},init(d){return d!==void 0&&this.C(a,void 0,o,d),d}}}if(r==="setter"){let{name:a}=t;return function(d){let c=this[a];e.call(this,d),this.requestUpdate(a,c,o,!0,d)}}throw Error("Unsupported decorator location: "+r)};function l(o){return(e,t)=>typeof t=="object"?No(o,e,t):((r,i,n)=>{let a=i.hasOwnProperty(n);return i.constructor.createProperty(n,r),a?Object.getOwnPropertyDescriptor(i,n):void 0})(o,e,t)}function k(o){return l({...o,state:!0,attribute:!1})}var Q=(o,e,t)=>(t.configurable=!0,t.enumerable=!0,Reflect.decorate&&typeof e!="object"&&Object.defineProperty(o,e,t),t);function S(o,e){return(t,r,i)=>{let n=a=>a.renderRoot?.querySelector(o)??null;if(e){let{get:a,set:d}=typeof r=="object"?t:i??(()=>{let c=Symbol();return{get(){return this[c]},set(h){this[c]=h}}})();return Q(t,r,{get(){let c=a.call(this);return c===void 0&&(c=n(this),(c!==null||this.hasUpdated)&&d.call(this,c)),c}})}return Q(t,r,{get(){return n(this)}})}}var Bo;function Or(o){return(e,t)=>Q(e,t,{get(){return(this.renderRoot??Bo??(Bo=document.createDocumentFragment())).querySelectorAll(o)}})}function N(o){return(e,t)=>{let{slot:r,selector:i}=o??{},n="slot"+(r?`[name=${r}]`:":not([name])");return Q(e,t,{get(){let a=this.renderRoot?.querySelector(n),d=a?.assignedElements(o)??[];return i===void 0?d:d.filter(c=>c.matches(i))}})}}function rt(o){return(e,t)=>{let{slot:r}=o??{},i="slot"+(r?`[name=${r}]`:":not([name])");return Q(e,t,{get(){return this.renderRoot?.querySelector(i)?.assignedNodes(o)??[]}})}}var qe=globalThis,Rr=o=>o,ot=qe.trustedTypes,Pr=ot?ot.createPolicy("lit-html",{createHTML:o=>o}):void 0,qt="$lit$",oe=`lit$${Math.random().toFixed(9).slice(2)}$`,Vt="?"+oe,Fo=`<${Vt}>`,_e=document,Ve=()=>_e.createComment(""),He=o=>o===null||typeof o!="object"&&typeof o!="function",Ht=Array.isArray,Br=o=>Ht(o)||typeof o?.[Symbol.iterator]=="function",Ut=`[
+\f\r]`,Ue=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Lr=/-->/g,Dr=/>/g,ye=RegExp(`>|${Ut}(?:([^\\s"'>=/]+)(${Ut}*=${Ut}*(?:[^
 \f\r"'\`<>=]|("|')|))|$)`,"g"),zr=/'/g,Mr=/"/g,Fr=/^(?:script|style|textarea|title)$/i,jt=o=>(e,...t)=>({_$litType$:o,strings:e,values:t}),u=jt(1),Ur=jt(2),qr=jt(3),U=Symbol.for("lit-noChange"),p=Symbol.for("lit-nothing"),Nr=new WeakMap,xe=_e.createTreeWalker(_e,129);function Vr(o,e){if(!Ht(o)||!o.hasOwnProperty("raw"))throw Error("invalid template strings array");return Pr!==void 0?Pr.createHTML(e):e}var Hr=(o,e)=>{let t=o.length-1,r=[],i,n=e===2?"<svg>":e===3?"<math>":"",a=Ue;for(let d=0;d<t;d++){let c=o[d],h,m,f=-1,x=0;for(;x<c.length&&(a.lastIndex=x,m=a.exec(c),m!==null);)x=a.lastIndex,a===Ue?m[1]==="!--"?a=Lr:m[1]!==void 0?a=Dr:m[2]!==void 0?(Fr.test(m[2])&&(i=RegExp("</"+m[2],"g")),a=ye):m[3]!==void 0&&(a=ye):a===ye?m[0]===">"?(a=i??Ue,f=-1):m[1]===void 0?f=-2:(f=a.lastIndex-m[2].length,h=m[1],a=m[3]===void 0?ye:m[3]==='"'?Mr:zr):a===Mr||a===zr?a=ye:a===Lr||a===Dr?a=Ue:(a=ye,i=void 0);let y=a===ye&&o[d+1].startsWith("/>")?" ":"";n+=a===Ue?c+Fo:f>=0?(r.push(h),c.slice(0,f)+qt+c.slice(f)+oe+y):c+oe+(f===-2?d:y)}return[Vr(o,n+(o[t]||"<?>")+(e===2?"</svg>":e===3?"</math>":"")),r]},je=class o{constructor({strings:e,_$litType$:t},r){let i;this.parts=[];let n=0,a=0,d=e.length-1,c=this.parts,[h,m]=Hr(e,t);if(this.el=o.createElement(h,r),xe.currentNode=this.el.content,t===2||t===3){let f=this.el.content.firstChild;f.replaceWith(...f.childNodes)}for(;(i=xe.nextNode())!==null&&c.length<d;){if(i.nodeType===1){if(i.hasAttributes())for(let f of i.getAttributeNames())if(f.endsWith(qt)){let x=m[a++],y=i.getAttribute(f).split(oe),I=/([.?@])?(.*)/.exec(x);c.push({type:1,index:n,name:I[2],strings:y,ctor:I[1]==="."?nt:I[1]==="?"?st:I[1]==="@"?at:Ee}),i.removeAttribute(f)}else f.startsWith(oe)&&(c.push({type:6,index:n}),i.removeAttribute(f));if(Fr.test(i.tagName)){let f=i.textContent.split(oe),x=f.length-1;if(x>0){i.textContent=ot?ot.emptyScript:"";for(let y=0;y<x;y++)i.append(f[y],Ve()),xe.nextNode(),c.push({type:2,index:++n});i.append(f[x],Ve())}}}else if(i.nodeType===8)if(i.data===Vt)c.push({type:2,index:n});else{let f=-1;for(;(f=i.data.indexOf(oe,f+1))!==-1;)c.push({type:7,index:n}),f+=oe.length-1}n++}}static createElement(e,t){let r=_e.createElement("template");return r.innerHTML=e,r}};function we(o,e,t=o,r){if(e===U)return e;let i=r!==void 0?t._$Co?.[r]:t._$Cl,n=He(e)?void 0:e._$litDirective$;return i?.constructor!==n&&(i?._$AO?.(!1),n===void 0?i=void 0:(i=new n(o),i._$AT(o,t,r)),r!==void 0?(t._$Co??(t._$Co=[]))[r]=i:t._$Cl=i),i!==void 0&&(e=we(o,i._$AS(o,e.values),i,r)),e}var it=class{constructor(e,t){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){let{el:{content:t},parts:r}=this._$AD,i=(e?.creationScope??_e).importNode(t,!0);xe.currentNode=i;let n=xe.nextNode(),a=0,d=0,c=r[0];for(;c!==void 0;){if(a===c.index){let h;c.type===2?h=new Te(n,n.nextSibling,this,e):c.type===1?h=new c.ctor(n,c.name,c.strings,this,e):c.type===6&&(h=new lt(n,this,e)),this._$AV.push(h),c=r[++d]}a!==c?.index&&(n=xe.nextNode(),a++)}return xe.currentNode=_e,i}p(e){let t=0;for(let r of this._$AV)r!==void 0&&(r.strings!==void 0?(r._$AI(e,r,t),t+=r.strings.length-2):r._$AI(e[t])),t++}},Te=class o{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(e,t,r,i){this.type=2,this._$AH=p,this._$AN=void 0,this._$AA=e,this._$AB=t,this._$AM=r,this.options=i,this._$Cv=i?.isConnected??!0}get parentNode(){let e=this._$AA.parentNode,t=this._$AM;return t!==void 0&&e?.nodeType===11&&(e=t.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,t=this){e=we(this,e,t),He(e)?e===p||e==null||e===""?(this._$AH!==p&&this._$AR(),this._$AH=p):e!==this._$AH&&e!==U&&this._(e):e._$litType$!==void 0?this.$(e):e.nodeType!==void 0?this.T(e):Br(e)?this.k(e):this._(e)}O(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}T(e){this._$AH!==e&&(this._$AR(),this._$AH=this.O(e))}_(e){this._$AH!==p&&He(this._$AH)?this._$AA.nextSibling.data=e:this.T(_e.createTextNode(e)),this._$AH=e}$(e){let{values:t,_$litType$:r}=e,i=typeof r=="number"?this._$AC(e):(r.el===void 0&&(r.el=je.createElement(Vr(r.h,r.h[0]),this.options)),r);if(this._$AH?._$AD===i)this._$AH.p(t);else{let n=new it(i,this),a=n.u(this.options);n.p(t),this.T(a),this._$AH=n}}_$AC(e){let t=Nr.get(e.strings);return t===void 0&&Nr.set(e.strings,t=new je(e)),t}k(e){Ht(this._$AH)||(this._$AH=[],this._$AR());let t=this._$AH,r,i=0;for(let n of e)i===t.length?t.push(r=new o(this.O(Ve()),this.O(Ve()),this,this.options)):r=t[i],r._$AI(n),i++;i<t.length&&(this._$AR(r&&r._$AB.nextSibling,i),t.length=i)}_$AR(e=this._$AA.nextSibling,t){for(this._$AP?.(!1,!0,t);e!==this._$AB;){let r=Rr(e).nextSibling;Rr(e).remove(),e=r}}setConnected(e){this._$AM===void 0&&(this._$Cv=e,this._$AP?.(e))}},Ee=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(e,t,r,i,n){this.type=1,this._$AH=p,this._$AN=void 0,this.element=e,this.name=t,this._$AM=i,this.options=n,r.length>2||r[0]!==""||r[1]!==""?(this._$AH=Array(r.length-1).fill(new String),this.strings=r):this._$AH=p}_$AI(e,t=this,r,i){let n=this.strings,a=!1;if(n===void 0)e=we(this,e,t,0),a=!He(e)||e!==this._$AH&&e!==U,a&&(this._$AH=e);else{let d=e,c,h;for(e=n[0],c=0;c<n.length-1;c++)h=we(this,d[r+c],t,c),h===U&&(h=this._$AH[c]),a||(a=!He(h)||h!==this._$AH[c]),h===p?e=p:e!==p&&(e+=(h??"")+n[c+1]),this._$AH[c]=h}a&&!i&&this.j(e)}j(e){e===p?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,e??"")}},nt=class extends Ee{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===p?void 0:e}},st=class extends Ee{constructor(){super(...arguments),this.type=4}j(e){this.element.toggleAttribute(this.name,!!e&&e!==p)}},at=class extends Ee{constructor(e,t,r,i,n){super(e,t,r,i,n),this.type=5}_$AI(e,t=this){if((e=we(this,e,t,0)??p)===U)return;let r=this._$AH,i=e===p&&r!==p||e.capture!==r.capture||e.once!==r.once||e.passive!==r.passive,n=e!==p&&(r===p||i);i&&this.element.removeEventListener(this.name,this,r),n&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,e):this._$AH.handleEvent(e)}},lt=class{constructor(e,t,r){this.element=e,this.type=6,this._$AN=void 0,this._$AM=t,this.options=r}get _$AU(){return this._$AM._$AU}_$AI(e){we(this,e)}},jr={M:qt,P:oe,A:Vt,C:1,L:Hr,R:it,D:Br,V:we,I:Te,H:Ee,N:st,U:at,B:nt,F:lt},Uo=qe.litHtmlPolyfillSupport;Uo?.(je,Te),(qe.litHtmlVersions??(qe.litHtmlVersions=[])).push("3.3.2");var Se=(o,e,t)=>{let r=t?.renderBefore??e,i=r._$litPart$;if(i===void 0){let n=t?.renderBefore??null;r._$litPart$=i=new Te(e.insertBefore(Ve(),n),n,void 0,t??{})}return i._$AI(o),i};var We=globalThis,b=class extends re{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var t;let e=super.createRenderRoot();return(t=this.renderOptions).renderBefore??(t.renderBefore=e.firstChild),e}update(e){let t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=Se(t,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return U}};b._$litElement$=!0,b.finalized=!0,We.litElementHydrateSupport?.({LitElement:b});var qo=We.litElementPolyfillSupport;qo?.({LitElement:b});(We.litElementVersions??(We.litElementVersions=[])).push("4.2.2");var X={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,ELEMENT:6},Ie=o=>(...e)=>({_$litDirective$:o,values:e}),pe=class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t,r){this._$Ct=e,this._$AM=t,this._$Ci=r}_$AS(e,t){return this.update(e,t)}update(e,t){return this.render(...t)}};var R=Ie(class extends pe{constructor(o){if(super(o),o.type!==X.ATTRIBUTE||o.name!=="class"||o.strings?.length>2)throw Error("`classMap()` can only be used in the `class` attribute and must be the only part in the attribute.")}render(o){return" "+Object.keys(o).filter(e=>o[e]).join(" ")+" "}update(o,[e]){if(this.st===void 0){this.st=new Set,o.strings!==void 0&&(this.nt=new Set(o.strings.join(" ").split(/\s/).filter(r=>r!=="")));for(let r in e)e[r]&&!this.nt?.has(r)&&this.st.add(r);return this.render(e)}let t=o.element.classList;for(let r of this.st)r in e||(t.remove(r),this.st.delete(r));for(let r in e){let i=!!e[r];i===this.st.has(r)||this.nt?.has(r)||(i?(t.add(r),this.st.add(r)):(t.remove(r),this.st.delete(r)))}return U}});var ie={STANDARD:"cubic-bezier(0.2, 0, 0, 1)",STANDARD_ACCELERATE:"cubic-bezier(.3,0,1,1)",STANDARD_DECELERATE:"cubic-bezier(0,0,0,1)",EMPHASIZED:"cubic-bezier(.3,0,0,1)",EMPHASIZED_ACCELERATE:"cubic-bezier(.3,0,.8,.15)",EMPHASIZED_DECELERATE:"cubic-bezier(.05,.7,.1,1)"};function Wr(){let o=null;return{start(){return o?.abort(),o=new AbortController,o.signal},finish(){o=null}}}var $=class extends b{constructor(){super(...arguments),this.disabled=!1,this.error=!1,this.focused=!1,this.label="",this.noAsterisk=!1,this.populated=!1,this.required=!1,this.resizable=!1,this.supportingText="",this.errorText="",this.count=-1,this.max=-1,this.hasStart=!1,this.hasEnd=!1,this.isAnimating=!1,this.refreshErrorAlert=!1,this.disableTransitions=!1}get counterText(){let e=this.count??-1,t=this.max??-1;return e<0||t<=0?"":`${e} / ${t}`}get supportingOrErrorText(){return this.error&&this.errorText?this.errorText:this.supportingText}reannounceError(){this.refreshErrorAlert=!0}update(e){e.has("disabled")&&e.get("disabled")!==void 0&&(this.disableTransitions=!0),this.disabled&&this.focused&&(e.set("focused",!0),this.focused=!1),this.animateLabelIfNeeded({wasFocused:e.get("focused"),wasPopulated:e.get("populated")}),super.update(e)}render(){let e=this.renderLabel(!0),t=this.renderLabel(!1),r=this.renderOutline?.(e),i={disabled:this.disabled,"disable-transitions":this.disableTransitions,error:this.error&&!this.disabled,focused:this.focused,"with-start":this.hasStart,"with-end":this.hasEnd,populated:this.populated,resizable:this.resizable,required:this.required,"no-label":!this.label};return u`
       <div class="field ${R(i)}">
         <div class="container-overflow">
@@ -3465,18 +3480,15 @@ if (!customElements.get("lht-page-menu")) {
         }
         throw new Error("This environment does not support ZIP deflate decompression.");
     }
-    async function unzipEntries(arrayBuffer) {
-        const view = new DataView(arrayBuffer);
-        let eocdOffset = -1;
+    function findEndOfCentralDirectoryOffset(view) {
         for (let offset = view.byteLength - 22; offset >= Math.max(0, view.byteLength - 0x10000 - 22); offset -= 1) {
             if (readUint32LE(view, offset) === 0x06054b50) {
-                eocdOffset = offset;
-                break;
+                return offset;
             }
         }
-        if (eocdOffset < 0) {
-            throw new Error("ZIP end-of-central-directory record was not found.");
-        }
+        throw new Error("ZIP end-of-central-directory record was not found.");
+    }
+    function readCentralDirectory(arrayBuffer, view, eocdOffset) {
         const centralDirectorySize = readUint32LE(view, eocdOffset + 12);
         const centralDirectoryOffset = readUint32LE(view, eocdOffset + 16);
         const endOffset = centralDirectoryOffset + centralDirectorySize;
@@ -3501,27 +3513,32 @@ if (!customElements.get("lht-page-menu")) {
             });
             cursor += 46 + fileNameLength + extraFieldLength + fileCommentLength;
         }
+        return entries;
+    }
+    async function extractZipEntry(arrayBuffer, view, entry) {
+        const localOffset = entry.localHeaderOffset;
+        if (readUint32LE(view, localOffset) !== 0x04034b50) {
+            throw new Error(`ZIP local header is invalid: ${entry.name}`);
+        }
+        const fileNameLength = readUint16LE(view, localOffset + 26);
+        const extraFieldLength = readUint16LE(view, localOffset + 28);
+        const dataOffset = localOffset + 30 + fileNameLength + extraFieldLength;
+        const compressedData = new Uint8Array(arrayBuffer, dataOffset, entry.compressedSize);
+        if (entry.compressionMethod === 0) {
+            return new Uint8Array(compressedData);
+        }
+        if (entry.compressionMethod === 8) {
+            return inflateRaw(compressedData);
+        }
+        throw new Error(`Unsupported compression method: ${entry.name} (method=${entry.compressionMethod})`);
+    }
+    async function unzipEntries(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        const eocdOffset = findEndOfCentralDirectoryOffset(view);
+        const entries = readCentralDirectory(arrayBuffer, view, eocdOffset);
         const files = new Map();
         for (const entry of entries) {
-            const localOffset = entry.localHeaderOffset;
-            if (readUint32LE(view, localOffset) !== 0x04034b50) {
-                throw new Error(`ZIP local header is invalid: ${entry.name}`);
-            }
-            const fileNameLength = readUint16LE(view, localOffset + 26);
-            const extraFieldLength = readUint16LE(view, localOffset + 28);
-            const dataOffset = localOffset + 30 + fileNameLength + extraFieldLength;
-            const compressedData = new Uint8Array(arrayBuffer, dataOffset, entry.compressedSize);
-            let fileData;
-            if (entry.compressionMethod === 0) {
-                fileData = new Uint8Array(compressedData);
-            }
-            else if (entry.compressionMethod === 8) {
-                fileData = await inflateRaw(compressedData);
-            }
-            else {
-                throw new Error(`Unsupported compression method: ${entry.name} (method=${entry.compressionMethod})`);
-            }
-            files.set(entry.name, fileData);
+            files.set(entry.name, await extractZipEntry(arrayBuffer, view, entry));
         }
         return files;
     }
@@ -3579,12 +3596,24 @@ if (!customElements.get("lht-page-menu")) {
     function getTextContent(node) {
         return String((node === null || node === void 0 ? void 0 : node.textContent) || "");
     }
+    function getAttributeValue(element, name, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(name)) || fallback;
+    }
+    function getWordAttributeValue(element, localName, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(`w:${localName}`)) || (element === null || element === void 0 ? void 0 : element.getAttribute(localName)) || fallback;
+    }
+    function getNamespacedAttributeValue(element, namespacePrefix, localName, fallback = "") {
+        return (element === null || element === void 0 ? void 0 : element.getAttribute(`${namespacePrefix}:${localName}`)) || (element === null || element === void 0 ? void 0 : element.getAttribute(localName)) || fallback;
+    }
     moduleRegistry.registerModule("xmlUtils", {
         decodeXmlText,
         parseXml,
         getChildrenByLocalName,
         findDescendantsByLocalName,
-        getTextContent
+        getTextContent,
+        getAttributeValue,
+        getWordAttributeValue,
+        getNamespacedAttributeValue
     });
 })();
   </script>
@@ -3618,20 +3647,27 @@ if (!customElements.get("lht-page-menu")) {
         }
         return baseParts.join("/");
     }
+    function parseRelationshipElement(element, sourcePath) {
+        const id = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Id")) || "";
+        const rawTarget = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Target")) || "";
+        const type = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Type")) || "";
+        const mode = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "TargetMode")) || "";
+        return {
+            id,
+            relationship: {
+                target: mode === "External" ? rawTarget : resolveZipPath(sourcePath, rawTarget),
+                type,
+                mode
+            }
+        };
+    }
     function parseRelationships(bytes, sourcePath) {
         const document = xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.parseXml(bytes);
         const relationshipElements = document ? (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "Relationship")) || [] : [];
         const map = new Map();
         for (const element of relationshipElements) {
-            const id = element.getAttribute("Id") || "";
-            const rawTarget = element.getAttribute("Target") || "";
-            const type = element.getAttribute("Type") || "";
-            const mode = element.getAttribute("TargetMode") || "";
-            map.set(id, {
-                target: mode === "External" ? rawTarget : resolveZipPath(sourcePath, rawTarget),
-                type,
-                mode
-            });
+            const parsedRelationship = parseRelationshipElement(element, sourcePath);
+            map.set(parsedRelationship.id, parsedRelationship.relationship);
         }
         return map;
     }
@@ -3662,7 +3698,7 @@ if (!customElements.get("lht-page-menu")) {
         const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
         if (!element)
             return null;
-        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(element, "val")) || "";
         if (!value)
             return true;
         return value !== "false" && value !== "0";
@@ -3676,10 +3712,10 @@ if (!customElements.get("lht-page-menu")) {
             return styles;
         const styleElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "style")) || [];
         for (const styleElement of styleElements) {
-            const styleId = styleElement.getAttribute("w:styleId") || styleElement.getAttribute("styleId") || "";
+            const styleId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(styleElement, "styleId")) || "";
             if (!styleId)
                 continue;
-            const styleType = styleElement.getAttribute("w:type") || styleElement.getAttribute("type") || "";
+            const styleType = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(styleElement, "type")) || "";
             const nameElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "name")[0]) || null;
             const basedOnElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "basedOn")[0]) || null;
             const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "pPr")[0]) || null;
@@ -3690,9 +3726,9 @@ if (!customElements.get("lht-page-menu")) {
             styles.set(styleId, {
                 styleId,
                 styleType,
-                name: (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("w:val")) || (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("val")) || "",
-                basedOn: (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("w:val")) || (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("val")) || "",
-                outlineLevel: parseInteger((outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("w:val")) || (outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("val"))),
+                name: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(nameElement, "val")) || "",
+                basedOn: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(basedOnElement, "val")) || "",
+                outlineLevel: parseInteger(xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(outlineLevelElement, "val")),
                 textStyle: {
                     bold: parseStyleFlag(runProperties, "b"),
                     italic: parseStyleFlag(runProperties, "i"),
@@ -3747,20 +3783,20 @@ if (!customElements.get("lht-page-menu")) {
             return { abstractNums, nums };
         }
         for (const abstractNumElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "abstractNum")) || []) {
-            const abstractNumId = abstractNumElement.getAttribute("w:abstractNumId") || abstractNumElement.getAttribute("abstractNumId") || "";
+            const abstractNumId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(abstractNumElement, "abstractNumId")) || "";
             if (!abstractNumId)
                 continue;
             const levels = new Map();
             for (const levelElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(abstractNumElement, "lvl")) || []) {
-                const level = parseInteger(levelElement.getAttribute("w:ilvl") || levelElement.getAttribute("ilvl"));
+                const level = parseInteger(xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(levelElement, "ilvl"));
                 if (level === null)
                     continue;
                 const numFmtElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(levelElement, "numFmt")[0]) || null;
                 const lvlTextElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(levelElement, "lvlText")[0]) || null;
                 levels.set(level, {
                     level,
-                    format: (numFmtElement === null || numFmtElement === void 0 ? void 0 : numFmtElement.getAttribute("w:val")) || (numFmtElement === null || numFmtElement === void 0 ? void 0 : numFmtElement.getAttribute("val")) || "",
-                    text: (lvlTextElement === null || lvlTextElement === void 0 ? void 0 : lvlTextElement.getAttribute("w:val")) || (lvlTextElement === null || lvlTextElement === void 0 ? void 0 : lvlTextElement.getAttribute("val")) || ""
+                    format: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(numFmtElement, "val")) || "",
+                    text: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(lvlTextElement, "val")) || ""
                 });
             }
             abstractNums.set(abstractNumId, {
@@ -3769,11 +3805,11 @@ if (!customElements.get("lht-page-menu")) {
             });
         }
         for (const numElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "num")) || []) {
-            const numId = numElement.getAttribute("w:numId") || numElement.getAttribute("numId") || "";
+            const numId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(numElement, "numId")) || "";
             if (!numId)
                 continue;
             const abstractNumIdElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numElement, "abstractNumId")[0]) || null;
-            const abstractNumId = (abstractNumIdElement === null || abstractNumIdElement === void 0 ? void 0 : abstractNumIdElement.getAttribute("w:val")) || (abstractNumIdElement === null || abstractNumIdElement === void 0 ? void 0 : abstractNumIdElement.getAttribute("val")) || "";
+            const abstractNumId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(abstractNumIdElement, "val")) || "";
             if (abstractNumId) {
                 nums.set(numId, abstractNumId);
             }
@@ -3806,17 +3842,329 @@ if (!customElements.get("lht-page-menu")) {
  */
 (() => {
     const moduleRegistry = getDocx2mdModuleRegistry();
+    function createEmptySummary() {
+        return {
+            paragraphs: 0,
+            headings: 0,
+            listItems: 0,
+            tables: 0,
+            images: 0,
+            imageAssets: 0,
+            drawingLikeUnsupported: 0,
+            links: 0,
+            internalLinks: 0,
+            externalLinks: 0,
+            unsupportedElements: 0,
+            unsupportedCommentTraces: 0
+        };
+    }
+    function createEmptyParsedDocument() {
+        return {
+            blocks: [],
+            summary: createEmptySummary()
+        };
+    }
+    function isDrawingLikeUnsupported(type) {
+        return type.startsWith("drawing");
+    }
+    function isResolvedImageUnsupported(type) {
+        return type.startsWith("drawing:image(");
+    }
+    function recordUnsupportedSummary(summary, type) {
+        if (isDrawingLikeUnsupported(type)) {
+            summary.drawingLikeUnsupported += 1;
+        }
+        if (isResolvedImageUnsupported(type)) {
+            summary.images += 1;
+        }
+        summary.unsupportedElements += 1;
+        summary.unsupportedCommentTraces += 1;
+    }
+    moduleRegistry.registerModule("documentSummary", {
+        createEmptySummary,
+        createEmptyParsedDocument,
+        recordUnsupportedSummary
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
     const xmlUtils = moduleRegistry.getModule("xmlUtils");
-    const relsParser = moduleRegistry.getModule("relsParser");
+    function normalizeAnchorName(name) {
+        const normalized = String(name || "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9._:-]+/g, "-")
+            .replace(/-+/g, "-")
+            .replace(/^[-:.]+|[-:.]+$/g, "");
+        return normalized;
+    }
+    function extractParagraphAnchors(paragraph) {
+        const anchors = [];
+        const bookmarks = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(paragraph, "bookmarkStart")) || [];
+        for (const bookmark of bookmarks) {
+            const rawName = ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(bookmark, "name")) || "").trim();
+            if (!rawName || rawName.startsWith("_"))
+                continue;
+            const normalizedName = normalizeAnchorName(rawName);
+            if (!normalizedName)
+                continue;
+            if (!anchors.includes(normalizedName)) {
+                anchors.push(normalizedName);
+            }
+        }
+        return anchors;
+    }
+    function normalizeRelationshipAnchorTarget(target) {
+        const normalizedTarget = String(target || "").trim();
+        if (!normalizedTarget)
+            return "";
+        if (normalizedTarget.startsWith("#")) {
+            return normalizeAnchorName(normalizedTarget.slice(1));
+        }
+        const fragmentIndex = normalizedTarget.indexOf("#");
+        if (fragmentIndex < 0)
+            return "";
+        const targetPath = normalizedTarget.slice(0, fragmentIndex);
+        if (targetPath && targetPath !== "word/document.xml")
+            return "";
+        return normalizeAnchorName(normalizedTarget.slice(fragmentIndex + 1));
+    }
+    function claimUniqueAnchorIds(anchorIds, emittedAnchorIds) {
+        const uniqueAnchorIds = [];
+        for (const anchorId of anchorIds) {
+            if (emittedAnchorIds.has(anchorId))
+                continue;
+            emittedAnchorIds.add(anchorId);
+            uniqueAnchorIds.push(anchorId);
+        }
+        return uniqueAnchorIds;
+    }
+    moduleRegistry.registerModule("documentAnchorParser", {
+        normalizeAnchorName,
+        extractParagraphAnchors,
+        normalizeRelationshipAnchorTarget,
+        claimUniqueAnchorIds
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    function classifyUnsupportedType(localName) {
+        switch (localName) {
+            case "drawing":
+            case "pict":
+            case "object":
+                return "drawing";
+            case "txbxContent":
+            case "textbox":
+            case "textBox":
+                return "textbox";
+            case "chart":
+                return "chart";
+            default:
+                return localName || "unknown";
+        }
+    }
+    function resolveImageTargetFromUnsupportedElement(element, relationships) {
+        const blips = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "blip")) || [];
+        for (const blip of blips) {
+            const relationshipId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getNamespacedAttributeValue(blip, "r", "embed")) || "";
+            if (!relationshipId)
+                continue;
+            const relationship = relationships.get(relationshipId);
+            if (!relationship)
+                continue;
+            if (relationship.type.includes("/image")) {
+                return relationship.target;
+            }
+        }
+        return "";
+    }
+    function readTrimmedAttribute(element, name) {
+        return ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, name)) || "").trim();
+    }
+    function resolveImageAltTextFromUnsupportedElement(element) {
+        const metadataElements = [
+            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "docPr")) || []),
+            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "cNvPr")) || [])
+        ];
+        for (const metadataElement of metadataElements) {
+            const description = readTrimmedAttribute(metadataElement, "descr");
+            if (description)
+                return description;
+            const title = readTrimmedAttribute(metadataElement, "title");
+            if (title)
+                return title;
+        }
+        return "";
+    }
+    function resolveImageExtentFromUnsupportedElement(element) {
+        const extentElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "extent")) || [];
+        for (const extentElement of extentElements) {
+            const cx = readTrimmedAttribute(extentElement, "cx");
+            const cy = readTrimmedAttribute(extentElement, "cy");
+            if (cx && cy) {
+                return `${cx}x${cy}`;
+            }
+        }
+        return "";
+    }
+    function formatDrawingImageTrace(imageTarget, imageAltText, imageExtent) {
+        const parts = [`drawing:image(${imageTarget})`];
+        if (imageAltText) {
+            parts.push(`alt(${imageAltText})`);
+        }
+        if (imageExtent) {
+            parts.push(`size-emu(${imageExtent})`);
+        }
+        return parts.join(":");
+    }
+    function describeUnsupportedElement(element, relationships) {
+        const type = classifyUnsupportedType(element.localName || "unknown");
+        if (type === "drawing") {
+            const imageTarget = resolveImageTargetFromUnsupportedElement(element, relationships);
+            const imageAltText = resolveImageAltTextFromUnsupportedElement(element);
+            const imageExtent = resolveImageExtentFromUnsupportedElement(element);
+            if (imageTarget) {
+                return formatDrawingImageTrace(imageTarget, imageAltText, imageExtent);
+            }
+        }
+        return type;
+    }
+    moduleRegistry.registerModule("documentDrawingParser", {
+        describeUnsupportedElement
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
     const stylesParser = moduleRegistry.getModule("stylesParser");
     const numberingParser = moduleRegistry.getModule("numberingParser");
+    function isHeadingName(name) {
+        const match = /^(Heading|見出し)\s*([1-6])$/i.exec(name.trim());
+        if (!match)
+            return null;
+        return Number.parseInt(match[2], 10);
+    }
+    function getParagraphProperties(paragraph) {
+        return (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraph, "pPr")[0]) || null;
+    }
+    function getParagraphStyleId(paragraphProperties) {
+        const paragraphStyle = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "pStyle")[0]) || null;
+        return (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(paragraphStyle, "val")) || "";
+    }
+    function getOutlineLevel(paragraphProperties) {
+        const outlineLevel = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "outlineLvl")[0]) || null;
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(outlineLevel, "val")) || "";
+        const parsed = value ? Number.parseInt(value, 10) : Number.NaN;
+        return Number.isFinite(parsed) ? Math.min(parsed + 1, 6) : null;
+    }
+    function getNumberingProperties(paragraphProperties) {
+        return (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "numPr")[0]) || null;
+    }
+    function getHeadingLevel(paragraph, styles) {
+        const paragraphProperties = getParagraphProperties(paragraph);
+        if (!paragraphProperties)
+            return null;
+        const styleId = getParagraphStyleId(paragraphProperties);
+        if (styleId) {
+            const directLevel = isHeadingName(styleId);
+            if (directLevel)
+                return directLevel;
+            const chain = (stylesParser === null || stylesParser === void 0 ? void 0 : stylesParser.resolveStyleChain(styles, styleId)) || [];
+            for (const style of chain) {
+                const nameLevel = isHeadingName(style.name) || isHeadingName(style.styleId);
+                if (nameLevel)
+                    return nameLevel;
+                if (style.outlineLevel !== null)
+                    return Math.min(style.outlineLevel + 1, 6);
+            }
+        }
+        return getOutlineLevel(paragraphProperties);
+    }
+    function getListMetadata(paragraph, numbering) {
+        const paragraphProperties = getParagraphProperties(paragraph);
+        if (!paragraphProperties)
+            return null;
+        const numberingProperties = getNumberingProperties(paragraphProperties);
+        if (!numberingProperties)
+            return null;
+        const numIdElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numberingProperties, "numId")[0]) || null;
+        const ilvlElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numberingProperties, "ilvl")[0]) || null;
+        const numId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(numIdElement, "val")) || "";
+        const indent = Number.parseInt((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(ilvlElement, "val", "0")) || "0", 10);
+        if (!numId)
+            return null;
+        const listKind = (numberingParser === null || numberingParser === void 0 ? void 0 : numberingParser.resolveListKind(numbering, numId, Number.isFinite(indent) ? indent : 0)) || null;
+        if (!listKind)
+            return null;
+        return {
+            listKind,
+            indent: Number.isFinite(indent) ? indent : 0
+        };
+    }
+    function renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes) {
+        const listMetadata = getListMetadata(paragraph, numbering);
+        if (!listMetadata) {
+            const level = getHeadingLevel(paragraph, styles);
+            if (level) {
+                return `${"#".repeat(Math.max(1, Math.min(level, 6)))} ${text}`;
+            }
+            return text;
+        }
+        const indent = "&nbsp;&nbsp;&nbsp;&nbsp;".repeat(Math.max(0, listMetadata.indent));
+        const marker = listMetadata.listKind === "ordered" ? "1." : "-";
+        return `${indent}${marker} ${text}`;
+    }
+    moduleRegistry.registerModule("documentParagraphParser", {
+        getHeadingLevel,
+        getListMetadata,
+        renderStructuredParagraphText
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const stylesParser = moduleRegistry.getModule("stylesParser");
+    const documentDrawingParser = moduleRegistry.getModule("documentDrawingParser");
+    const documentAnchorParser = moduleRegistry.getModule("documentAnchorParser");
+    const documentSummary = moduleRegistry.getModule("documentSummary");
     function hasEnabledElement(parent, localName) {
         if (!parent)
             return false;
         const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
         if (!element)
             return false;
-        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(element, "val")) || "";
         return value !== "false" && value !== "0";
     }
     function readStyleValue(parent, localName) {
@@ -3825,10 +4173,18 @@ if (!customElements.get("lht-page-menu")) {
         const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
         if (!element)
             return null;
-        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(element, "val")) || "";
         if (!value)
             return true;
         return value !== "false" && value !== "0";
+    }
+    function emptyStyle() {
+        return {
+            bold: false,
+            italic: false,
+            strike: false,
+            underline: false
+        };
     }
     function applyTextStyle(text, style) {
         if (!text)
@@ -3844,37 +4200,12 @@ if (!customElements.get("lht-page-menu")) {
             result = `**${result}**`;
         return result;
     }
-    function mergeStyle(base, override) {
-        return {
-            bold: base.bold || override.bold,
-            italic: base.italic || override.italic,
-            strike: base.strike || override.strike,
-            underline: base.underline || override.underline
-        };
-    }
     function applyStyleOverride(base, override) {
         return {
             bold: override.bold === null ? base.bold : override.bold,
             italic: override.italic === null ? base.italic : override.italic,
             strike: override.strike === null ? base.strike : override.strike,
             underline: override.underline === null ? base.underline : override.underline
-        };
-    }
-    function emptyStyle() {
-        return {
-            bold: false,
-            italic: false,
-            strike: false,
-            underline: false
-        };
-    }
-    function readRunStyle(runElement) {
-        const properties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(runElement, "rPr")[0]) || null;
-        return {
-            bold: hasEnabledElement(properties, "b"),
-            italic: hasEnabledElement(properties, "i"),
-            strike: hasEnabledElement(properties, "strike"),
-            underline: hasEnabledElement(properties, "u")
         };
     }
     function readStyleOverrideFromRunProperties(properties) {
@@ -3917,7 +4248,7 @@ if (!customElements.get("lht-page-menu")) {
     function getParagraphTextStyle(paragraph, styles) {
         const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraph, "pPr")[0]) || null;
         const paragraphStyleElement = paragraphProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "pStyle")[0]) || null) : null;
-        const paragraphStyleId = (paragraphStyleElement === null || paragraphStyleElement === void 0 ? void 0 : paragraphStyleElement.getAttribute("w:val")) || (paragraphStyleElement === null || paragraphStyleElement === void 0 ? void 0 : paragraphStyleElement.getAttribute("val")) || "";
+        const paragraphStyleId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(paragraphStyleElement, "val")) || "";
         const styleFromParagraphStyle = applyStyleOverride(emptyStyle(), resolveTextStyleOverrideFromStyleId(styles, paragraphStyleId, "paragraph"));
         const paragraphRunProperties = paragraphProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "rPr")[0]) || null) : null;
         return applyStyleOverride(styleFromParagraphStyle, readStyleOverrideFromRunProperties(paragraphRunProperties));
@@ -3925,182 +4256,84 @@ if (!customElements.get("lht-page-menu")) {
     function normalizeInlineText(text) {
         return text.replace(/\t/g, "    ").replace(/ {2,}/g, " ").trim();
     }
-    function recordUnsupported(context, type) {
-        if (type.startsWith("drawing")) {
-            context.summary.drawingLikeUnsupported += 1;
-        }
-        if (type.startsWith("drawing:image(")) {
-            context.summary.images += 1;
-        }
-        context.summary.unsupportedElements += 1;
-        context.summary.unsupportedCommentTraces += 1;
-        return {
-            kind: "unsupported",
-            type
-        };
-    }
-    function recordUnsupportedTrace(context, traces, type) {
-        if (type.startsWith("drawing")) {
-            context.summary.drawingLikeUnsupported += 1;
-        }
-        if (type.startsWith("drawing:image(")) {
-            context.summary.images += 1;
-        }
-        context.summary.unsupportedElements += 1;
-        context.summary.unsupportedCommentTraces += 1;
-        traces.push(type);
-    }
-    function classifyUnsupportedType(localName) {
-        switch (localName) {
-            case "drawing":
-            case "pict":
-            case "object":
-                return "drawing";
-            case "txbxContent":
-            case "textbox":
-            case "textBox":
-                return "textbox";
-            case "chart":
-                return "chart";
-            default:
-                return localName || "unknown";
-        }
-    }
-    function resolveImageTargetFromUnsupportedElement(element, relationships) {
-        const blips = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "blip")) || [];
-        for (const blip of blips) {
-            const relationshipId = blip.getAttribute("r:embed") || blip.getAttribute("embed") || "";
-            if (!relationshipId)
-                continue;
-            const relationship = relationships.get(relationshipId);
-            if (!relationship)
-                continue;
-            if (relationship.type.includes("/image")) {
-                return relationship.target;
-            }
-        }
-        return "";
-    }
-    function resolveImageAltTextFromUnsupportedElement(element) {
-        const metadataElements = [
-            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "docPr")) || []),
-            ...((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "cNvPr")) || [])
-        ];
-        for (const metadataElement of metadataElements) {
-            const description = (metadataElement.getAttribute("descr") || "").trim();
-            if (description)
-                return description;
-            const title = (metadataElement.getAttribute("title") || "").trim();
-            if (title)
-                return title;
-        }
-        return "";
-    }
-    function resolveImageExtentFromUnsupportedElement(element) {
-        const extentElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(element, "extent")) || [];
-        for (const extentElement of extentElements) {
-            const cx = (extentElement.getAttribute("cx") || "").trim();
-            const cy = (extentElement.getAttribute("cy") || "").trim();
-            if (cx && cy) {
-                return `${cx}x${cy}`;
-            }
-        }
-        return "";
-    }
-    function describeUnsupportedElement(element, relationships) {
-        const type = classifyUnsupportedType(element.localName || "unknown");
-        if (type === "drawing") {
-            const imageTarget = resolveImageTargetFromUnsupportedElement(element, relationships);
-            const imageAltText = resolveImageAltTextFromUnsupportedElement(element);
-            const imageExtent = resolveImageExtentFromUnsupportedElement(element);
-            if (imageTarget) {
-                const parts = [`drawing:image(${imageTarget})`];
-                if (imageAltText) {
-                    parts.push(`alt(${imageAltText})`);
-                }
-                if (imageExtent) {
-                    parts.push(`size-emu(${imageExtent})`);
-                }
-                return parts.join(":");
-            }
-        }
-        return type;
-    }
     function normalizeAnchorName(name) {
-        const normalized = String(name || "")
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "-")
-            .replace(/[^a-z0-9._:-]+/g, "-")
-            .replace(/-+/g, "-")
-            .replace(/^[-:.]+|[-:.]+$/g, "");
-        return normalized;
-    }
-    function extractParagraphAnchors(paragraph) {
-        const anchors = [];
-        const bookmarks = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(paragraph, "bookmarkStart")) || [];
-        for (const bookmark of bookmarks) {
-            const rawName = (bookmark.getAttribute("w:name") || bookmark.getAttribute("name") || "").trim();
-            if (!rawName || rawName.startsWith("_"))
-                continue;
-            const normalizedName = normalizeAnchorName(rawName);
-            if (!normalizedName)
-                continue;
-            if (!anchors.includes(normalizedName)) {
-                anchors.push(normalizedName);
-            }
-        }
-        return anchors;
+        return (documentAnchorParser === null || documentAnchorParser === void 0 ? void 0 : documentAnchorParser.normalizeAnchorName(name)) || "";
     }
     function normalizeRelationshipAnchorTarget(target) {
-        const normalizedTarget = String(target || "").trim();
-        if (!normalizedTarget)
-            return "";
-        if (normalizedTarget.startsWith("#")) {
-            return normalizeAnchorName(normalizedTarget.slice(1));
-        }
-        const fragmentIndex = normalizedTarget.indexOf("#");
-        if (fragmentIndex < 0)
-            return "";
-        const targetPath = normalizedTarget.slice(0, fragmentIndex);
-        if (targetPath && targetPath !== "word/document.xml")
-            return "";
-        return normalizeAnchorName(normalizedTarget.slice(fragmentIndex + 1));
+        return (documentAnchorParser === null || documentAnchorParser === void 0 ? void 0 : documentAnchorParser.normalizeRelationshipAnchorTarget(target)) || "";
     }
-    function claimUniqueAnchorIds(anchorIds, emittedAnchorIds) {
-        const uniqueAnchorIds = [];
-        for (const anchorId of anchorIds) {
-            if (emittedAnchorIds.has(anchorId))
-                continue;
-            emittedAnchorIds.add(anchorId);
-            uniqueAnchorIds.push(anchorId);
-        }
-        return uniqueAnchorIds;
+    function describeUnsupportedElement(element, relationships) {
+        return (documentDrawingParser === null || documentDrawingParser === void 0 ? void 0 : documentDrawingParser.describeUnsupportedElement(element, relationships))
+            || (element.localName || "unknown");
     }
-    function extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, inheritedStyle = emptyStyle(), suppressUnderline = false) {
+    function recordUnsupportedTrace(context, traces, type) {
+        documentSummary === null || documentSummary === void 0 ? void 0 : documentSummary.recordUnsupportedSummary(context.summary, type);
+        traces.push(type);
+    }
+    function extractTextboxText(textboxContent, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText) {
+        const paragraphs = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(textboxContent, "p")) || [];
+        const parts = paragraphs
+            .map((paragraph) => {
+            const text = extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, getParagraphTextStyle(paragraph, styles));
+            if (!text)
+                return "";
+            return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
+        })
+            .filter((text) => !!text);
+        return parts.join("<br><br>").trim();
+    }
+    function renderRunElement(runElement, styles, inheritedStyle, suppressUnderline) {
+        const pieces = [];
+        const properties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(runElement, "rPr")[0]) || null;
+        const runStyleElement = properties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(properties, "rStyle")[0]) || null) : null;
+        const runStyleId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(runStyleElement, "val")) || "";
+        const styleFromRunStyle = resolveTextStyleOverrideFromStyleId(styles, runStyleId, "character");
+        const style = applyStyleOverride(applyStyleOverride(inheritedStyle, styleFromRunStyle), readStyleOverrideFromRunProperties(properties));
+        const effectiveStyle = suppressUnderline ? { ...style, underline: false } : style;
+        const textElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(runElement, "t")) || [];
+        for (const textElement of textElements) {
+            pieces.push(applyTextStyle((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getTextContent(textElement)) || "", effectiveStyle));
+        }
+        const breakElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(runElement, "br")) || [];
+        if (breakElements.length > 0) {
+            pieces.push("<br>".repeat(breakElements.length));
+        }
+        return pieces.join("");
+    }
+    function renderHyperlinkElement(hyperlinkElement, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle) {
+        const linkText = extractTextRuns(hyperlinkElement, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, true);
+        const relationshipId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getNamespacedAttributeValue(hyperlinkElement, "r", "id")) || "";
+        const anchor = normalizeAnchorName((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(hyperlinkElement, "anchor")) || "");
+        const relationship = relationshipId ? relationships.get(relationshipId) || null : null;
+        const relationshipAnchor = relationship ? normalizeRelationshipAnchorTarget(relationship.target) : "";
+        if ((relationship === null || relationship === void 0 ? void 0 : relationship.mode) === "External") {
+            context.summary.links += 1;
+            context.summary.externalLinks += 1;
+            return `[${linkText}](${relationship.target})`;
+        }
+        if (relationshipAnchor && context.knownAnchorIds.has(relationshipAnchor)) {
+            context.summary.links += 1;
+            context.summary.internalLinks += 1;
+            return `[${linkText}](#${relationshipAnchor})`;
+        }
+        if (anchor && context.knownAnchorIds.has(anchor)) {
+            context.summary.links += 1;
+            context.summary.internalLinks += 1;
+            return `[${linkText}](#${anchor})`;
+        }
+        return linkText;
+    }
+    function extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle = emptyStyle(), suppressUnderline = false) {
         const pieces = [];
         for (const child of Array.from(paragraph.childNodes || [])) {
             if (child.nodeType !== 1)
                 continue;
             const element = child;
             if (element.localName === "r") {
-                const properties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(element, "rPr")[0]) || null;
-                const runStyleElement = properties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(properties, "rStyle")[0]) || null) : null;
-                const runStyleId = (runStyleElement === null || runStyleElement === void 0 ? void 0 : runStyleElement.getAttribute("w:val")) || (runStyleElement === null || runStyleElement === void 0 ? void 0 : runStyleElement.getAttribute("val")) || "";
-                const styleFromRunStyle = resolveTextStyleOverrideFromStyleId(styles, runStyleId, "character");
-                const style = applyStyleOverride(applyStyleOverride(inheritedStyle, styleFromRunStyle), readStyleOverrideFromRunProperties(properties));
-                const effectiveStyle = suppressUnderline ? { ...style, underline: false } : style;
-                const textElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(element, "t")) || [];
-                for (const textElement of textElements) {
-                    pieces.push(applyTextStyle((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getTextContent(textElement)) || "", effectiveStyle));
-                }
-                const breakElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(element, "br")) || [];
-                if (breakElements.length > 0) {
-                    pieces.push("<br>".repeat(breakElements.length));
-                }
+                pieces.push(renderRunElement(element, styles, inheritedStyle, suppressUnderline));
             }
             else if (element.localName === "txbxContent") {
-                const textboxText = extractTextboxText(element, relationships, styles, numbering, context, unsupportedTypes);
+                const textboxText = extractTextboxText(element, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText);
                 if (textboxText) {
                     if (pieces.length > 0) {
                         pieces.push("<br><br>");
@@ -4109,29 +4342,7 @@ if (!customElements.get("lht-page-menu")) {
                 }
             }
             else if (element.localName === "hyperlink") {
-                const linkText = extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, inheritedStyle, true);
-                const relationshipId = element.getAttribute("r:id") || "";
-                const anchor = normalizeAnchorName(element.getAttribute("w:anchor") || element.getAttribute("anchor") || "");
-                const relationship = relationshipId ? relationships.get(relationshipId) || null : null;
-                const relationshipAnchor = relationship ? normalizeRelationshipAnchorTarget(relationship.target) : "";
-                if ((relationship === null || relationship === void 0 ? void 0 : relationship.mode) === "External") {
-                    context.summary.links += 1;
-                    context.summary.externalLinks += 1;
-                    pieces.push(`[${linkText}](${relationship.target})`);
-                }
-                else if (relationshipAnchor && context.knownAnchorIds.has(relationshipAnchor)) {
-                    context.summary.links += 1;
-                    context.summary.internalLinks += 1;
-                    pieces.push(`[${linkText}](#${relationshipAnchor})`);
-                }
-                else if (anchor && context.knownAnchorIds.has(anchor)) {
-                    context.summary.links += 1;
-                    context.summary.internalLinks += 1;
-                    pieces.push(`[${linkText}](#${anchor})`);
-                }
-                else {
-                    pieces.push(linkText);
-                }
+                pieces.push(renderHyperlinkElement(element, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle));
             }
             else if (element.localName === "bookmarkStart" || element.localName === "bookmarkEnd" || element.localName === "pPr") {
                 continue;
@@ -4142,75 +4353,31 @@ if (!customElements.get("lht-page-menu")) {
         }
         return normalizeInlineText(pieces.join(""));
     }
-    function isHeadingName(name) {
-        const match = /^(Heading|見出し)\s*([1-6])$/i.exec(name.trim());
-        if (!match)
-            return null;
-        return Number.parseInt(match[2], 10);
+    moduleRegistry.registerModule("documentInlineParser", {
+        getParagraphTextStyle,
+        extractTextRuns
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const documentInlineParser = moduleRegistry.getModule("documentInlineParser");
+    const documentParagraphParser = moduleRegistry.getModule("documentParagraphParser");
+    function renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes) {
+        return (documentParagraphParser === null || documentParagraphParser === void 0 ? void 0 : documentParagraphParser.renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes)) || text;
     }
-    function getHeadingLevel(paragraph, styles) {
-        const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraph, "pPr")[0]) || null;
-        if (!paragraphProperties)
-            return null;
-        const paragraphStyle = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "pStyle")[0]) || null;
-        const styleId = (paragraphStyle === null || paragraphStyle === void 0 ? void 0 : paragraphStyle.getAttribute("w:val")) || (paragraphStyle === null || paragraphStyle === void 0 ? void 0 : paragraphStyle.getAttribute("val")) || "";
-        if (styleId) {
-            const directLevel = isHeadingName(styleId);
-            if (directLevel)
-                return directLevel;
-            const chain = (stylesParser === null || stylesParser === void 0 ? void 0 : stylesParser.resolveStyleChain(styles, styleId)) || [];
-            for (const style of chain) {
-                const nameLevel = isHeadingName(style.name) || isHeadingName(style.styleId);
-                if (nameLevel)
-                    return nameLevel;
-                if (style.outlineLevel !== null)
-                    return Math.min(style.outlineLevel + 1, 6);
-            }
-        }
-        const outlineLevel = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "outlineLvl")[0]) || null;
-        const value = (outlineLevel === null || outlineLevel === void 0 ? void 0 : outlineLevel.getAttribute("w:val")) || (outlineLevel === null || outlineLevel === void 0 ? void 0 : outlineLevel.getAttribute("val")) || "";
-        const parsed = value ? Number.parseInt(value, 10) : Number.NaN;
-        return Number.isFinite(parsed) ? Math.min(parsed + 1, 6) : null;
-    }
-    function getListMetadata(paragraph, numbering) {
-        const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraph, "pPr")[0]) || null;
-        if (!paragraphProperties)
-            return null;
-        const numberingProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(paragraphProperties, "numPr")[0]) || null;
-        if (!numberingProperties)
-            return null;
-        const numIdElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numberingProperties, "numId")[0]) || null;
-        const ilvlElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numberingProperties, "ilvl")[0]) || null;
-        const numId = (numIdElement === null || numIdElement === void 0 ? void 0 : numIdElement.getAttribute("w:val")) || (numIdElement === null || numIdElement === void 0 ? void 0 : numIdElement.getAttribute("val")) || "";
-        const indent = Number.parseInt((ilvlElement === null || ilvlElement === void 0 ? void 0 : ilvlElement.getAttribute("w:val")) || (ilvlElement === null || ilvlElement === void 0 ? void 0 : ilvlElement.getAttribute("val")) || "0", 10);
-        if (!numId)
-            return null;
-        const listKind = (numberingParser === null || numberingParser === void 0 ? void 0 : numberingParser.resolveListKind(numbering, numId, Number.isFinite(indent) ? indent : 0)) || null;
-        if (!listKind)
-            return null;
-        return {
-            listKind,
-            indent: Number.isFinite(indent) ? indent : 0
-        };
-    }
-    function getGridSpan(cell) {
-        const cellProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "tcPr")[0]) || null;
-        const gridSpan = cellProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cellProperties, "gridSpan")[0]) || null) : null;
-        const value = (gridSpan === null || gridSpan === void 0 ? void 0 : gridSpan.getAttribute("w:val")) || (gridSpan === null || gridSpan === void 0 ? void 0 : gridSpan.getAttribute("val")) || "1";
-        const parsed = Number.parseInt(value, 10);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-    }
-    function getVerticalMergeState(cell) {
-        const cellProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "tcPr")[0]) || null;
-        const verticalMerge = cellProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cellProperties, "vMerge")[0]) || null) : null;
-        if (!verticalMerge)
-            return null;
-        const value = verticalMerge.getAttribute("w:val") || verticalMerge.getAttribute("val") || "";
-        if (!value || value === "continue")
-            return "continue";
-        if (value === "restart")
-            return "restart";
-        return null;
+    function renderCellParagraph(paragraph, relationships, styles, numbering, context, unsupportedTypes) {
+        const text = (documentInlineParser === null || documentInlineParser === void 0 ? void 0 : documentInlineParser.extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, documentInlineParser.getParagraphTextStyle(paragraph, styles))) || "";
+        if (!text)
+            return "";
+        return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
     }
     function extractCellText(cell, relationships, styles, numbering, context, tableUnsupportedTypes) {
         const paragraphs = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "p")) || [];
@@ -4219,143 +4386,242 @@ if (!customElements.get("lht-page-menu")) {
             .filter((text) => !!text);
         return parts.join("<br><br>").trim();
     }
-    function renderCellParagraph(paragraph, relationships, styles, numbering, context, unsupportedTypes) {
-        const text = extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(paragraph, styles));
-        if (!text)
-            return "";
-        return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
+    moduleRegistry.registerModule("documentCellParser", {
+        extractCellText
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    function getGridSpan(cell) {
+        const cellProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "tcPr")[0]) || null;
+        const gridSpan = cellProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cellProperties, "gridSpan")[0]) || null) : null;
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(gridSpan, "val", "1")) || "1";
+        const parsed = Number.parseInt(value, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
     }
-    function renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes) {
-        const listMetadata = getListMetadata(paragraph, numbering);
-        if (!listMetadata) {
-            const level = getHeadingLevel(paragraph, styles);
-            if (level) {
-                return `${"#".repeat(Math.max(1, Math.min(level, 6)))} ${text}`;
-            }
-            return text;
-        }
-        const indent = "&nbsp;&nbsp;&nbsp;&nbsp;".repeat(Math.max(0, listMetadata.indent));
-        const marker = listMetadata.listKind === "ordered" ? "1." : "-";
-        return `${indent}${marker} ${text}`;
+    function getVerticalMergeState(cell) {
+        const cellProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cell, "tcPr")[0]) || null;
+        const verticalMerge = cellProperties ? ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(cellProperties, "vMerge")[0]) || null) : null;
+        if (!verticalMerge)
+            return null;
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(verticalMerge, "val")) || "";
+        if (!value || value === "continue")
+            return "continue";
+        if (value === "restart")
+            return "restart";
+        return null;
     }
-    function extractTextboxText(textboxContent, relationships, styles, numbering, context, unsupportedTypes) {
-        const paragraphs = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(textboxContent, "p")) || [];
-        const parts = paragraphs
-            .map((paragraph) => {
-            const text = extractTextRuns(paragraph, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(paragraph, styles));
-            if (!text)
-                return "";
-            return renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes);
-        })
-            .filter((text) => !!text);
-        return parts.join("<br><br>").trim();
-    }
-    function parseTableElement(table, relationships, styles, numbering, context) {
-        const rows = [];
-        const unsupportedTypes = [];
-        for (const rowElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(table, "tr")) || []) {
-            const row = [];
-            for (const cellElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(rowElement, "tc")) || []) {
-                const span = getGridSpan(cellElement);
-                const verticalMergeState = getVerticalMergeState(cellElement);
-                const text = extractCellText(cellElement, relationships, styles, numbering, context, unsupportedTypes);
-                if (verticalMergeState === "continue") {
-                    for (let index = 0; index < span; index += 1) {
-                        row.push(index === 0 ? "↑M↑" : "←M←");
-                    }
-                    continue;
-                }
-                row.push(text);
-                for (let index = 1; index < span; index += 1) {
-                    row.push("←M←");
-                }
-            }
-            rows.push(row);
-        }
+    function normalizeRows(rows) {
         const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
         for (const row of rows) {
             while (row.length < columnCount) {
                 row.push("");
             }
         }
+    }
+    function appendMergedCellPlaceholders(row, span) {
+        for (let index = 0; index < span; index += 1) {
+            row.push(index === 0 ? "↑M↑" : "←M←");
+        }
+    }
+    function appendHorizontalSpanPlaceholders(row, span) {
+        for (let index = 1; index < span; index += 1) {
+            row.push("←M←");
+        }
+    }
+    function parseTableRow(rowElement, unsupportedTypes, extractCellText) {
+        const row = [];
+        for (const cellElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(rowElement, "tc")) || []) {
+            const span = getGridSpan(cellElement);
+            const verticalMergeState = getVerticalMergeState(cellElement);
+            const text = extractCellText(cellElement, unsupportedTypes);
+            if (verticalMergeState === "continue") {
+                appendMergedCellPlaceholders(row, span);
+                continue;
+            }
+            row.push(text);
+            appendHorizontalSpanPlaceholders(row, span);
+        }
+        return row;
+    }
+    function parseTableElement(table, extractCellText) {
+        const rows = [];
+        const unsupportedTypes = [];
+        for (const rowElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(table, "tr")) || []) {
+            rows.push(parseTableRow(rowElement, unsupportedTypes, extractCellText));
+        }
+        normalizeRows(rows);
         return {
             kind: "table",
             rows,
             unsupportedTypes: unsupportedTypes.length ? unsupportedTypes : undefined
         };
     }
-    function parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes) {
-        const document = xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.parseXml(documentXmlBytes);
-        const body = document ? xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "body")[0] : null;
-        const relationships = relationshipsBytes ? (relsParser === null || relsParser === void 0 ? void 0 : relsParser.parseRelationships(relationshipsBytes, "word/document.xml")) || new Map() : new Map();
-        const styles = (stylesParser === null || stylesParser === void 0 ? void 0 : stylesParser.parseStyles(stylesBytes)) || new Map();
-        const numbering = (numberingParser === null || numberingParser === void 0 ? void 0 : numberingParser.parseNumbering(numberingBytes)) || { abstractNums: new Map(), nums: new Map() };
-        const summary = {
-            paragraphs: 0,
-            headings: 0,
-            listItems: 0,
-            tables: 0,
-            images: 0,
-            imageAssets: 0,
-            drawingLikeUnsupported: 0,
-            links: 0,
-            internalLinks: 0,
-            externalLinks: 0,
-            unsupportedElements: 0,
-            unsupportedCommentTraces: 0
+    moduleRegistry.registerModule("documentTableParser", {
+        parseTableElement
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const documentDrawingParser = moduleRegistry.getModule("documentDrawingParser");
+    const documentAnchorParser = moduleRegistry.getModule("documentAnchorParser");
+    const documentTableParser = moduleRegistry.getModule("documentTableParser");
+    const documentCellParser = moduleRegistry.getModule("documentCellParser");
+    const documentInlineParser = moduleRegistry.getModule("documentInlineParser");
+    const documentParagraphParser = moduleRegistry.getModule("documentParagraphParser");
+    const documentSummary = moduleRegistry.getModule("documentSummary");
+    function recordUnsupported(context, type) {
+        documentSummary === null || documentSummary === void 0 ? void 0 : documentSummary.recordUnsupportedSummary(context.summary, type);
+        return {
+            kind: "unsupported",
+            type
         };
-        const blocks = [];
-        if (!body) {
-            return { blocks, summary };
+    }
+    function describeUnsupportedElement(element, relationships) {
+        return (documentDrawingParser === null || documentDrawingParser === void 0 ? void 0 : documentDrawingParser.describeUnsupportedElement(element, relationships))
+            || (element.localName || "unknown");
+    }
+    function extractParagraphAnchors(paragraph) {
+        return (documentAnchorParser === null || documentAnchorParser === void 0 ? void 0 : documentAnchorParser.extractParagraphAnchors(paragraph)) || [];
+    }
+    function claimUniqueAnchorIds(anchorIds, emittedAnchorIds) {
+        return (documentAnchorParser === null || documentAnchorParser === void 0 ? void 0 : documentAnchorParser.claimUniqueAnchorIds(anchorIds, emittedAnchorIds)) || [];
+    }
+    function getHeadingLevel(paragraph, styles) {
+        return (documentParagraphParser === null || documentParagraphParser === void 0 ? void 0 : documentParagraphParser.getHeadingLevel(paragraph, styles)) || null;
+    }
+    function getListMetadata(paragraph, numbering) {
+        return (documentParagraphParser === null || documentParagraphParser === void 0 ? void 0 : documentParagraphParser.getListMetadata(paragraph, numbering)) || null;
+    }
+    function renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes) {
+        return (documentParagraphParser === null || documentParagraphParser === void 0 ? void 0 : documentParagraphParser.renderStructuredParagraphText(paragraph, text, styles, numbering, unsupportedTypes)) || text;
+    }
+    function requireDocumentSummary() {
+        if (!documentSummary) {
+            throw new Error("DOCX document summary module is not loaded.");
         }
+        return documentSummary;
+    }
+    function parseTableElement(table, relationships, styles, numbering, context) {
+        return (documentTableParser === null || documentTableParser === void 0 ? void 0 : documentTableParser.parseTableElement(table, (cell, tableUnsupportedTypes) => (documentCellParser === null || documentCellParser === void 0 ? void 0 : documentCellParser.extractCellText(cell, relationships, styles, numbering, context, tableUnsupportedTypes)) || "")) || { kind: "table", rows: [] };
+    }
+    function collectKnownAnchorIds(body) {
         const knownAnchorIds = new Set();
         for (const paragraphElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(body, "p")) || []) {
             for (const anchorId of extractParagraphAnchors(paragraphElement)) {
                 knownAnchorIds.add(anchorId);
             }
         }
+        return knownAnchorIds;
+    }
+    function parseParagraphBlock(element, relationships, styles, numbering, context, emittedAnchorIds) {
+        const unsupportedTypes = [];
+        const text = (documentInlineParser === null || documentInlineParser === void 0 ? void 0 : documentInlineParser.extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, documentInlineParser.getParagraphTextStyle(element, styles))) || "";
+        const level = getHeadingLevel(element, styles);
+        const listMetadata = getListMetadata(element, numbering);
+        if (!text)
+            return null;
+        const anchorIds = claimUniqueAnchorIds(extractParagraphAnchors(element), emittedAnchorIds);
+        if (listMetadata) {
+            context.summary.listItems += 1;
+        }
+        else if (level) {
+            context.summary.headings += 1;
+        }
+        else {
+            context.summary.paragraphs += 1;
+        }
+        return {
+            kind: listMetadata ? "listItem" : (level ? "heading" : "paragraph"),
+            text,
+            level: level || undefined,
+            listKind: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.listKind,
+            indent: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.indent,
+            anchorIds,
+            unsupportedTypes: unsupportedTypes.length ? unsupportedTypes : undefined
+        };
+    }
+    function parseBodyElement(element, relationships, styles, numbering, context, emittedAnchorIds) {
+        if (element.localName === "p") {
+            return parseParagraphBlock(element, relationships, styles, numbering, context, emittedAnchorIds);
+        }
+        if (element.localName === "tbl") {
+            context.summary.tables += 1;
+            return parseTableElement(element, relationships, styles, numbering, context);
+        }
+        return recordUnsupported(context, describeUnsupportedElement(element, relationships));
+    }
+    function parseDocumentBody(body, relationships, styles, numbering) {
+        const summary = requireDocumentSummary().createEmptySummary();
+        const blocks = [];
+        if (!body) {
+            return { blocks, summary };
+        }
         const emittedAnchorIds = new Set();
-        const context = { summary, knownAnchorIds };
+        const context = {
+            summary,
+            knownAnchorIds: collectKnownAnchorIds(body)
+        };
         for (const child of Array.from(body.childNodes || [])) {
             if (child.nodeType !== 1)
                 continue;
             const element = child;
-            if (element.localName === "p") {
-                const unsupportedTypes = [];
-                const text = extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, getParagraphTextStyle(element, styles));
-                const level = getHeadingLevel(element, styles);
-                const listMetadata = getListMetadata(element, numbering);
-                if (text) {
-                    const anchorIds = claimUniqueAnchorIds(extractParagraphAnchors(element), emittedAnchorIds);
-                    if (listMetadata) {
-                        summary.listItems += 1;
-                    }
-                    else if (level) {
-                        summary.headings += 1;
-                    }
-                    else {
-                        summary.paragraphs += 1;
-                    }
-                    blocks.push({
-                        kind: listMetadata ? "listItem" : (level ? "heading" : "paragraph"),
-                        text,
-                        level: level || undefined,
-                        listKind: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.listKind,
-                        indent: listMetadata === null || listMetadata === void 0 ? void 0 : listMetadata.indent,
-                        anchorIds,
-                        unsupportedTypes: unsupportedTypes.length ? unsupportedTypes : undefined
-                    });
-                }
-            }
-            else if (element.localName === "tbl") {
-                summary.tables += 1;
-                blocks.push(parseTableElement(element, relationships, styles, numbering, context));
-            }
-            else {
-                blocks.push(recordUnsupported(context, describeUnsupportedElement(element, relationships)));
+            const block = parseBodyElement(element, relationships, styles, numbering, context, emittedAnchorIds);
+            if (block) {
+                blocks.push(block);
             }
         }
         return { blocks, summary };
+    }
+    moduleRegistry.registerModule("documentBlockParser", {
+        parseDocumentBody
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const relsParser = moduleRegistry.getModule("relsParser");
+    const stylesParser = moduleRegistry.getModule("stylesParser");
+    const numberingParser = moduleRegistry.getModule("numberingParser");
+    const documentBlockParser = moduleRegistry.getModule("documentBlockParser");
+    const documentSummary = moduleRegistry.getModule("documentSummary");
+    function requireDocumentSummary() {
+        if (!documentSummary) {
+            throw new Error("DOCX document summary module is not loaded.");
+        }
+        return documentSummary;
+    }
+    function parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes) {
+        const document = xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.parseXml(documentXmlBytes);
+        const body = document ? (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "body")[0]) || null : null;
+        const relationships = relationshipsBytes ? (relsParser === null || relsParser === void 0 ? void 0 : relsParser.parseRelationships(relationshipsBytes, "word/document.xml")) || new Map() : new Map();
+        const styles = (stylesParser === null || stylesParser === void 0 ? void 0 : stylesParser.parseStyles(stylesBytes)) || new Map();
+        const numbering = (numberingParser === null || numberingParser === void 0 ? void 0 : numberingParser.parseNumbering(numberingBytes)) || { abstractNums: new Map(), nums: new Map() };
+        return (documentBlockParser === null || documentBlockParser === void 0 ? void 0 : documentBlockParser.parseDocumentBody(body, relationships, styles, numbering))
+            || requireDocumentSummary().createEmptyParsedDocument();
     }
     moduleRegistry.registerModule("documentParser", {
         parseDocumentXml
@@ -4370,91 +4636,75 @@ if (!customElements.get("lht-page-menu")) {
  */
 (() => {
     const moduleRegistry = getDocx2mdModuleRegistry();
-    const zipIo = moduleRegistry.getModule("zipIo");
-    const textDecoder = new TextDecoder("utf-8");
-    const documentParser = moduleRegistry.getModule("documentParser");
-    async function parseDocx(arrayBuffer) {
-        const files = await (zipIo === null || zipIo === void 0 ? void 0 : zipIo.unzipEntries(arrayBuffer));
-        if (!files) {
-            throw new Error("ZIP module is not loaded.");
-        }
-        const documentXmlBytes = files.get("word/document.xml");
-        if (!documentXmlBytes) {
-            throw new Error("word/document.xml was not found.");
-        }
-        const relationshipsBytes = files.get("word/_rels/document.xml.rels");
-        const stylesBytes = files.get("word/styles.xml");
-        const numberingBytes = files.get("word/numbering.xml");
-        const parsedDocument = (documentParser === null || documentParser === void 0 ? void 0 : documentParser.parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes)) || {
-            blocks: [],
-            summary: {
-                paragraphs: 0,
-                headings: 0,
-                listItems: 0,
-                tables: 0,
-                images: 0,
-                imageAssets: 0,
-                drawingLikeUnsupported: 0,
-                links: 0,
-                internalLinks: 0,
-                externalLinks: 0,
-                unsupportedElements: 0,
-                unsupportedCommentTraces: 0
-            }
-        };
-        const contentTypes = parseContentTypes(files.get("[Content_Types].xml"));
-        const assets = collectImageAssets(parsedDocument.blocks, files, contentTypes);
-        return {
-            ...parsedDocument,
-            summary: {
-                ...parsedDocument.summary,
-                imageAssets: assets.length
-            },
-            assets
-        };
-    }
-    function parseImageTrace(type) {
-        const prefix = "drawing:image(";
-        if (!type.startsWith(prefix))
-            return null;
-        const afterPrefix = type.slice(prefix.length);
+    const imageTracePrefix = "drawing:image(";
+    function findSourcePathEnd(afterPrefix) {
         const suffixMarkerIndexes = [
             afterPrefix.indexOf("):alt("),
             afterPrefix.indexOf("):size-emu(")
         ].filter((index) => index >= 0);
-        const sourcePathEnd = suffixMarkerIndexes.length > 0
+        return suffixMarkerIndexes.length > 0
             ? Math.min(...suffixMarkerIndexes)
             : (afterPrefix.endsWith(")") ? afterPrefix.length - 1 : -1);
+    }
+    function isSizeSuffix(suffix) {
+        return /^:size-emu\([^)]+\)$/.test(suffix);
+    }
+    function parseAltSuffix(suffix) {
+        const altAndRest = suffix.slice(":alt(".length);
+        const sizeMarkerIndex = altAndRest.lastIndexOf("):size-emu(");
+        const altEnd = sizeMarkerIndex >= 0
+            ? sizeMarkerIndex
+            : (altAndRest.endsWith(")") ? altAndRest.length - 1 : -1);
+        if (altEnd < 0)
+            return null;
+        const rest = altAndRest.slice(altEnd + 1);
+        if (rest && !isSizeSuffix(rest))
+            return null;
+        return altAndRest.slice(0, altEnd);
+    }
+    function parseImageTraceSuffix(suffix) {
+        if (!suffix)
+            return "";
+        if (suffix.startsWith(":alt(")) {
+            return parseAltSuffix(suffix);
+        }
+        return isSizeSuffix(suffix) ? "" : null;
+    }
+    function parseImageTrace(type) {
+        if (!type.startsWith(imageTracePrefix))
+            return null;
+        const afterPrefix = type.slice(imageTracePrefix.length);
+        const sourcePathEnd = findSourcePathEnd(afterPrefix);
         if (sourcePathEnd < 0)
             return null;
         const sourcePath = afterPrefix.slice(0, sourcePathEnd);
         if (!sourcePath)
             return null;
-        const suffix = afterPrefix.slice(sourcePathEnd + 1);
-        let altText = "";
-        if (suffix) {
-            if (suffix.startsWith(":alt(")) {
-                const altAndRest = suffix.slice(":alt(".length);
-                const sizeMarkerIndex = altAndRest.lastIndexOf("):size-emu(");
-                const altEnd = sizeMarkerIndex >= 0
-                    ? sizeMarkerIndex
-                    : (altAndRest.endsWith(")") ? altAndRest.length - 1 : -1);
-                if (altEnd < 0)
-                    return null;
-                altText = altAndRest.slice(0, altEnd);
-                const rest = altAndRest.slice(altEnd + 1);
-                if (rest && !/^:size-emu\([^)]+\)$/.test(rest))
-                    return null;
-            }
-            else if (!/^:size-emu\([^)]+\)$/.test(suffix)) {
-                return null;
-            }
+        const altText = parseImageTraceSuffix(afterPrefix.slice(sourcePathEnd + 1));
+        if (altText === null) {
+            return null;
         }
         return {
             sourcePath,
             altText
         };
     }
+    moduleRegistry.registerModule("imageTrace", {
+        parseImageTrace
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const imageTrace = moduleRegistry.getModule("imageTrace");
+    const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const textDecoder = new TextDecoder("utf-8");
     function inferImageMediaType(sourcePath) {
         const normalized = sourcePath.toLowerCase();
         if (normalized.endsWith(".png"))
@@ -4484,6 +4734,20 @@ if (!customElements.get("lht-page-menu")) {
             return "";
         return lastSegment.slice(extensionIndex + 1).toLowerCase();
     }
+    function addContentTypeDefault(parsed, element) {
+        const extension = ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Extension")) || "").trim().toLowerCase();
+        const contentType = ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "ContentType")) || "").trim();
+        if (!extension || !contentType)
+            return;
+        parsed.defaults.set(extension, contentType);
+    }
+    function addContentTypeOverride(parsed, element) {
+        const partName = normalizePackagePath(((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "PartName")) || "").trim());
+        const contentType = ((xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "ContentType")) || "").trim();
+        if (!partName || !contentType)
+            return;
+        parsed.overrides.set(partName, contentType);
+    }
     function parseContentTypes(contentTypesBytes) {
         const parsed = {
             defaults: new Map(),
@@ -4497,18 +4761,10 @@ if (!customElements.get("lht-page-menu")) {
         const defaultElements = Array.from(document.getElementsByTagName("Default"));
         const overrideElements = Array.from(document.getElementsByTagName("Override"));
         for (const element of defaultElements) {
-            const extension = (element.getAttribute("Extension") || "").trim().toLowerCase();
-            const contentType = (element.getAttribute("ContentType") || "").trim();
-            if (!extension || !contentType)
-                continue;
-            parsed.defaults.set(extension, contentType);
+            addContentTypeDefault(parsed, element);
         }
         for (const element of overrideElements) {
-            const partName = normalizePackagePath((element.getAttribute("PartName") || "").trim());
-            const contentType = (element.getAttribute("ContentType") || "").trim();
-            if (!partName || !contentType)
-                continue;
-            parsed.overrides.set(partName, contentType);
+            addContentTypeOverride(parsed, element);
         }
         return parsed;
     }
@@ -4522,15 +4778,34 @@ if (!customElements.get("lht-page-menu")) {
             return extensionType;
         return inferImageMediaType(normalizedSourcePath);
     }
-    function collectImageAssets(blocks, files, contentTypes) {
+    function getBlockTraceTypes(block) {
+        return block.kind === "unsupported"
+            ? [block.type]
+            : (block.unsupportedTypes || []);
+    }
+    function createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes) {
+        return {
+            kind: "image",
+            sourcePath: parsedTrace.sourcePath,
+            mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+            altText: parsedTrace.altText,
+            sourceTrace: traceType,
+            blockIndex,
+            documentPosition: {
+                blockIndex,
+                blockKind: block.kind,
+                traceIndex
+            },
+            bytes
+        };
+    }
+    function collectImageAssets(blocks, files, contentTypesBytes) {
+        const contentTypes = parseContentTypes(contentTypesBytes);
         const assets = [];
         const seen = new Set();
         for (const [blockIndex, block] of blocks.entries()) {
-            const traceTypes = block.kind === "unsupported"
-                ? [block.type]
-                : (block.unsupportedTypes || []);
-            for (const [traceIndex, traceType] of traceTypes.entries()) {
-                const parsedTrace = parseImageTrace(traceType);
+            for (const [traceIndex, traceType] of getBlockTraceTypes(block).entries()) {
+                const parsedTrace = imageTrace === null || imageTrace === void 0 ? void 0 : imageTrace.parseImageTrace(traceType);
                 if (!parsedTrace)
                     continue;
                 if (seen.has(parsedTrace.sourcePath))
@@ -4539,24 +4814,25 @@ if (!customElements.get("lht-page-menu")) {
                 if (!bytes)
                     continue;
                 seen.add(parsedTrace.sourcePath);
-                assets.push({
-                    kind: "image",
-                    sourcePath: parsedTrace.sourcePath,
-                    mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
-                    altText: parsedTrace.altText,
-                    sourceTrace: traceType,
-                    blockIndex,
-                    documentPosition: {
-                        blockIndex,
-                        blockKind: block.kind,
-                        traceIndex
-                    },
-                    bytes
-                });
+                assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes));
             }
         }
         return assets;
     }
+    moduleRegistry.registerModule("docxAssets", {
+        collectImageAssets
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const imageTrace = moduleRegistry.getModule("imageTrace");
     function escapeTableCell(text) {
         return String(text || "").replace(/\|/g, "\\|");
     }
@@ -4610,7 +4886,7 @@ if (!customElements.get("lht-page-menu")) {
     }
     function renderImagePlaceholder(type, options) {
         var _a;
-        const parsedImageTrace = parseImageTrace(type);
+        const parsedImageTrace = imageTrace === null || imageTrace === void 0 ? void 0 : imageTrace.parseImageTrace(type);
         if (!parsedImageTrace || !parsedImageTrace.altText)
             return "";
         const resolvedPath = ((_a = options === null || options === void 0 ? void 0 : options.imagePathResolver) === null || _a === void 0 ? void 0 : _a.call(options, parsedImageTrace.sourcePath)) || "";
@@ -4627,55 +4903,81 @@ if (!customElements.get("lht-page-menu")) {
             .filter((text) => text !== "")
             .join("\n");
     }
+    function appendUnsupportedArtifacts(content, unsupportedTypes, includeUnsupportedComments, options) {
+        const placeholders = renderUnsupportedPlaceholders(unsupportedTypes, options);
+        const comments = includeUnsupportedComments ? renderUnsupportedComments(unsupportedTypes) : "";
+        const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+        return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
+    }
+    function renderSupportedBlockContent(block) {
+        if (block.kind === "heading") {
+            const anchors = renderAnchors(block.anchorIds);
+            const headingLine = `${"#".repeat(Math.max(1, Math.min(block.level || 1, 6)))} ${block.text}`;
+            return anchors ? `${anchors}\n${headingLine}` : headingLine;
+        }
+        if (block.kind === "listItem") {
+            const indent = "    ".repeat(Math.max(0, block.indent || 0));
+            const marker = block.listKind === "ordered" ? "1." : "-";
+            const listLine = `${indent}${marker} ${block.text}`;
+            const anchors = renderAnchors(block.anchorIds);
+            return anchors ? `${anchors}\n${listLine}` : listLine;
+        }
+        const anchors = renderAnchors(block.anchorIds);
+        return anchors ? `${anchors}\n${block.text}` : block.text;
+    }
+    function renderUnsupportedBlock(block, includeUnsupportedComments, options) {
+        const placeholder = renderImagePlaceholder(block.type, options);
+        if (includeUnsupportedComments) {
+            const comment = renderUnsupportedComment(block.type);
+            return placeholder ? `${placeholder}\n${comment}` : comment;
+        }
+        return placeholder;
+    }
+    function renderMarkdownBlock(block, includeUnsupportedComments, options) {
+        if (block.kind === "table") {
+            const table = renderTable(block.rows);
+            return appendUnsupportedArtifacts(table, block.unsupportedTypes, includeUnsupportedComments, options);
+        }
+        if (block.kind === "unsupported") {
+            return renderUnsupportedBlock(block, includeUnsupportedComments, options);
+        }
+        const content = renderSupportedBlockContent(block);
+        return appendUnsupportedArtifacts(content, block.unsupportedTypes, includeUnsupportedComments, options);
+    }
     function renderMarkdown(parsedDocument, options) {
         const includeUnsupportedComments = !!(options === null || options === void 0 ? void 0 : options.includeUnsupportedComments);
         return parsedDocument.blocks
-            .map((block) => {
-            if (block.kind === "table") {
-                const table = renderTable(block.rows);
-                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
-                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
-                const withPlaceholders = placeholders ? `${table}\n${placeholders}` : table;
-                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
-            }
-            if (block.kind === "unsupported") {
-                const placeholder = renderImagePlaceholder(block.type, options);
-                if (includeUnsupportedComments) {
-                    const comment = renderUnsupportedComment(block.type);
-                    return placeholder ? `${placeholder}\n${comment}` : comment;
-                }
-                return placeholder;
-            }
-            if (block.kind === "heading") {
-                const anchors = renderAnchors(block.anchorIds);
-                const headingLine = `${"#".repeat(Math.max(1, Math.min(block.level || 1, 6)))} ${block.text}`;
-                const content = anchors ? `${anchors}\n${headingLine}` : headingLine;
-                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
-                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
-                const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
-                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
-            }
-            if (block.kind === "listItem") {
-                const indent = "    ".repeat(Math.max(0, block.indent || 0));
-                const marker = block.listKind === "ordered" ? "1." : "-";
-                const listLine = `${indent}${marker} ${block.text}`;
-                const anchors = renderAnchors(block.anchorIds);
-                const content = anchors ? `${anchors}\n${listLine}` : listLine;
-                const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
-                const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
-                const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
-                return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
-            }
-            const anchors = renderAnchors(block.anchorIds);
-            const content = anchors ? `${anchors}\n${block.text}` : block.text;
-            const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
-            const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
-            const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
-            return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
-        })
+            .map((block) => renderMarkdownBlock(block, includeUnsupportedComments, options))
             .filter((block) => block !== "")
             .join("\n\n");
     }
+    moduleRegistry.registerModule("markdownRenderer", {
+        renderMarkdown
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const summaryFields = [
+        "paragraphs",
+        "headings",
+        "listItems",
+        "tables",
+        "images",
+        "imageAssets",
+        "drawingLikeUnsupported",
+        "links",
+        "internalLinks",
+        "externalLinks",
+        "unsupportedElements",
+        "unsupportedCommentTraces"
+    ];
     function createSummary(parsedDocument) {
         return {
             ...parsedDocument.summary
@@ -4683,42 +4985,239 @@ if (!customElements.get("lht-page-menu")) {
     }
     function createSummaryText(parsedDocument) {
         const summary = createSummary(parsedDocument);
-        return [
-            `paragraphs: ${summary.paragraphs}`,
-            `headings: ${summary.headings}`,
-            `listItems: ${summary.listItems}`,
-            `tables: ${summary.tables}`,
-            `images: ${summary.images}`,
-            `imageAssets: ${summary.imageAssets}`,
-            `drawingLikeUnsupported: ${summary.drawingLikeUnsupported}`,
-            `links: ${summary.links}`,
-            `internalLinks: ${summary.internalLinks}`,
-            `externalLinks: ${summary.externalLinks}`,
-            `unsupportedElements: ${summary.unsupportedElements}`,
-            `unsupportedCommentTraces: ${summary.unsupportedCommentTraces}`
-        ].join("\n");
+        return summaryFields.map((field) => `${field}: ${summary[field]}`).join("\n");
+    }
+    moduleRegistry.registerModule("docxSummary", {
+        createSummary,
+        createSummaryText
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    function createAssetManifestEntry(asset) {
+        return {
+            kind: asset.kind,
+            sourcePath: asset.sourcePath,
+            mediaType: asset.mediaType,
+            altText: asset.altText,
+            sourceTrace: asset.sourceTrace,
+            blockIndex: asset.blockIndex,
+            documentPosition: asset.documentPosition,
+            size: asset.bytes.length
+        };
     }
     function createAssetsManifestText(parsedDocument) {
         return JSON.stringify({
             version: 1,
-            assets: (parsedDocument.assets || []).map((asset) => ({
-                kind: asset.kind,
-                sourcePath: asset.sourcePath,
-                mediaType: asset.mediaType,
-                altText: asset.altText,
-                sourceTrace: asset.sourceTrace,
-                blockIndex: asset.blockIndex,
-                documentPosition: asset.documentPosition,
-                size: asset.bytes.length
-            }))
+            assets: (parsedDocument.assets || []).map((asset) => createAssetManifestEntry(asset))
         }, null, 2);
+    }
+    moduleRegistry.registerModule("assetManifest", {
+        createAssetsManifestText
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const zipIo = moduleRegistry.getModule("zipIo");
+    async function loadDocxPackage(arrayBuffer) {
+        const files = await (zipIo === null || zipIo === void 0 ? void 0 : zipIo.unzipEntries(arrayBuffer));
+        if (!files) {
+            throw new Error("ZIP module is not loaded.");
+        }
+        const documentXmlBytes = files.get("word/document.xml");
+        if (!documentXmlBytes) {
+            throw new Error("word/document.xml was not found.");
+        }
+        return {
+            files,
+            documentXmlBytes,
+            relationshipsBytes: files.get("word/_rels/document.xml.rels"),
+            stylesBytes: files.get("word/styles.xml"),
+            numberingBytes: files.get("word/numbering.xml"),
+            contentTypesBytes: files.get("[Content_Types].xml")
+        };
+    }
+    moduleRegistry.registerModule("docxPackageLoader", {
+        loadDocxPackage
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const docxPackageLoader = moduleRegistry.getModule("docxPackageLoader");
+    const documentParser = moduleRegistry.getModule("documentParser");
+    const docxAssets = moduleRegistry.getModule("docxAssets");
+    const markdownRenderer = moduleRegistry.getModule("markdownRenderer");
+    const docxSummary = moduleRegistry.getModule("docxSummary");
+    const assetManifest = moduleRegistry.getModule("assetManifest");
+    const documentSummary = moduleRegistry.getModule("documentSummary");
+    function requireDocumentSummary() {
+        if (!documentSummary) {
+            throw new Error("DOCX document summary module is not loaded.");
+        }
+        return documentSummary;
+    }
+    async function parseDocx(arrayBuffer) {
+        const loadedPackage = await (docxPackageLoader === null || docxPackageLoader === void 0 ? void 0 : docxPackageLoader.loadDocxPackage(arrayBuffer));
+        if (!loadedPackage) {
+            throw new Error("DOCX package loader module is not loaded.");
+        }
+        const parsedDocument = (documentParser === null || documentParser === void 0 ? void 0 : documentParser.parseDocumentXml(loadedPackage.documentXmlBytes, loadedPackage.relationshipsBytes, loadedPackage.stylesBytes, loadedPackage.numberingBytes))
+            || requireDocumentSummary().createEmptyParsedDocument();
+        const assets = (docxAssets === null || docxAssets === void 0 ? void 0 : docxAssets.collectImageAssets(parsedDocument.blocks, loadedPackage.files, loadedPackage.contentTypesBytes)) || [];
+        return {
+            ...parsedDocument,
+            summary: {
+                ...parsedDocument.summary,
+                imageAssets: assets.length
+            },
+            assets
+        };
     }
     moduleRegistry.registerModule("docx2md", {
         parseDocx,
-        renderMarkdown,
-        createSummary,
-        createSummaryText,
-        createAssetsManifestText
+        renderMarkdown: markdownRenderer === null || markdownRenderer === void 0 ? void 0 : markdownRenderer.renderMarkdown,
+        createSummary: docxSummary === null || docxSummary === void 0 ? void 0 : docxSummary.createSummary,
+        createSummaryText: docxSummary === null || docxSummary === void 0 ? void 0 : docxSummary.createSummaryText,
+        createAssetsManifestText: assetManifest === null || assetManifest === void 0 ? void 0 : assetManifest.createAssetsManifestText
+    });
+})();
+  </script>
+
+  <script>
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+(() => {
+    const moduleRegistry = getDocx2mdModuleRegistry();
+    const utf8FileNameFlag = 0x0800;
+    function createCrc32Table() {
+        const table = new Uint32Array(256);
+        for (let index = 0; index < table.length; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+                value = (value & 1) ? ((value >>> 1) ^ 0xedb88320) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+        }
+        return table;
+    }
+    const crc32Table = createCrc32Table();
+    function calculateCrc32(bytes) {
+        let crc = 0xffffffff;
+        for (const byte of bytes) {
+            crc = (crc >>> 8) ^ crc32Table[(crc ^ byte) & 0xff];
+        }
+        return (crc ^ 0xffffffff) >>> 0;
+    }
+    function createLocalFileHeader(entry) {
+        const localHeader = new Uint8Array(30 + entry.nameBytes.length);
+        const localView = new DataView(localHeader.buffer);
+        localView.setUint32(0, 0x04034b50, true);
+        localView.setUint16(4, 20, true);
+        localView.setUint16(6, utf8FileNameFlag, true);
+        localView.setUint16(8, 0, true);
+        localView.setUint16(10, 0, true);
+        localView.setUint16(12, 0, true);
+        localView.setUint32(14, entry.crc32, true);
+        localView.setUint32(18, entry.dataBytes.length, true);
+        localView.setUint32(22, entry.dataBytes.length, true);
+        localView.setUint16(26, entry.nameBytes.length, true);
+        localView.setUint16(28, 0, true);
+        localHeader.set(entry.nameBytes, 30);
+        return localHeader;
+    }
+    function createCentralDirectoryHeader(entry) {
+        const centralHeader = new Uint8Array(46 + entry.nameBytes.length);
+        const centralView = new DataView(centralHeader.buffer);
+        centralView.setUint32(0, 0x02014b50, true);
+        centralView.setUint16(4, 20, true);
+        centralView.setUint16(6, 20, true);
+        centralView.setUint16(8, utf8FileNameFlag, true);
+        centralView.setUint16(10, 0, true);
+        centralView.setUint16(12, 0, true);
+        centralView.setUint16(14, 0, true);
+        centralView.setUint32(16, entry.crc32, true);
+        centralView.setUint32(20, entry.dataBytes.length, true);
+        centralView.setUint32(24, entry.dataBytes.length, true);
+        centralView.setUint16(28, entry.nameBytes.length, true);
+        centralView.setUint16(30, 0, true);
+        centralView.setUint16(32, 0, true);
+        centralView.setUint16(34, 0, true);
+        centralView.setUint16(36, 0, true);
+        centralView.setUint32(38, 0, true);
+        centralView.setUint32(42, entry.offset, true);
+        centralHeader.set(entry.nameBytes, 46);
+        return centralHeader;
+    }
+    function createEndOfCentralDirectory(entryCount, centralDirectorySize, centralDirectoryOffset) {
+        const eocd = new Uint8Array(22);
+        const eocdView = new DataView(eocd.buffer);
+        eocdView.setUint32(0, 0x06054b50, true);
+        eocdView.setUint16(4, 0, true);
+        eocdView.setUint16(6, 0, true);
+        eocdView.setUint16(8, entryCount, true);
+        eocdView.setUint16(10, entryCount, true);
+        eocdView.setUint32(12, centralDirectorySize, true);
+        eocdView.setUint32(16, centralDirectoryOffset, true);
+        eocdView.setUint16(20, 0, true);
+        return eocd;
+    }
+    function copyChunks(chunks) {
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const out = new Uint8Array(totalLength);
+        let cursor = 0;
+        for (const chunk of chunks) {
+            out.set(chunk, cursor);
+            cursor += chunk.length;
+        }
+        return out;
+    }
+    function createStoredZip(entries) {
+        const encoder = new TextEncoder();
+        const localChunks = [];
+        const centralChunks = [];
+        let offset = 0;
+        for (const entry of entries) {
+            const preparedEntry = {
+                nameBytes: encoder.encode(entry.name),
+                dataBytes: entry.data,
+                crc32: calculateCrc32(entry.data),
+                offset
+            };
+            const localHeader = createLocalFileHeader(preparedEntry);
+            localChunks.push(localHeader, preparedEntry.dataBytes);
+            centralChunks.push(createCentralDirectoryHeader(preparedEntry));
+            offset += localHeader.length + preparedEntry.dataBytes.length;
+        }
+        const centralDirectoryOffset = offset;
+        const centralDirectorySize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const eocd = createEndOfCentralDirectory(entries.length, centralDirectorySize, centralDirectoryOffset);
+        return copyChunks([...localChunks, ...centralChunks, eocd]);
+    }
+    moduleRegistry.registerModule("browserZip", {
+        createStoredZip
     });
 })();
   </script>
@@ -4734,6 +5233,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!docx2md) {
         throw new Error("docx2md core module is not loaded");
     }
+    const docx2mdApi = docx2md;
+    const browserZip = moduleRegistry.getModule("browserZip");
+    if (!browserZip) {
+        throw new Error("browser ZIP module is not loaded");
+    }
+    const browserZipApi = browserZip;
     function getElement(id) {
         const element = document.getElementById(id);
         if (!element) {
@@ -4762,18 +5267,21 @@ window.addEventListener("DOMContentLoaded", () => {
     function getCurrentMarkdown() {
         if (!currentParsedDocument)
             return "";
-        return docx2md.renderMarkdown(currentParsedDocument, {
+        return docx2mdApi.renderMarkdown(currentParsedDocument, {
             includeUnsupportedComments: getDebugEnabled()
         });
     }
+    function getOutputBaseName(fileName) {
+        return fileName.replace(/\.docx$/i, "");
+    }
     function getDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".md";
+        return getOutputBaseName(fileName) + ".md";
     }
     function getSummaryDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".summary.txt";
+        return getOutputBaseName(fileName) + ".summary.txt";
     }
     function getAssetsDownloadFileName(fileName) {
-        return fileName.replace(/\.docx$/i, "") + ".assets.zip";
+        return getOutputBaseName(fileName) + ".assets.zip";
     }
     function getSummaryText() {
         return getPreview("summaryPreview").getText();
@@ -4829,117 +5337,28 @@ window.addEventListener("DOMContentLoaded", () => {
         link.remove();
         URL.revokeObjectURL(url);
     }
-    function createCrc32Table() {
-        const table = new Uint32Array(256);
-        for (let index = 0; index < table.length; index += 1) {
-            let value = index;
-            for (let bit = 0; bit < 8; bit += 1) {
-                value = (value & 1) ? ((value >>> 1) ^ 0xedb88320) : (value >>> 1);
-            }
-            table[index] = value >>> 0;
-        }
-        return table;
-    }
-    const crc32Table = createCrc32Table();
-    function calculateCrc32(bytes) {
-        let crc = 0xffffffff;
-        for (const byte of bytes) {
-            crc = (crc >>> 8) ^ crc32Table[(crc ^ byte) & 0xff];
-        }
-        return (crc ^ 0xffffffff) >>> 0;
-    }
-    function createStoredZip(entries) {
-        const encoder = new TextEncoder();
-        const localChunks = [];
-        const centralChunks = [];
-        const utf8FileNameFlag = 0x0800;
-        let offset = 0;
-        for (const entry of entries) {
-            const nameBytes = encoder.encode(entry.name);
-            const dataBytes = entry.data;
-            const crc32 = calculateCrc32(dataBytes);
-            const localHeader = new Uint8Array(30 + nameBytes.length);
-            const localView = new DataView(localHeader.buffer);
-            localView.setUint32(0, 0x04034b50, true);
-            localView.setUint16(4, 20, true);
-            localView.setUint16(6, utf8FileNameFlag, true);
-            localView.setUint16(8, 0, true);
-            localView.setUint16(10, 0, true);
-            localView.setUint16(12, 0, true);
-            localView.setUint32(14, crc32, true);
-            localView.setUint32(18, dataBytes.length, true);
-            localView.setUint32(22, dataBytes.length, true);
-            localView.setUint16(26, nameBytes.length, true);
-            localView.setUint16(28, 0, true);
-            localHeader.set(nameBytes, 30);
-            localChunks.push(localHeader, dataBytes);
-            const centralHeader = new Uint8Array(46 + nameBytes.length);
-            const centralView = new DataView(centralHeader.buffer);
-            centralView.setUint32(0, 0x02014b50, true);
-            centralView.setUint16(4, 20, true);
-            centralView.setUint16(6, 20, true);
-            centralView.setUint16(8, utf8FileNameFlag, true);
-            centralView.setUint16(10, 0, true);
-            centralView.setUint16(12, 0, true);
-            centralView.setUint16(14, 0, true);
-            centralView.setUint32(16, crc32, true);
-            centralView.setUint32(20, dataBytes.length, true);
-            centralView.setUint32(24, dataBytes.length, true);
-            centralView.setUint16(28, nameBytes.length, true);
-            centralView.setUint16(30, 0, true);
-            centralView.setUint16(32, 0, true);
-            centralView.setUint16(34, 0, true);
-            centralView.setUint16(36, 0, true);
-            centralView.setUint32(38, 0, true);
-            centralView.setUint32(42, offset, true);
-            centralHeader.set(nameBytes, 46);
-            centralChunks.push(centralHeader);
-            offset += localHeader.length + dataBytes.length;
-        }
-        const centralDirectoryOffset = offset;
-        const centralDirectorySize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
-        const eocd = new Uint8Array(22);
-        const eocdView = new DataView(eocd.buffer);
-        eocdView.setUint32(0, 0x06054b50, true);
-        eocdView.setUint16(4, 0, true);
-        eocdView.setUint16(6, 0, true);
-        eocdView.setUint16(8, entries.length, true);
-        eocdView.setUint16(10, entries.length, true);
-        eocdView.setUint32(12, centralDirectorySize, true);
-        eocdView.setUint32(16, centralDirectoryOffset, true);
-        eocdView.setUint16(20, 0, true);
-        const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-            + centralDirectorySize
-            + eocd.length;
-        const out = new Uint8Array(totalLength);
-        let cursor = 0;
-        for (const chunk of localChunks) {
-            out.set(chunk, cursor);
-            cursor += chunk.length;
-        }
-        for (const chunk of centralChunks) {
-            out.set(chunk, cursor);
-            cursor += chunk.length;
-        }
-        out.set(eocd, cursor);
-        return out;
+    function createAssetsZipEntries(parsedDocument) {
+        const manifestBytes = new TextEncoder().encode(docx2mdApi.createAssetsManifestText(parsedDocument));
+        return [
+            {
+                name: "manifest.json",
+                data: manifestBytes
+            },
+            ...parsedDocument.assets.map((asset) => ({
+                name: asset.sourcePath,
+                data: asset.bytes
+            }))
+        ];
     }
     function createAssetsZipBlob() {
         if (!currentParsedDocument || currentParsedDocument.assets.length === 0) {
             return null;
         }
-        const manifestBytes = new TextEncoder().encode(docx2md.createAssetsManifestText(currentParsedDocument));
-        const zipBytes = createStoredZip([
-            {
-                name: "manifest.json",
-                data: manifestBytes
-            },
-            ...currentParsedDocument.assets.map((asset) => ({
-                name: asset.sourcePath,
-                data: asset.bytes
-            }))
-        ]);
+        const zipBytes = browserZipApi.createStoredZip(createAssetsZipEntries(currentParsedDocument));
         return new Blob([zipBytes], { type: "application/zip" });
+    }
+    function canDownloadRenderedDocument() {
+        return !!currentParsedDocument && !!currentFileName;
     }
     let currentParsedDocument = null;
     let currentFileName = "";
@@ -4958,7 +5377,7 @@ window.addEventListener("DOMContentLoaded", () => {
             resetRenderedState();
             return;
         }
-        setSummaryText(docx2md.createSummaryText(currentParsedDocument));
+        setSummaryText(docx2mdApi.createSummaryText(currentParsedDocument));
         setMarkdownText(getCurrentMarkdown());
         updateActionState();
     }
@@ -4981,7 +5400,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setStatus(`Loading ${selectedFile.name} ...`);
         try {
             const arrayBuffer = await selectedFile.arrayBuffer();
-            currentParsedDocument = await docx2md.parseDocx(arrayBuffer);
+            currentParsedDocument = await docx2mdApi.parseDocx(arrayBuffer);
             renderParsedDocument();
             setStatus(`Converted ${selectedFile.name}`);
             showToast("Converted to Markdown");
@@ -4989,6 +5408,38 @@ window.addEventListener("DOMContentLoaded", () => {
         finally {
             setLoading(false);
         }
+    }
+    function downloadMarkdown() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const fileName = getDownloadFileName(currentFileName);
+        triggerDownload(fileName, getCurrentMarkdown());
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Markdown saved");
+    }
+    function downloadSummary() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const fileName = getSummaryDownloadFileName(currentFileName);
+        triggerDownload(fileName, getSummaryText());
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Summary saved");
+    }
+    function downloadAssets() {
+        if (!canDownloadRenderedDocument()) {
+            return;
+        }
+        const assetsZip = createAssetsZipBlob();
+        if (!assetsZip) {
+            setStatus("No image assets available.");
+            return;
+        }
+        const fileName = getAssetsDownloadFileName(currentFileName);
+        triggerBlobDownload(fileName, assetsZip);
+        setStatus(`Downloaded ${fileName}`);
+        showToast("Assets ZIP saved");
     }
     function bindEvents() {
         const fileInput = getInputElement("docxFileInput");
@@ -5022,33 +5473,13 @@ window.addEventListener("DOMContentLoaded", () => {
             }
         });
         getElement("downloadBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            triggerDownload(getDownloadFileName(currentFileName), getCurrentMarkdown());
-            setStatus(`Downloaded ${getDownloadFileName(currentFileName)}`);
-            showToast("Markdown saved");
+            downloadMarkdown();
         });
         getElement("downloadSummaryBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            triggerDownload(getSummaryDownloadFileName(currentFileName), getSummaryText());
-            setStatus(`Downloaded ${getSummaryDownloadFileName(currentFileName)}`);
-            showToast("Summary saved");
+            downloadSummary();
         });
         getElement("downloadAssetsBtn").addEventListener("click", () => {
-            if (!currentParsedDocument || !currentFileName) {
-                return;
-            }
-            const assetsZip = createAssetsZipBlob();
-            if (!assetsZip) {
-                setStatus("No image assets available.");
-                return;
-            }
-            triggerBlobDownload(getAssetsDownloadFileName(currentFileName), assetsZip);
-            setStatus(`Downloaded ${getAssetsDownloadFileName(currentFileName)}`);
-            showToast("Assets ZIP saved");
+            downloadAssets();
         });
         getElement("clearBtn").addEventListener("click", () => {
             fileInput.value = "";

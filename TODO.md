@@ -111,11 +111,24 @@
 
 ## Phase 15: Refactoring
 
-- [ ] Review `miku-xlsx2md` module boundaries before cutting files
-- [ ] Split DOCX package loading and relationship/content-type resolution out of `core.ts` where useful
-- [ ] Split document XML block parsing, inline run parsing, table parsing, and drawing/image extraction out of `document-parser.ts`
-- [ ] Extract Markdown rendering/escaping helpers into focused modules instead of keeping rendering logic inside parser orchestration
-- [ ] Extract asset manifest construction and browser ZIP packaging into focused modules
-- [ ] Keep CLI and browser behavior unchanged while refactoring by adding or preserving focused regression tests
-- [ ] Update `scripts/lib/docx2md-module-order.mjs` and generated `src/js/` order whenever TypeScript modules are split
-- [ ] Re-run `npm run build` and `npm run test:unit` after each refactoring slice
+- [x] Review `miku-xlsx2md` module boundaries before cutting files
+- [x] Split DOCX package loading and relationship/content-type resolution out of `core.ts` where useful
+- [x] Split document XML block parsing, inline run parsing, table parsing, and drawing/image extraction out of `document-parser.ts`
+- [x] Extract bookmark anchor normalization and duplicate-claiming helpers into a focused module
+- [x] Extract drawing/image unsupported trace description into a focused module
+- [x] Extract table grid-span and vertical-merge row construction into a focused module
+- [x] Extract Markdown rendering/escaping helpers into focused modules instead of keeping rendering logic inside parser orchestration
+- [x] Extract asset manifest construction and browser ZIP packaging into focused modules
+- [x] Keep CLI and browser behavior unchanged while refactoring by adding or preserving focused regression tests
+- [x] Update `scripts/lib/docx2md-module-order.mjs` and generated `src/js/` order whenever TypeScript modules are split
+- [x] Re-run `npm run build` and `npm run test:unit` after each refactoring slice
+
+## Phase 16: Refactoring Resume Notes
+
+- [x] Next safe slice: extract inline run parsing and hyperlink rendering from `document-parser.ts` into `document-inline-parser.ts`
+- [x] Keep textbox text extraction close to inline parsing at first because it calls the same run/text/style logic
+- [x] Keep `renderStructuredParagraphText` in `document-parser.ts` until inline/textbox extraction is stable
+- [x] After inline/textbox extraction, consider splitting top-level block parsing from `parseDocumentXml`
+- [x] Split table cell text extraction after inline/textbox callback boundary stabilized
+- [x] After each slice, update `scripts/lib/docx2md-module-order.mjs`, `miku-docx2md-src.html`, and generated `src/js/`
+- [x] After each slice, run `npm run build`, `npm run test:unit`, `npx tsc --noEmit`, and `git diff --check`
