@@ -65,5 +65,5 @@ export function buildSingleHtmlFromSource(sourceHtml, srcHtmlPath) {
     output = injectBeforeLastClosingTag(output, "body", `${scriptTags}\n`);
   }
 
-  return output;
+  return output.replace(/[ \t]+$/gm, "");
 }

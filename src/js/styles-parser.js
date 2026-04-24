@@ -17,7 +17,7 @@
         const element = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(parent, localName)[0]) || null;
         if (!element)
             return null;
-        const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+        const value = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(element, "val")) || "";
         if (!value)
             return true;
         return value !== "false" && value !== "0";
@@ -31,10 +31,10 @@
             return styles;
         const styleElements = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "style")) || [];
         for (const styleElement of styleElements) {
-            const styleId = styleElement.getAttribute("w:styleId") || styleElement.getAttribute("styleId") || "";
+            const styleId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(styleElement, "styleId")) || "";
             if (!styleId)
                 continue;
-            const styleType = styleElement.getAttribute("w:type") || styleElement.getAttribute("type") || "";
+            const styleType = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(styleElement, "type")) || "";
             const nameElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "name")[0]) || null;
             const basedOnElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "basedOn")[0]) || null;
             const paragraphProperties = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(styleElement, "pPr")[0]) || null;
@@ -45,9 +45,9 @@
             styles.set(styleId, {
                 styleId,
                 styleType,
-                name: (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("w:val")) || (nameElement === null || nameElement === void 0 ? void 0 : nameElement.getAttribute("val")) || "",
-                basedOn: (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("w:val")) || (basedOnElement === null || basedOnElement === void 0 ? void 0 : basedOnElement.getAttribute("val")) || "",
-                outlineLevel: parseInteger((outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("w:val")) || (outlineLevelElement === null || outlineLevelElement === void 0 ? void 0 : outlineLevelElement.getAttribute("val"))),
+                name: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(nameElement, "val")) || "",
+                basedOn: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(basedOnElement, "val")) || "",
+                outlineLevel: parseInteger(xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(outlineLevelElement, "val")),
                 textStyle: {
                     bold: parseStyleFlag(runProperties, "b"),
                     italic: parseStyleFlag(runProperties, "i"),

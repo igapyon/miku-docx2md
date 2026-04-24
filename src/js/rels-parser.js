@@ -26,20 +26,27 @@
         }
         return baseParts.join("/");
     }
+    function parseRelationshipElement(element, sourcePath) {
+        const id = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Id")) || "";
+        const rawTarget = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Target")) || "";
+        const type = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "Type")) || "";
+        const mode = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getAttributeValue(element, "TargetMode")) || "";
+        return {
+            id,
+            relationship: {
+                target: mode === "External" ? rawTarget : resolveZipPath(sourcePath, rawTarget),
+                type,
+                mode
+            }
+        };
+    }
     function parseRelationships(bytes, sourcePath) {
         const document = xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.parseXml(bytes);
         const relationshipElements = document ? (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "Relationship")) || [] : [];
         const map = new Map();
         for (const element of relationshipElements) {
-            const id = element.getAttribute("Id") || "";
-            const rawTarget = element.getAttribute("Target") || "";
-            const type = element.getAttribute("Type") || "";
-            const mode = element.getAttribute("TargetMode") || "";
-            map.set(id, {
-                target: mode === "External" ? rawTarget : resolveZipPath(sourcePath, rawTarget),
-                type,
-                mode
-            });
+            const parsedRelationship = parseRelationshipElement(element, sourcePath);
+            map.set(parsedRelationship.id, parsedRelationship.relationship);
         }
         return map;
     }
