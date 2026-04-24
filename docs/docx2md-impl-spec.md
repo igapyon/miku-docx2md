@@ -2,186 +2,226 @@
 
 ## 1. Document Role
 
-This document is the implementation-oriented companion to `docx2md-spec.md`.
+This document records the current implementation-aligned behavior of `docx2md`.
 
-Its purpose is to record how the actual `docx2md` implementation behaves, once the first cut begins to take shape.
-
-This document should eventually describe:
-
-- implementation-aligned behavior based on the TypeScript source under `src/ts/`
-- actual processing order and fallback behavior
-- internal models and conversion boundaries
-- places where implementation reality differs from idealized design intention
-
-At the current stage, this file serves as the implementation-spec skeleton.
-
-## 2. Relationship to Other Documents
-
-The intended role split is:
+It complements:
 
 - [README.md](../README.md)
   - entry document for users and readers
 - [docx2md-spec.md](./docx2md-spec.md)
-  - high-level specification, design policy, and first-cut scope
-- [docx2md-impl-spec.md](./docx2md-impl-spec.md)
-  - implementation-aligned behavior, internal structure, and concrete processing rules
+  - high-level specification and design policy
 - [upstream.md](./upstream.md)
   - policy for referring to the sibling upstream app `miku-xlsx2md`
 
-If implementation behavior and high-level intention differ, this document should record the actual behavior explicitly.
+When implementation behavior differs from idealized design intent, this document should describe the implementation behavior explicitly.
 
-## 3. Intended Coverage
+## 2. Current Implementation Scope
 
-Once implementation starts, this document should be updated to describe at least:
+The current first cut includes:
 
-1. overall processing flow
-2. ZIP reading behavior
-3. XML parsing behavior
-4. relationship resolution behavior
-5. style resolution behavior
-6. numbering and list resolution behavior
-7. heading detection behavior
-8. hyperlink resolution behavior
-9. table parsing behavior
-10. Markdown rendering behavior
-11. summary and diagnostic behavior
-12. browser UI / CLI behavior when implemented
+- in-house `.docx` ZIP entry reading
+- XML DOM parsing utilities
+- relationship resolution for document hyperlinks
+- style-based and outline-level heading detection
+- inline formatting for bold, italic, strike, underline, and paragraph-internal `<br>`
+- external hyperlinks and document-internal hyperlinks
+- nested lists based on `numbering.xml`
+- structural table extraction
+- merge placeholders `←M←` and `↑M↑`
+- summary counts
+- unsupported-element diagnostics
+- Node.js CLI
+- browser UI based on `lht-cmn/`
 
-## 4. Current Implementation Status
+The current first cut still excludes:
 
-At the moment, the implementation is not yet established.
-Therefore, this document does not describe current code behavior yet.
+- image extraction
+- drawing / shape extraction
+- exact layout reproduction
+- header / footer, footnotes, comments, tracked changes
 
-Until the first cut exists, the authoritative source for design intent remains:
+## 3. Overall Flow
 
-- [docx2md-spec.md](./docx2md-spec.md)
+The current end-to-end flow is:
 
-## 5. Sections To Fill During Implementation
+1. read a `.docx` file as bytes
+2. expand ZIP entries in-house
+3. load `word/document.xml`
+4. optionally load `word/_rels/document.xml.rels`, `word/styles.xml`, and `word/numbering.xml`
+5. parse document blocks in document order
+6. build a lightweight parsed document with `blocks` and `summary`
+7. render Markdown
+8. optionally emit summary text and unsupported debug comments
 
-The following sections are expected to be expanded as code is added.
+## 4. ZIP Handling
 
-### 5.1 Overall Flow
+Current behavior:
 
-To be filled with the concrete end-to-end flow, for example:
+- ZIP expansion is performed by the project code rather than by an external ZIP library
+- required entries are looked up by normalized package path
+- `word/document.xml` is mandatory
+- missing optional entries fall back to empty behavior rather than immediate failure
 
-1. read `.docx`
-2. expand ZIP entries
-3. load required XML
-4. build internal document model
-5. render Markdown
-6. emit summary / diagnostics
+If `word/document.xml` is missing, parsing fails with an explicit error.
 
-### 5.2 ZIP Handling
+## 5. XML Utilities
 
-To record:
+Current behavior:
 
-- supported ZIP methods
-- entry enumeration strategy
-- path normalization behavior
-- error handling for invalid archives
+- XML bytes are decoded as UTF-8 text
+- parsing uses `DOMParser`
+- lookup is based on `localName` rather than namespace prefix spelling
+- helper functions exist for direct-child lookup, descendant lookup, and text extraction
 
-### 5.3 XML Utilities
+Whitespace is not aggressively normalized at XML-read time. Most text normalization happens during inline extraction and Markdown rendering.
 
-To record:
+## 6. Relationship Resolution
 
-- DOM parsing behavior
-- namespace handling strategy
-- text extraction helpers
-- line-break and whitespace handling at XML-read time
+Current behavior:
 
-### 5.4 Relationship Resolution
+- `word/_rels/document.xml.rels` is parsed into a map keyed by relationship id
+- external hyperlink targets are preserved as-is
+- internal package targets are resolved relative to `word/document.xml`
+- missing relationship ids do not fail the whole conversion
 
-To record:
+For hyperlink rendering:
 
-- `document.xml.rels` parsing
-- hyperlink relationship resolution
-- path normalization rules
-- broken or missing relationship fallback behavior
+- `r:id` with a known relationship becomes an external Markdown link
+- missing or broken relationship ids fall back to plain link text unless a `w:anchor` target is available
 
-### 5.5 Style Resolution
+## 7. Style and Heading Resolution
 
-To record:
+Current behavior:
 
-- paragraph style lookup
-- character style lookup
-- direct formatting precedence
-- `basedOn` inheritance traversal
-- cycle detection behavior
+- heading detection uses both paragraph style and outline level
+- direct `Heading n` / `見出し n` recognition is supported
+- style resolution walks the style chain returned by `styles.xml`
+- style-chain heading names and outline levels are both considered
+- paragraph-local `outlineLvl` acts as a fallback when style-based heading detection does not resolve a level
 
-### 5.6 Heading Detection
+Heading levels are clamped to Markdown heading range `1..6`.
 
-To record:
+## 8. Inline Formatting
 
-- `pStyle` resolution behavior
-- outline-level fallback behavior
-- localized heading-name compatibility
-- exact heading-level mapping used by code
+Current behavior:
 
-### 5.7 Numbering and Lists
+- run formatting supports bold, italic, strike, and underline
+- wrapper order is:
+  - underline
+  - strike
+  - italic
+  - bold
+- paragraph-internal `w:br` becomes `<br>`
+- tabs are normalized to four spaces
+- repeated spaces are compacted during inline normalization
+- surrounding whitespace is trimmed at the resulting inline string level
 
-To record:
+Hyperlink text suppresses underline wrapping so that link syntax is not nested with underline output.
 
-- `numbering.xml` model
-- `numId` and `ilvl` resolution
-- unordered vs ordered list detection
-- nested list rendering details
-- fallback when numbering data is broken
+## 9. Hyperlinks and Anchors
 
-### 5.8 Hyperlinks and Anchors
+Current behavior:
 
-To record:
+- external hyperlinks render as `[text](url)`
+- internal hyperlinks with `w:anchor` render as `[text](#anchor)`
+- paragraph bookmarks from `bookmarkStart` are collected as block anchor ids
+- bookmark names starting with `_` are ignored
+- known paragraph bookmarks render as HTML anchors before the block:
+  - `<a id="anchor"></a>`
+- anchor normalization trims whitespace, lowercases, collapses spaces to `-`, replaces unsupported punctuation with `-`, and collapses repeated `-`
+- the same normalization is applied to bookmark owners and internal hyperlink targets so links remain aligned
 
-- external hyperlink rendering
-- internal anchor resolution
-- anchor name normalization
-- fallback behavior for unresolved targets
+## 10. Numbering and Lists
 
-### 5.9 Tables
+Current behavior:
 
-To record:
+- `numbering.xml` is parsed into `abstractNum` and `num` mappings
+- `numId` and `ilvl` are used to determine list kind and nesting depth
+- bullet-like numbering becomes `-`
+- ordered numbering becomes `1.`
+- indentation width is `4 spaces` per nesting level
 
-- table model
-- row and cell traversal
-- merged-cell detection
-- placeholder rendering with `←M←` / `↑M↑`
-- cell-paragraph joining rules
+If numbering metadata cannot be resolved, the paragraph falls back to ordinary paragraph behavior rather than forcing a synthetic list.
 
-### 5.10 Markdown Rendering
+## 11. Tables
 
-To record:
+Current behavior:
 
-- paragraph rendering
-- inline formatting wrapper order
-- line-break normalization
-- whitespace normalization
-- block separation rules
+- tables are parsed in document order
+- each row is read from `w:tr`
+- each cell is read from `w:tc`
+- cell text is built from paragraph content
+- multiple paragraphs inside a cell are joined by `<br><br>`
+- list paragraphs inside table cells are preserved as simplified inline list text using `-` or `1.`
+- nested list depth inside table cells is represented with repeated `&nbsp;&nbsp;&nbsp;&nbsp;`
+- horizontal merge placeholders use `←M←`
+- vertical merge continuation placeholders use `↑M↑`
+- additional horizontally spanned cells inside a vertical continuation row use `←M←`
+- shorter rows are padded with empty cells so the Markdown table stays rectangular
 
-### 5.11 Unsupported Elements and Debug Output
+Markdown rendering uses the first row as the header row.
 
-To record:
+## 12. Markdown Rendering
 
-- which elements are treated as unsupported
-- whether they are ignored or traced
-- debug switch behavior
-- HTML comment trace format
+Current behavior:
 
-### 5.12 Summary and Diagnostics
+- paragraphs render as plain Markdown blocks
+- headings render as `#` through `######`
+- list items render with bullet or ordered markers and 4-space nesting
+- tables render as Markdown tables
+- unsupported blocks are omitted by default
+- unsupported blocks render as HTML comments only when debug-style output is enabled
 
-To record:
+Anchor rendering is inserted immediately before the owning paragraph, heading, or list item block.
 
-- summary fields
-- counting rules
-- unsupported-element counts
-- comment-trace counts
+## 13. Summary and Diagnostics
 
-## 6. Known Implementation Questions
+Current summary fields are:
 
-The following are still expected to be finalized during implementation work:
+- `paragraphs`
+- `headings`
+- `listItems`
+- `tables`
+- `links`
+- `internalLinks`
+- `externalLinks`
+- `unsupportedElements`
+- `unsupportedCommentTraces`
 
-- exact debug option name for unsupported-comment output
-- internal anchor normalization rules
-- nested-list indentation width
-- exact representation of list-like or paragraph-like content inside table cells
-- summary presentation surface in UI and/or CLI
+`unsupportedCommentTraces` currently mirrors `unsupportedElements`.
 
-These items should move from “question” to “documented behavior” as soon as code decisions are made.
+## 14. Browser UI and CLI
+
+### 14.1 Browser UI
+
+Current browser UI behavior:
+
+- uses `lht-cmn/` as the shared component base
+- uses `lht-page-hero`, `lht-file-select`, `lht-switch-help`, `lht-preview-output`, `lht-loading-overlay`, `lht-error-alert`, and `lht-toast`
+- allows file selection first and explicit conversion second
+- supports Markdown save and summary save
+- uses `lht-preview-output` built-in copy actions for preview text
+- toggles unsupported HTML comments via a switch
+
+Page-local CSS lives in `src/css/app.css`.
+
+### 14.2 Node.js CLI
+
+Current CLI options include:
+
+- `--out <file>`
+- `--summary`
+- `--summary-out <file>`
+- `--debug`
+- `--include-unsupported-comments`
+- `--help`
+
+`--debug` and `--include-unsupported-comments` currently enable the same Markdown behavior.
+
+## 15. Open Items
+
+The main remaining implementation questions are:
+
+- whether table-cell headings or other richer block structures need dedicated rendering beyond simplified inline text
+- broader unsupported-element classification detail
+- fuller implementation-aligned documentation for `styles.xml` inheritance depth

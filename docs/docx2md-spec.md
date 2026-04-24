@@ -121,8 +121,10 @@ This is a deliberate output policy, not merely an implementation limitation.
 - XML parsing style
 - TypeScript-first source management
 - single-file web app packaging direction where practical
+- `lht-cmn/` based browser UI composition
 
 Unless there is a clear `docx`-specific reason to differ, `docx2md` should imitate `miku-xlsx2md` in overall repository structure, implementation style, naming discipline, test style, and browser/runtime separation.
+For browser UI, `docx2md` should treat `lht-cmn/` as the primary shared component layer and should prefer `lht-*` components over page-local widget implementations unless there is a clear reason to differ.
 
 However, `docx2md` should not inherit spreadsheet-specific behavior.
 There is no table-region detection problem equivalent to Excel sheet analysis.
@@ -301,6 +303,11 @@ This means the final visible output places `bold` outermost when all four styles
 
 - external links should become Markdown links when possible
 - format: `[text](url)`
+- document-internal links should become `[text](#anchor)` when the target anchor is known
+- when a paragraph owns a bookmark target, the Markdown output may emit a lightweight HTML anchor such as `<a id="anchor"></a>` immediately before the block
+- internal anchor names should be normalized into stable fragment-safe ids
+- recommended normalization is: trim, lowercase, collapse whitespace to `-`, replace unsupported punctuation with `-`, and collapse repeated `-`
+- unresolved internal links should fall back to plain link text rather than emitting a broken Markdown target
 - when hyperlink text also has underline formatting, GitHub output does not need to add extra underline markup on top of the link
 - document-internal links should also be preserved when the target can be resolved safely
 - a resolved internal link may render as `[text](#anchor)`
@@ -409,6 +416,8 @@ Cell-level rules:
 - a line break inside a table-cell paragraph should render as `<br>`
 - multiple paragraphs inside one table cell may be joined using `<br><br>`
 - table-cell text should be trimmed at both ends before final Markdown emission
+- when a table-cell paragraph is structurally a list item, the output may preserve it as simplified inline list text such as `- item` or `1. item`
+- nested list depth inside table cells may be represented with lightweight indentation rather than full block Markdown structure
 
 List-item text should follow the same general normalization policy as ordinary paragraphs unless a later implementation section defines a narrower exception.
 

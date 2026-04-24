@@ -5,7 +5,9 @@
   "scripts": {
     "test": "vitest run",
     "test:unit": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cli": "node scripts/miku-docx2md-cli.mjs",
+    "build": "node scripts/build-miku-docx2md.mjs"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.9.9",
