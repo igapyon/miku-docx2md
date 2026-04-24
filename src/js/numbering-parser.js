@@ -22,20 +22,20 @@
             return { abstractNums, nums };
         }
         for (const abstractNumElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "abstractNum")) || []) {
-            const abstractNumId = abstractNumElement.getAttribute("w:abstractNumId") || abstractNumElement.getAttribute("abstractNumId") || "";
+            const abstractNumId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(abstractNumElement, "abstractNumId")) || "";
             if (!abstractNumId)
                 continue;
             const levels = new Map();
             for (const levelElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(abstractNumElement, "lvl")) || []) {
-                const level = parseInteger(levelElement.getAttribute("w:ilvl") || levelElement.getAttribute("ilvl"));
+                const level = parseInteger(xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(levelElement, "ilvl"));
                 if (level === null)
                     continue;
                 const numFmtElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(levelElement, "numFmt")[0]) || null;
                 const lvlTextElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(levelElement, "lvlText")[0]) || null;
                 levels.set(level, {
                     level,
-                    format: (numFmtElement === null || numFmtElement === void 0 ? void 0 : numFmtElement.getAttribute("w:val")) || (numFmtElement === null || numFmtElement === void 0 ? void 0 : numFmtElement.getAttribute("val")) || "",
-                    text: (lvlTextElement === null || lvlTextElement === void 0 ? void 0 : lvlTextElement.getAttribute("w:val")) || (lvlTextElement === null || lvlTextElement === void 0 ? void 0 : lvlTextElement.getAttribute("val")) || ""
+                    format: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(numFmtElement, "val")) || "",
+                    text: (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(lvlTextElement, "val")) || ""
                 });
             }
             abstractNums.set(abstractNumId, {
@@ -44,11 +44,11 @@
             });
         }
         for (const numElement of (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.findDescendantsByLocalName(document, "num")) || []) {
-            const numId = numElement.getAttribute("w:numId") || numElement.getAttribute("numId") || "";
+            const numId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(numElement, "numId")) || "";
             if (!numId)
                 continue;
             const abstractNumIdElement = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getChildrenByLocalName(numElement, "abstractNumId")[0]) || null;
-            const abstractNumId = (abstractNumIdElement === null || abstractNumIdElement === void 0 ? void 0 : abstractNumIdElement.getAttribute("w:val")) || (abstractNumIdElement === null || abstractNumIdElement === void 0 ? void 0 : abstractNumIdElement.getAttribute("val")) || "";
+            const abstractNumId = (xmlUtils === null || xmlUtils === void 0 ? void 0 : xmlUtils.getWordAttributeValue(abstractNumIdElement, "val")) || "";
             if (abstractNumId) {
                 nums.set(numId, abstractNumId);
             }

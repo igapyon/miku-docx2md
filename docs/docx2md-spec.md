@@ -46,12 +46,12 @@ The first cut should focus on textual and structural content that maps cleanly i
 - bullet lists
 - numbered lists
 - tables
+- resolved embedded image references as lightweight placeholders or explicit sidecar assets
 
 ### 2.4 Out of Scope in First Cut
 
-The first cut intentionally excludes visual and layout-heavy features.
+The first cut intentionally excludes visual and layout-heavy reproduction.
 
-- images
 - shapes
 - SmartArt
 - WordArt
@@ -59,6 +59,7 @@ The first cut intentionally excludes visual and layout-heavy features.
 - floating objects
 - charts
 - drawing objects
+- inline image layout and sizing fidelity
 - exact page layout reproduction
 - headers / footers
 - footnotes / endnotes
@@ -66,7 +67,8 @@ The first cut intentionally excludes visual and layout-heavy features.
 - tracked changes
 - macros
 
-These may be considered later, but should not complicate the first implementation.
+Resolved embedded image files may be exposed as sidecar assets, but this does not imply Word-like layout reproduction.
+Other visual features may be considered later, but should not complicate the first implementation.
 
 ## 3. Target Documents
 
@@ -165,7 +167,8 @@ The primary output should be:
 
 - one combined Markdown file
 
-Since images and shapes are out of scope in the first cut, ZIP export is not required initially.
+When resolved embedded images are exported explicitly, a sidecar asset directory or archive may accompany the Markdown output.
+The primary output remains the Markdown document; sidecar image export is optional and should not require layout reconstruction.
 
 ### 5.3 Naming
 
@@ -504,7 +507,7 @@ When multiple XML spellings represent the same broad unsupported feature, the im
 
 An implementation may also choose a narrower compromise for text boxes: preserve plain textual paragraphs from `txbxContent` when they can be extracted safely, while still treating textbox layout and placement as unsupported.
 For image-like drawing content, an implementation may keep the image unsupported while still emitting a debug-oriented placeholder trace that includes the resolved relationship target and, when safely available, metadata such as alt text (`descr` / `title`) and drawing extent.
-When meaningful alt text is available, the implementation may also emit a small non-debug placeholder such as `[Image: ...]` without attempting actual image extraction or layout reproduction.
+When meaningful alt text is available, the implementation may also emit a small non-debug placeholder such as `[Image: ...]` without attempting inline layout reproduction.
 For Node-oriented workflows, an implementation may additionally expose resolved embedded image package entries as sidecar assets without attempting layout reconstruction or automatic Markdown image embedding.
 When such sidecar asset export is enabled explicitly, the implementation may choose to replace that placeholder with a relative Markdown image link such as `![alt](assets/word/media/example.png)`.
 When package content types are available, an implementation may prefer those declarations over file-extension inference when reporting exported asset media types.
@@ -569,7 +572,7 @@ The intended direction is to follow the sibling app style where practical.
 - TypeScript as source of truth
 - testable core logic
 
-CLI support may be added later, but it does not need to block the first cut.
+Current implementations may include CLI support when it follows the same local-processing and testable-core direction.
 
 ## 12. Initial Development Priorities
 

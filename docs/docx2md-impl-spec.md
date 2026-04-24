@@ -28,6 +28,9 @@ The current first cut includes:
 - nested lists based on `numbering.xml`
 - structural table extraction
 - merge placeholders `←M←` and `↑M↑`
+- resolved embedded image asset discovery and optional sidecar export
+- lightweight image placeholders or Markdown image links when image metadata permits
+- asset manifest output for CLI and browser image asset exports
 - summary counts
 - unsupported-element diagnostics
 - Node.js CLI
@@ -35,8 +38,8 @@ The current first cut includes:
 
 The current first cut still excludes:
 
-- image extraction
-- drawing / shape extraction
+- inline image layout reproduction
+- drawing / shape layout extraction
 - exact layout reproduction
 - header / footer, footnotes, comments, tracked changes
 
@@ -47,11 +50,11 @@ The current end-to-end flow is:
 1. read a `.docx` file as bytes
 2. expand ZIP entries in-house
 3. load `word/document.xml`
-4. optionally load `word/_rels/document.xml.rels`, `word/styles.xml`, and `word/numbering.xml`
+4. optionally load `word/_rels/document.xml.rels`, `word/styles.xml`, `word/numbering.xml`, and `[Content_Types].xml`
 5. parse document blocks in document order
-6. build a lightweight parsed document with `blocks` and `summary`
+6. build a lightweight parsed document with `blocks`, `summary`, and any resolved sidecar `assets`
 7. render Markdown
-8. optionally emit summary text and unsupported debug comments
+8. optionally emit summary text, unsupported debug comments, and exported image assets
 
 ## 4. ZIP Handling
 

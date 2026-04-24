@@ -9,18 +9,8 @@
     parseXml: (bytes: Uint8Array) => Document;
     findDescendantsByLocalName: (parent: ParentNode, localName: string) => Element[];
     getChildrenByLocalName: (parent: ParentNode, localName: string) => Element[];
+    getWordAttributeValue: (element: Element | null | undefined, localName: string, fallback?: string) => string;
   }>("xmlUtils");
-
-  type NumberingLevel = {
-    level: number;
-    format: string;
-    text: string;
-  };
-
-  type NumberingDefinition = {
-    abstractNumId: string;
-    levels: Map<number, NumberingLevel>;
-  };
 
   function parseInteger(value: string | null | undefined): number | null {
     if (!value) return null;
@@ -28,11 +18,8 @@
     return Number.isFinite(parsed) ? parsed : null;
   }
 
-  function parseNumbering(bytes?: Uint8Array): {
-    abstractNums: Map<string, NumberingDefinition>;
-    nums: Map<string, string>;
-  } {
-    const abstractNums = new Map<string, NumberingDefinition>();
+  function parseNumbering(bytes?: Uint8Array): Docx2mdNumberingDefinition {
+    const abstractNums = new Map<string, Docx2mdAbstractNumberingDefinition>();
     const nums = new Map<string, string>();
     if (!bytes) {
       return { abstractNums, nums };
@@ -43,18 +30,18 @@
     }
 
     for (const abstractNumElement of xmlUtils?.findDescendantsByLocalName(document, "abstractNum") || []) {
-      const abstractNumId = abstractNumElement.getAttribute("w:abstractNumId") || abstractNumElement.getAttribute("abstractNumId") || "";
+      const abstractNumId = xmlUtils?.getWordAttributeValue(abstractNumElement, "abstractNumId") || "";
       if (!abstractNumId) continue;
-      const levels = new Map<number, NumberingLevel>();
+      const levels = new Map<number, Docx2mdNumberingLevel>();
       for (const levelElement of xmlUtils?.getChildrenByLocalName(abstractNumElement, "lvl") || []) {
-        const level = parseInteger(levelElement.getAttribute("w:ilvl") || levelElement.getAttribute("ilvl"));
+        const level = parseInteger(xmlUtils?.getWordAttributeValue(levelElement, "ilvl"));
         if (level === null) continue;
         const numFmtElement = xmlUtils?.getChildrenByLocalName(levelElement, "numFmt")[0] || null;
         const lvlTextElement = xmlUtils?.getChildrenByLocalName(levelElement, "lvlText")[0] || null;
         levels.set(level, {
           level,
-          format: numFmtElement?.getAttribute("w:val") || numFmtElement?.getAttribute("val") || "",
-          text: lvlTextElement?.getAttribute("w:val") || lvlTextElement?.getAttribute("val") || ""
+          format: xmlUtils?.getWordAttributeValue(numFmtElement, "val") || "",
+          text: xmlUtils?.getWordAttributeValue(lvlTextElement, "val") || ""
         });
       }
       abstractNums.set(abstractNumId, {
@@ -64,10 +51,10 @@
     }
 
     for (const numElement of xmlUtils?.findDescendantsByLocalName(document, "num") || []) {
-      const numId = numElement.getAttribute("w:numId") || numElement.getAttribute("numId") || "";
+      const numId = xmlUtils?.getWordAttributeValue(numElement, "numId") || "";
       if (!numId) continue;
       const abstractNumIdElement = xmlUtils?.getChildrenByLocalName(numElement, "abstractNumId")[0] || null;
-      const abstractNumId = abstractNumIdElement?.getAttribute("w:val") || abstractNumIdElement?.getAttribute("val") || "";
+      const abstractNumId = xmlUtils?.getWordAttributeValue(abstractNumIdElement, "val") || "";
       if (abstractNumId) {
         nums.set(numId, abstractNumId);
       }
@@ -77,7 +64,7 @@
   }
 
   function resolveListKind(
-    numbering: { abstractNums: Map<string, NumberingDefinition>; nums: Map<string, string> },
+    numbering: Docx2mdNumberingDefinition,
     numId: string,
     ilvl: number
   ): "bullet" | "ordered" | null {

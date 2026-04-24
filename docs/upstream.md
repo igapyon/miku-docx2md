@@ -24,4 +24,5 @@ When reviewing architecture, documentation style, file layout, build scripts, or
 
 ## Scope Note
 
-For `miku-docx2md` first cut, images and shapes are out of scope even though the upstream sibling app handles richer asset extraction in the spreadsheet domain.
+For `miku-docx2md`, Word-like visual layout reproduction remains out of scope.
+Resolved embedded images may be exposed as sidecar assets, but shapes, charts, floating-object layout, and richer drawing reconstruction should still be treated as document-specific work rather than copied directly from the spreadsheet upstream.

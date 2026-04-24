@@ -8,6 +8,7 @@
   const xmlUtils = moduleRegistry.getModule<{
     parseXml: (bytes: Uint8Array) => Document;
     findDescendantsByLocalName: (parent: ParentNode, localName: string) => Element[];
+    getAttributeValue: (element: Element | null | undefined, name: string, fallback?: string) => string;
   }>("xmlUtils");
 
   function resolveZipPath(sourcePath: string, target: string): string {
@@ -28,20 +29,31 @@
     return baseParts.join("/");
   }
 
-  function parseRelationships(bytes: Uint8Array, sourcePath: string): Map<string, { target: string; type: string; mode: string }> {
-    const document = xmlUtils?.parseXml(bytes);
-    const relationshipElements = document ? xmlUtils?.findDescendantsByLocalName(document, "Relationship") || [] : [];
-    const map = new Map<string, { target: string; type: string; mode: string }>();
-    for (const element of relationshipElements) {
-      const id = element.getAttribute("Id") || "";
-      const rawTarget = element.getAttribute("Target") || "";
-      const type = element.getAttribute("Type") || "";
-      const mode = element.getAttribute("TargetMode") || "";
-      map.set(id, {
+  function parseRelationshipElement(element: Element, sourcePath: string): {
+    id: string;
+    relationship: Docx2mdRelationship;
+  } {
+    const id = xmlUtils?.getAttributeValue(element, "Id") || "";
+    const rawTarget = xmlUtils?.getAttributeValue(element, "Target") || "";
+    const type = xmlUtils?.getAttributeValue(element, "Type") || "";
+    const mode = xmlUtils?.getAttributeValue(element, "TargetMode") || "";
+    return {
+      id,
+      relationship: {
         target: mode === "External" ? rawTarget : resolveZipPath(sourcePath, rawTarget),
         type,
         mode
-      });
+      }
+    };
+  }
+
+  function parseRelationships(bytes: Uint8Array, sourcePath: string): Map<string, Docx2mdRelationship> {
+    const document = xmlUtils?.parseXml(bytes);
+    const relationshipElements = document ? xmlUtils?.findDescendantsByLocalName(document, "Relationship") || [] : [];
+    const map = new Map<string, Docx2mdRelationship>();
+    for (const element of relationshipElements) {
+      const parsedRelationship = parseRelationshipElement(element, sourcePath);
+      map.set(parsedRelationship.id, parsedRelationship.relationship);
     }
     return map;
   }

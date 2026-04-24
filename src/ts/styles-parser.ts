@@ -9,21 +9,8 @@
     parseXml: (bytes: Uint8Array) => Document;
     getChildrenByLocalName: (parent: ParentNode, localName: string) => Element[];
     findDescendantsByLocalName: (parent: ParentNode, localName: string) => Element[];
+    getWordAttributeValue: (element: Element | null | undefined, localName: string, fallback?: string) => string;
   }>("xmlUtils");
-
-  type StyleRecord = {
-    styleId: string;
-    styleType: string;
-    name: string;
-    basedOn: string;
-    outlineLevel: number | null;
-    textStyle: {
-      bold: boolean | null;
-      italic: boolean | null;
-      strike: boolean | null;
-      underline: boolean | null;
-    };
-  };
 
   function parseInteger(value: string | null | undefined): number | null {
     if (!value) return null;
@@ -35,21 +22,21 @@
     if (!parent) return null;
     const element = xmlUtils?.getChildrenByLocalName(parent, localName)[0] || null;
     if (!element) return null;
-    const value = element.getAttribute("w:val") || element.getAttribute("val") || "";
+    const value = xmlUtils?.getWordAttributeValue(element, "val") || "";
     if (!value) return true;
     return value !== "false" && value !== "0";
   }
 
-  function parseStyles(bytes?: Uint8Array): Map<string, StyleRecord> {
-    const styles = new Map<string, StyleRecord>();
+  function parseStyles(bytes?: Uint8Array): Map<string, Docx2mdParsedStyleDefinition> {
+    const styles = new Map<string, Docx2mdParsedStyleDefinition>();
     if (!bytes) return styles;
     const document = xmlUtils?.parseXml(bytes);
     if (!document) return styles;
     const styleElements = xmlUtils?.findDescendantsByLocalName(document, "style") || [];
     for (const styleElement of styleElements) {
-      const styleId = styleElement.getAttribute("w:styleId") || styleElement.getAttribute("styleId") || "";
+      const styleId = xmlUtils?.getWordAttributeValue(styleElement, "styleId") || "";
       if (!styleId) continue;
-      const styleType = styleElement.getAttribute("w:type") || styleElement.getAttribute("type") || "";
+      const styleType = xmlUtils?.getWordAttributeValue(styleElement, "type") || "";
       const nameElement = xmlUtils?.getChildrenByLocalName(styleElement, "name")[0] || null;
       const basedOnElement = xmlUtils?.getChildrenByLocalName(styleElement, "basedOn")[0] || null;
       const paragraphProperties = xmlUtils?.getChildrenByLocalName(styleElement, "pPr")[0] || null;
@@ -60,9 +47,9 @@
       styles.set(styleId, {
         styleId,
         styleType,
-        name: nameElement?.getAttribute("w:val") || nameElement?.getAttribute("val") || "",
-        basedOn: basedOnElement?.getAttribute("w:val") || basedOnElement?.getAttribute("val") || "",
-        outlineLevel: parseInteger(outlineLevelElement?.getAttribute("w:val") || outlineLevelElement?.getAttribute("val")),
+        name: xmlUtils?.getWordAttributeValue(nameElement, "val") || "",
+        basedOn: xmlUtils?.getWordAttributeValue(basedOnElement, "val") || "",
+        outlineLevel: parseInteger(xmlUtils?.getWordAttributeValue(outlineLevelElement, "val")),
         textStyle: {
           bold: parseStyleFlag(runProperties, "b"),
           italic: parseStyleFlag(runProperties, "i"),
@@ -74,13 +61,16 @@
     return styles;
   }
 
-  function resolveStyleChain(styles: Map<string, StyleRecord>, styleId: string): StyleRecord[] {
-    const chain: StyleRecord[] = [];
+  function resolveStyleChain(
+    styles: Map<string, Docx2mdParsedStyleDefinition>,
+    styleId: string
+  ): Docx2mdParsedStyleDefinition[] {
+    const chain: Docx2mdParsedStyleDefinition[] = [];
     const visited = new Set<string>();
     let cursor = styleId;
     while (cursor && styles.has(cursor) && !visited.has(cursor)) {
       visited.add(cursor);
-      const style = styles.get(cursor) as StyleRecord;
+      const style = styles.get(cursor) as Docx2mdParsedStyleDefinition;
       chain.push(style);
       cursor = style.basedOn;
     }
