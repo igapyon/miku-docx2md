@@ -8,31 +8,50 @@ window.addEventListener("DOMContentLoaded", () => {
   const docx2md = moduleRegistry.getModule<{
     parseDocx: (arrayBuffer: ArrayBuffer) => Promise<{
       blocks: Array<
-        { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[] }
+        { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[]; unsupportedTypes?: string[] }
         | { kind: "unsupported"; type: string }
-        | { kind: "table"; rows: string[][] }
+        | { kind: "table"; rows: string[][]; unsupportedTypes?: string[] }
       >;
       summary: {
         paragraphs: number;
         headings: number;
         listItems: number;
         tables: number;
+        images: number;
+        imageAssets: number;
+        drawingLikeUnsupported: number;
         links: number;
         internalLinks: number;
         externalLinks: number;
         unsupportedElements: number;
+        unsupportedCommentTraces: number;
       };
+      assets: Array<{
+        kind: "image";
+        sourcePath: string;
+        mediaType: string;
+        altText: string;
+        sourceTrace: string;
+        blockIndex: number;
+        documentPosition: {
+          blockIndex: number;
+          blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+          traceIndex: number;
+        };
+        bytes: Uint8Array;
+      }>;
     }>;
     renderMarkdown: (
       parsedDocument: {
         blocks: Array<
-          { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[] }
+          { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[]; unsupportedTypes?: string[] }
           | { kind: "unsupported"; type: string }
-          | { kind: "table"; rows: string[][] }
+          | { kind: "table"; rows: string[][]; unsupportedTypes?: string[] }
         >;
       },
       options?: {
         includeUnsupportedComments?: boolean;
+        imagePathResolver?: (sourcePath: string) => string;
       }
     ) => string;
     createSummaryText: (parsedDocument: {
@@ -41,11 +60,31 @@ window.addEventListener("DOMContentLoaded", () => {
         headings: number;
         listItems: number;
         tables: number;
+        images: number;
+        imageAssets: number;
+        drawingLikeUnsupported: number;
         links: number;
         internalLinks: number;
         externalLinks: number;
         unsupportedElements: number;
+        unsupportedCommentTraces: number;
       };
+    }) => string;
+    createAssetsManifestText: (parsedDocument: {
+      assets: Array<{
+        kind: "image";
+        sourcePath: string;
+        mediaType: string;
+        altText: string;
+        sourceTrace: string;
+        blockIndex: number;
+        documentPosition: {
+          blockIndex: number;
+          blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+          traceIndex: number;
+        };
+        bytes: Uint8Array;
+      }>;
     }) => string;
   }>("docx2md");
 
@@ -108,8 +147,16 @@ window.addEventListener("DOMContentLoaded", () => {
     return fileName.replace(/\.docx$/i, "") + ".summary.txt";
   }
 
+  function getAssetsDownloadFileName(fileName: string): string {
+    return fileName.replace(/\.docx$/i, "") + ".assets.zip";
+  }
+
   function getSummaryText(): string {
     return getPreview("summaryPreview").getText();
+  }
+
+  function hasDownloadableAssets(): boolean {
+    return !!currentParsedDocument && currentParsedDocument.assets.length > 0;
   }
 
   function showToast(message: string): void {
@@ -148,10 +195,15 @@ window.addEventListener("DOMContentLoaded", () => {
     (getElement("convertBtn") as HTMLButtonElement).disabled = !hasSelection;
     (getElement("downloadBtn") as HTMLButtonElement).disabled = !hasRendered;
     (getElement("downloadSummaryBtn") as HTMLButtonElement).disabled = !hasRendered;
+    (getElement("downloadAssetsBtn") as HTMLButtonElement).disabled = !hasDownloadableAssets();
   }
 
   function triggerDownload(fileName: string, content: string): void {
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    triggerBlobDownload(fileName, blob);
+  }
+
+  function triggerBlobDownload(fileName: string, blob: Blob): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -160,6 +212,107 @@ window.addEventListener("DOMContentLoaded", () => {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  }
+
+  function createStoredZip(entries: Array<{ name: string; data: Uint8Array }>): Uint8Array {
+    const encoder = new TextEncoder();
+    const localChunks: Uint8Array[] = [];
+    const centralChunks: Uint8Array[] = [];
+    let offset = 0;
+
+    for (const entry of entries) {
+      const nameBytes = encoder.encode(entry.name);
+      const dataBytes = entry.data;
+
+      const localHeader = new Uint8Array(30 + nameBytes.length);
+      const localView = new DataView(localHeader.buffer);
+      localView.setUint32(0, 0x04034b50, true);
+      localView.setUint16(4, 20, true);
+      localView.setUint16(6, 0, true);
+      localView.setUint16(8, 0, true);
+      localView.setUint16(10, 0, true);
+      localView.setUint16(12, 0, true);
+      localView.setUint32(14, 0, true);
+      localView.setUint32(18, dataBytes.length, true);
+      localView.setUint32(22, dataBytes.length, true);
+      localView.setUint16(26, nameBytes.length, true);
+      localView.setUint16(28, 0, true);
+      localHeader.set(nameBytes, 30);
+      localChunks.push(localHeader, dataBytes);
+
+      const centralHeader = new Uint8Array(46 + nameBytes.length);
+      const centralView = new DataView(centralHeader.buffer);
+      centralView.setUint32(0, 0x02014b50, true);
+      centralView.setUint16(4, 20, true);
+      centralView.setUint16(6, 20, true);
+      centralView.setUint16(8, 0, true);
+      centralView.setUint16(10, 0, true);
+      centralView.setUint16(12, 0, true);
+      centralView.setUint16(14, 0, true);
+      centralView.setUint32(16, 0, true);
+      centralView.setUint32(20, dataBytes.length, true);
+      centralView.setUint32(24, dataBytes.length, true);
+      centralView.setUint16(28, nameBytes.length, true);
+      centralView.setUint16(30, 0, true);
+      centralView.setUint16(32, 0, true);
+      centralView.setUint16(34, 0, true);
+      centralView.setUint16(36, 0, true);
+      centralView.setUint32(38, 0, true);
+      centralView.setUint32(42, offset, true);
+      centralHeader.set(nameBytes, 46);
+      centralChunks.push(centralHeader);
+
+      offset += localHeader.length + dataBytes.length;
+    }
+
+    const centralDirectoryOffset = offset;
+    const centralDirectorySize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+    const eocd = new Uint8Array(22);
+    const eocdView = new DataView(eocd.buffer);
+    eocdView.setUint32(0, 0x06054b50, true);
+    eocdView.setUint16(4, 0, true);
+    eocdView.setUint16(6, 0, true);
+    eocdView.setUint16(8, entries.length, true);
+    eocdView.setUint16(10, entries.length, true);
+    eocdView.setUint32(12, centralDirectorySize, true);
+    eocdView.setUint32(16, centralDirectoryOffset, true);
+    eocdView.setUint16(20, 0, true);
+
+    const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
+      + centralDirectorySize
+      + eocd.length;
+    const out = new Uint8Array(totalLength);
+    let cursor = 0;
+    for (const chunk of localChunks) {
+      out.set(chunk, cursor);
+      cursor += chunk.length;
+    }
+    for (const chunk of centralChunks) {
+      out.set(chunk, cursor);
+      cursor += chunk.length;
+    }
+    out.set(eocd, cursor);
+    return out;
+  }
+
+  function createAssetsZipBlob(): Blob | null {
+    if (!currentParsedDocument || currentParsedDocument.assets.length === 0) {
+      return null;
+    }
+    const manifestBytes = new TextEncoder().encode(docx2md.createAssetsManifestText(currentParsedDocument));
+    const zipBytes = createStoredZip(
+      [
+        {
+          name: "manifest.json",
+          data: manifestBytes
+        },
+        ...currentParsedDocument.assets.map((asset) => ({
+          name: asset.sourcePath,
+          data: asset.bytes
+        }))
+      ]
+    );
+    return new Blob([zipBytes], { type: "application/zip" });
   }
 
   let currentParsedDocument: Awaited<ReturnType<typeof docx2md.parseDocx>> | null = null;
@@ -264,6 +417,20 @@ window.addEventListener("DOMContentLoaded", () => {
       triggerDownload(getSummaryDownloadFileName(currentFileName), getSummaryText());
       setStatus(`Downloaded ${getSummaryDownloadFileName(currentFileName)}`);
       showToast("Summary saved");
+    });
+
+    (getElement("downloadAssetsBtn") as HTMLButtonElement).addEventListener("click", () => {
+      if (!currentParsedDocument || !currentFileName) {
+        return;
+      }
+      const assetsZip = createAssetsZipBlob();
+      if (!assetsZip) {
+        setStatus("No image assets available.");
+        return;
+      }
+      triggerBlobDownload(getAssetsDownloadFileName(currentFileName), assetsZip);
+      setStatus(`Downloaded ${getAssetsDownloadFileName(currentFileName)}`);
+      showToast("Assets ZIP saved");
     });
 
     (getElement("clearBtn") as HTMLButtonElement).addEventListener("click", () => {

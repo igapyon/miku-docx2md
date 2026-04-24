@@ -416,6 +416,7 @@ Cell-level rules:
 - a line break inside a table-cell paragraph should render as `<br>`
 - multiple paragraphs inside one table cell may be joined using `<br><br>`
 - table-cell text should be trimmed at both ends before final Markdown emission
+- when a table-cell paragraph is structurally a heading, the output may preserve it as simplified heading text such as `## Heading`
 - when a table-cell paragraph is structurally a list item, the output may preserve it as simplified inline list text such as `- item` or `1. item`
 - nested list depth inside table cells may be represented with lightweight indentation rather than full block Markdown structure
 
@@ -440,6 +441,16 @@ Style resolution should be deep enough to support at least:
 - strike
 - underline
 - list-related paragraph structure when style metadata is relevant
+
+For supported text emphasis, the intended precedence is:
+
+1. direct run formatting
+2. character style resolved through `rStyle`
+3. paragraph-local run properties
+4. paragraph style
+5. inherited `basedOn` chain
+
+When a supported style flag is explicitly disabled at a narrower scope, that narrower scope should take precedence over inherited formatting.
 
 The first cut does not need to resolve every style-related visual detail.
 It should prioritize structure and supported Markdown-facing emphasis rather than Word layout fidelity.
@@ -471,6 +482,7 @@ Recommended first-cut fallback policy for unsupported elements:
 - by default, unsupported elements should be omitted from the Markdown body
 - when a debug-oriented switch is enabled, unsupported elements may be represented by lightweight HTML comments
 - HTML comment traces should remain concise and diagnostic rather than verbose
+- when an unsupported element is nested inside a supported block, the debug trace may be emitted adjacent to that owning block rather than as a standalone block
 
 The first cut may expose this through a dedicated option such as:
 
@@ -488,6 +500,17 @@ Examples of acceptable fallback direction:
 - `<!-- unsupported: textbox -->`
 - `<!-- unsupported: chart -->`
 
+When multiple XML spellings represent the same broad unsupported feature, the implementation may normalize them into one concise diagnostic category.
+
+An implementation may also choose a narrower compromise for text boxes: preserve plain textual paragraphs from `txbxContent` when they can be extracted safely, while still treating textbox layout and placement as unsupported.
+For image-like drawing content, an implementation may keep the image unsupported while still emitting a debug-oriented placeholder trace that includes the resolved relationship target and, when safely available, metadata such as alt text (`descr` / `title`) and drawing extent.
+When meaningful alt text is available, the implementation may also emit a small non-debug placeholder such as `[Image: ...]` without attempting actual image extraction or layout reproduction.
+For Node-oriented workflows, an implementation may additionally expose resolved embedded image package entries as sidecar assets without attempting layout reconstruction or automatic Markdown image embedding.
+When such sidecar asset export is enabled explicitly, the implementation may choose to replace that placeholder with a relative Markdown image link such as `![alt](assets/word/media/example.png)`.
+When package content types are available, an implementation may prefer those declarations over file-extension inference when reporting exported asset media types.
+An implementation may also include a small manifest file alongside exported assets so downstream tools can recover path, media-type, alt-text, and byte-size metadata without reparsing the source `.docx`.
+When useful for diagnostics, that manifest may also include the originating unsupported trace string, the owning block index, and a finer document-position object such as block kind plus per-block trace index.
+
 The first cut should prefer concise comment traces over large raw XML dumps or long explanatory blocks.
 
 ## 9. Summary and Diagnostics
@@ -500,11 +523,16 @@ Recommended summary items include at least:
 - headings
 - listItems
 - tables
+- images
+- imageAssets
+- drawingLikeUnsupported
 - links
 - internalLinks
 - externalLinks
 - unsupportedElements
 - unsupportedCommentTraces
+
+`unsupportedCommentTraces` does not need to equal only top-level unsupported blocks; it may also include traces attached to supported blocks that contained unsupported nested elements.
 
 ## 10. First-Cut Test Coverage
 

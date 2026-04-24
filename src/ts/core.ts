@@ -8,6 +8,7 @@
   const zipIo = moduleRegistry.getModule<{
     unzipEntries: (arrayBuffer: ArrayBuffer) => Promise<Map<string, Uint8Array>>;
   }>("zipIo");
+  const textDecoder = new TextDecoder("utf-8");
   const documentParser = moduleRegistry.getModule<{
     parseDocumentXml: (
       documentXmlBytes: Uint8Array,
@@ -15,35 +16,56 @@
       stylesBytes?: Uint8Array,
       numberingBytes?: Uint8Array
     ) => { blocks: Array<
-      { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[] }
+      { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[]; unsupportedTypes?: string[] }
       | { kind: "unsupported"; type: string }
-      | { kind: "table"; rows: string[][] }
+      | { kind: "table"; rows: string[][]; unsupportedTypes?: string[] }
     >; summary: {
       paragraphs: number;
       headings: number;
       listItems: number;
       tables: number;
+      images: number;
+      imageAssets: number;
+      drawingLikeUnsupported: number;
       links: number;
       internalLinks: number;
       externalLinks: number;
       unsupportedElements: number;
+      unsupportedCommentTraces: number;
     } };
   }>("documentParser");
 
   async function parseDocx(arrayBuffer: ArrayBuffer): Promise<{ blocks: Array<
-    { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[] }
+    { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[]; unsupportedTypes?: string[] }
     | { kind: "unsupported"; type: string }
-    | { kind: "table"; rows: string[][] }
+    | { kind: "table"; rows: string[][]; unsupportedTypes?: string[] }
   >; summary: {
     paragraphs: number;
     headings: number;
     listItems: number;
     tables: number;
+    images: number;
+    imageAssets: number;
+    drawingLikeUnsupported: number;
     links: number;
     internalLinks: number;
     externalLinks: number;
     unsupportedElements: number;
-  } }> {
+    unsupportedCommentTraces: number;
+  }; assets: Array<{
+    kind: "image";
+    sourcePath: string;
+    mediaType: string;
+    altText: string;
+    sourceTrace: string;
+    blockIndex: number;
+    documentPosition: {
+      blockIndex: number;
+      blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+      traceIndex: number;
+    };
+    bytes: Uint8Array;
+  }> }> {
     const files = await zipIo?.unzipEntries(arrayBuffer);
     if (!files) {
       throw new Error("ZIP module is not loaded.");
@@ -55,19 +77,209 @@
     const relationshipsBytes = files.get("word/_rels/document.xml.rels");
     const stylesBytes = files.get("word/styles.xml");
     const numberingBytes = files.get("word/numbering.xml");
-    return documentParser?.parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes) || {
+    const parsedDocument = documentParser?.parseDocumentXml(documentXmlBytes, relationshipsBytes, stylesBytes, numberingBytes) || {
       blocks: [],
       summary: {
         paragraphs: 0,
         headings: 0,
         listItems: 0,
         tables: 0,
+        images: 0,
+        imageAssets: 0,
+        drawingLikeUnsupported: 0,
         links: 0,
         internalLinks: 0,
         externalLinks: 0,
-        unsupportedElements: 0
+        unsupportedElements: 0,
+        unsupportedCommentTraces: 0
       }
     };
+    const contentTypes = parseContentTypes(files.get("[Content_Types].xml"));
+    const assets = collectImageAssets(parsedDocument.blocks, files, contentTypes);
+    return {
+      ...parsedDocument,
+      summary: {
+        ...parsedDocument.summary,
+        imageAssets: assets.length
+      },
+      assets
+    };
+  }
+
+  function parseImageTrace(type: string): { sourcePath: string; altText: string } | null {
+    const prefix = "drawing:image(";
+    if (!type.startsWith(prefix)) return null;
+    const afterPrefix = type.slice(prefix.length);
+    const suffixMarkerIndexes = [
+      afterPrefix.indexOf("):alt("),
+      afterPrefix.indexOf("):size-emu(")
+    ].filter((index) => index >= 0);
+    const sourcePathEnd = suffixMarkerIndexes.length > 0
+      ? Math.min(...suffixMarkerIndexes)
+      : (afterPrefix.endsWith(")") ? afterPrefix.length - 1 : -1);
+    if (sourcePathEnd < 0) return null;
+    const sourcePath = afterPrefix.slice(0, sourcePathEnd);
+    if (!sourcePath) return null;
+    const suffix = afterPrefix.slice(sourcePathEnd + 1);
+    let altText = "";
+    if (suffix) {
+      if (suffix.startsWith(":alt(")) {
+        const altAndRest = suffix.slice(":alt(".length);
+        const sizeMarkerIndex = altAndRest.lastIndexOf("):size-emu(");
+        const altEnd = sizeMarkerIndex >= 0
+          ? sizeMarkerIndex
+          : (altAndRest.endsWith(")") ? altAndRest.length - 1 : -1);
+        if (altEnd < 0) return null;
+        altText = altAndRest.slice(0, altEnd);
+        const rest = altAndRest.slice(altEnd + 1);
+        if (rest && !/^:size-emu\([^)]+\)$/.test(rest)) return null;
+      } else if (!/^:size-emu\([^)]+\)$/.test(suffix)) {
+        return null;
+      }
+    }
+    return {
+      sourcePath,
+      altText
+    };
+  }
+
+  function inferImageMediaType(sourcePath: string): string {
+    const normalized = sourcePath.toLowerCase();
+    if (normalized.endsWith(".png")) return "image/png";
+    if (normalized.endsWith(".jpg") || normalized.endsWith(".jpeg")) return "image/jpeg";
+    if (normalized.endsWith(".gif")) return "image/gif";
+    if (normalized.endsWith(".bmp")) return "image/bmp";
+    if (normalized.endsWith(".webp")) return "image/webp";
+    if (normalized.endsWith(".svg")) return "image/svg+xml";
+    if (normalized.endsWith(".tif") || normalized.endsWith(".tiff")) return "image/tiff";
+    return "application/octet-stream";
+  }
+
+  function normalizePackagePath(filePath: string): string {
+    return String(filePath || "").replace(/^\/+/, "");
+  }
+
+  function getPathExtension(filePath: string): string {
+    const normalized = normalizePackagePath(filePath);
+    const lastSegment = normalized.split("/").pop() || "";
+    const extensionIndex = lastSegment.lastIndexOf(".");
+    if (extensionIndex < 0) return "";
+    return lastSegment.slice(extensionIndex + 1).toLowerCase();
+  }
+
+  function parseContentTypes(contentTypesBytes?: Uint8Array): {
+    defaults: Map<string, string>;
+    overrides: Map<string, string>;
+  } {
+    const parsed = {
+      defaults: new Map<string, string>(),
+      overrides: new Map<string, string>()
+    };
+    if (!contentTypesBytes || typeof DOMParser !== "function") {
+      return parsed;
+    }
+    const xml = textDecoder.decode(contentTypesBytes);
+    const document = new DOMParser().parseFromString(xml, "application/xml");
+    const defaultElements = Array.from(document.getElementsByTagName("Default"));
+    const overrideElements = Array.from(document.getElementsByTagName("Override"));
+    for (const element of defaultElements) {
+      const extension = (element.getAttribute("Extension") || "").trim().toLowerCase();
+      const contentType = (element.getAttribute("ContentType") || "").trim();
+      if (!extension || !contentType) continue;
+      parsed.defaults.set(extension, contentType);
+    }
+    for (const element of overrideElements) {
+      const partName = normalizePackagePath((element.getAttribute("PartName") || "").trim());
+      const contentType = (element.getAttribute("ContentType") || "").trim();
+      if (!partName || !contentType) continue;
+      parsed.overrides.set(partName, contentType);
+    }
+    return parsed;
+  }
+
+  function resolveImageMediaType(
+    sourcePath: string,
+    contentTypes: {
+      defaults: Map<string, string>;
+      overrides: Map<string, string>;
+    }
+  ): string {
+    const normalizedSourcePath = normalizePackagePath(sourcePath);
+    const overrideType = contentTypes.overrides.get(normalizedSourcePath);
+    if (overrideType) return overrideType;
+    const extensionType = contentTypes.defaults.get(getPathExtension(normalizedSourcePath));
+    if (extensionType) return extensionType;
+    return inferImageMediaType(normalizedSourcePath);
+  }
+
+  function collectImageAssets(
+    blocks: Array<
+      { kind: "paragraph" | "heading" | "listItem"; unsupportedTypes?: string[] }
+      | { kind: "unsupported"; type: string }
+      | { kind: "table"; unsupportedTypes?: string[] }
+    >,
+    files: Map<string, Uint8Array>,
+    contentTypes: {
+      defaults: Map<string, string>;
+      overrides: Map<string, string>;
+    }
+  ): Array<{
+    kind: "image";
+    sourcePath: string;
+    mediaType: string;
+    altText: string;
+    sourceTrace: string;
+    blockIndex: number;
+    documentPosition: {
+      blockIndex: number;
+      blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+      traceIndex: number;
+    };
+    bytes: Uint8Array;
+  }> {
+    const assets: Array<{
+      kind: "image";
+      sourcePath: string;
+      mediaType: string;
+      altText: string;
+      sourceTrace: string;
+      blockIndex: number;
+      documentPosition: {
+        blockIndex: number;
+        blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+        traceIndex: number;
+      };
+      bytes: Uint8Array;
+    }> = [];
+    const seen = new Set<string>();
+    for (const [blockIndex, block] of blocks.entries()) {
+      const traceTypes = block.kind === "unsupported"
+        ? [block.type]
+        : (block.unsupportedTypes || []);
+      for (const [traceIndex, traceType] of traceTypes.entries()) {
+        const parsedTrace = parseImageTrace(traceType);
+        if (!parsedTrace) continue;
+        if (seen.has(parsedTrace.sourcePath)) continue;
+        const bytes = files.get(parsedTrace.sourcePath);
+        if (!bytes) continue;
+        seen.add(parsedTrace.sourcePath);
+        assets.push({
+          kind: "image",
+          sourcePath: parsedTrace.sourcePath,
+          mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+          altText: parsedTrace.altText,
+          sourceTrace: traceType,
+          blockIndex,
+          documentPosition: {
+            blockIndex,
+            blockKind: block.kind,
+            traceIndex
+          },
+          bytes
+        });
+      }
+    }
+    return assets;
   }
 
   function escapeTableCell(text: string): string {
@@ -91,61 +303,155 @@
     return anchorIds.map((anchorId) => `<a id="${String(anchorId)}"></a>`).join("\n");
   }
 
+  function escapeHtmlCommentText(text: string): string {
+    return String(text || "")
+      .replace(/--/g, "- -")
+      .replace(/>/g, "&gt;");
+  }
+
+  function renderUnsupportedComment(type: string): string {
+    return `<!-- unsupported: ${escapeHtmlCommentText(type)} -->`;
+  }
+
+  function renderUnsupportedComments(unsupportedTypes?: string[]): string {
+    if (!unsupportedTypes || unsupportedTypes.length === 0) return "";
+    return unsupportedTypes.map((type) => renderUnsupportedComment(type)).join("\n");
+  }
+
+  function escapeMarkdownImageAltText(text: string): string {
+    return String(text || "")
+      .replace(/\s+/g, " ")
+      .replace(/[\[\]]/g, "")
+      .trim();
+  }
+
+  function formatImagePlaceholderAltText(text: string): string {
+    return String(text || "").replace(/\s+/g, " ").trim();
+  }
+
+  function escapeMarkdownLinkDestination(destination: string): string {
+    return String(destination || "")
+      .replace(/%/g, "%25")
+      .replace(/\s/g, (match) => encodeURIComponent(match))
+      .replace(/\(/g, "%28")
+      .replace(/\)/g, "%29")
+      .replace(/</g, "%3C")
+      .replace(/>/g, "%3E");
+  }
+
+  function renderImagePlaceholder(
+    type: string,
+    options?: {
+      imagePathResolver?: (sourcePath: string) => string;
+    }
+  ): string {
+    const parsedImageTrace = parseImageTrace(type);
+    if (!parsedImageTrace || !parsedImageTrace.altText) return "";
+    const resolvedPath = options?.imagePathResolver?.(parsedImageTrace.sourcePath) || "";
+    if (resolvedPath) {
+      return `![${escapeMarkdownImageAltText(parsedImageTrace.altText)}](${escapeMarkdownLinkDestination(resolvedPath)})`;
+    }
+    return `[Image: ${formatImagePlaceholderAltText(parsedImageTrace.altText)}]`;
+  }
+
+  function renderUnsupportedPlaceholders(
+    unsupportedTypes?: string[],
+    options?: {
+      imagePathResolver?: (sourcePath: string) => string;
+    }
+  ): string {
+    if (!unsupportedTypes || unsupportedTypes.length === 0) return "";
+    return unsupportedTypes
+      .map((type) => renderImagePlaceholder(type, options))
+      .filter((text) => text !== "")
+      .join("\n");
+  }
+
   function renderMarkdown(
     parsedDocument: {
       blocks: Array<
-        { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[] }
+        { kind: "paragraph" | "heading" | "listItem"; text: string; level?: number; listKind?: "bullet" | "ordered"; indent?: number; anchorIds?: string[]; unsupportedTypes?: string[] }
         | { kind: "unsupported"; type: string }
-        | { kind: "table"; rows: string[][] }
+        | { kind: "table"; rows: string[][]; unsupportedTypes?: string[] }
       >;
     },
     options?: {
       includeUnsupportedComments?: boolean;
+      imagePathResolver?: (sourcePath: string) => string;
     }
   ): string {
     const includeUnsupportedComments = !!options?.includeUnsupportedComments;
     return parsedDocument.blocks
       .map((block) => {
         if (block.kind === "table") {
-          return renderTable(block.rows);
+          const table = renderTable(block.rows);
+          const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+          const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+          const withPlaceholders = placeholders ? `${table}\n${placeholders}` : table;
+          return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
         }
         if (block.kind === "unsupported") {
-          return includeUnsupportedComments ? `<!-- unsupported: ${block.type} -->` : "";
+          const placeholder = renderImagePlaceholder(block.type, options);
+          if (includeUnsupportedComments) {
+            const comment = renderUnsupportedComment(block.type);
+            return placeholder ? `${placeholder}\n${comment}` : comment;
+          }
+          return placeholder;
         }
         if (block.kind === "heading") {
           const anchors = renderAnchors(block.anchorIds);
           const headingLine = `${"#".repeat(Math.max(1, Math.min(block.level || 1, 6)))} ${block.text}`;
-          return anchors ? `${anchors}\n${headingLine}` : headingLine;
+          const content = anchors ? `${anchors}\n${headingLine}` : headingLine;
+          const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+          const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+          const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+          return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
         }
         if (block.kind === "listItem") {
           const indent = "    ".repeat(Math.max(0, block.indent || 0));
           const marker = block.listKind === "ordered" ? "1." : "-";
           const listLine = `${indent}${marker} ${block.text}`;
           const anchors = renderAnchors(block.anchorIds);
-          return anchors ? `${anchors}\n${listLine}` : listLine;
+          const content = anchors ? `${anchors}\n${listLine}` : listLine;
+          const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+          const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+          const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+          return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
         }
         const anchors = renderAnchors(block.anchorIds);
-        return anchors ? `${anchors}\n${block.text}` : block.text;
+        const content = anchors ? `${anchors}\n${block.text}` : block.text;
+        const placeholders = renderUnsupportedPlaceholders(block.unsupportedTypes, options);
+        const comments = includeUnsupportedComments ? renderUnsupportedComments(block.unsupportedTypes) : "";
+        const withPlaceholders = placeholders ? `${content}\n${placeholders}` : content;
+        return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
       })
       .filter((block) => block !== "")
       .join("\n\n");
   }
 
   function createSummary(parsedDocument: {
+    blocks: Array<
+      { kind: "paragraph" | "heading" | "listItem"; unsupportedTypes?: string[] }
+      | { kind: "unsupported"; type: string }
+      | { kind: "table"; unsupportedTypes?: string[] }
+    >;
     summary: {
       paragraphs: number;
       headings: number;
       listItems: number;
       tables: number;
+      images: number;
+      imageAssets: number;
+      drawingLikeUnsupported: number;
       links: number;
       internalLinks: number;
       externalLinks: number;
       unsupportedElements: number;
+      unsupportedCommentTraces: number;
     };
-  }): { paragraphs: number; headings: number; listItems: number; tables: number; links: number; internalLinks: number; externalLinks: number; unsupportedElements: number; unsupportedCommentTraces: number } {
+  }): { paragraphs: number; headings: number; listItems: number; tables: number; images: number; imageAssets: number; drawingLikeUnsupported: number; links: number; internalLinks: number; externalLinks: number; unsupportedElements: number; unsupportedCommentTraces: number } {
     return {
-      ...parsedDocument.summary,
-      unsupportedCommentTraces: parsedDocument.summary.unsupportedElements
+      ...parsedDocument.summary
     };
   }
 
@@ -155,11 +461,16 @@
       headings: number;
       listItems: number;
       tables: number;
+      images: number;
+      imageAssets: number;
+      drawingLikeUnsupported: number;
       links: number;
       internalLinks: number;
       externalLinks: number;
       unsupportedElements: number;
+      unsupportedCommentTraces: number;
     };
+    blocks: Array<unknown>;
   }): string {
     const summary = createSummary(parsedDocument);
     return [
@@ -167,6 +478,9 @@
       `headings: ${summary.headings}`,
       `listItems: ${summary.listItems}`,
       `tables: ${summary.tables}`,
+      `images: ${summary.images}`,
+      `imageAssets: ${summary.imageAssets}`,
+      `drawingLikeUnsupported: ${summary.drawingLikeUnsupported}`,
       `links: ${summary.links}`,
       `internalLinks: ${summary.internalLinks}`,
       `externalLinks: ${summary.externalLinks}`,
@@ -175,10 +489,42 @@
     ].join("\n");
   }
 
+  function createAssetsManifestText(parsedDocument: {
+      assets: Array<{
+        kind: "image";
+        sourcePath: string;
+        mediaType: string;
+        altText: string;
+        sourceTrace: string;
+        blockIndex: number;
+        documentPosition: {
+          blockIndex: number;
+          blockKind: "paragraph" | "heading" | "listItem" | "table" | "unsupported";
+          traceIndex: number;
+        };
+        bytes: Uint8Array;
+      }>;
+    }): string {
+    return JSON.stringify({
+      version: 1,
+      assets: (parsedDocument.assets || []).map((asset) => ({
+        kind: asset.kind,
+        sourcePath: asset.sourcePath,
+        mediaType: asset.mediaType,
+        altText: asset.altText,
+        sourceTrace: asset.sourceTrace,
+        blockIndex: asset.blockIndex,
+        documentPosition: asset.documentPosition,
+        size: asset.bytes.length
+      }))
+    }, null, 2);
+  }
+
   moduleRegistry.registerModule("docx2md", {
     parseDocx,
     renderMarkdown,
     createSummary,
-    createSummaryText
+    createSummaryText,
+    createAssetsManifestText
   });
 })();
