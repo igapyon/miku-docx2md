@@ -4,13 +4,14 @@
 
 ## ブラウザで使う
 
-ローカルのブラウザで変換したい場合は `index.html` を使います。
+ローカルのブラウザで変換したい場合は、ランディングページの `index.html` から本体の `miku-docx2md.html` を開きます。
 
 1. `index.html` を開きます。
-2. `.docx` ファイルを選択します。
-3. 変換を実行します。
-4. Markdown と summary を確認します。
-5. 必要に応じて Markdown、summary text、画像 asset をダウンロードします。
+2. `miku-docx2md.html` へ進みます。
+3. `.docx` ファイルを選択します。
+4. 変換を実行します。
+5. Markdown と summary を確認します。
+6. 必要に応じて Markdown、summary text、画像 asset をダウンロードします。
 
 ブラウザ版は、選択したローカルファイルをブラウザ UI 上で処理します。
 
@@ -99,3 +100,7 @@ manifest には次の情報が入ります。
 ```
 
 debug comment は診断用です。最終的な文章として読ませる用途ではありません。
+
+## 実文書で確認する
+
+実際の `.docx` ファイルで変換品質を確認する場合は、[quality-check.md](./quality-check.md) の手順を使います。

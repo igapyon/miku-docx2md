@@ -256,6 +256,7 @@ Current image handling is also a limited compromise:
 Current browser UI behavior:
 
 - uses `lht-cmn/` as the shared component base
+- keeps `index.html` as the landing page and `miku-docx2md.html` as the conversion app page
 - uses `lht-page-hero`, `lht-file-select`, `lht-switch-help`, `lht-preview-output`, `lht-loading-overlay`, `lht-error-alert`, and `lht-toast`
 - allows file selection first and explicit conversion second
 - supports Markdown save and summary save
