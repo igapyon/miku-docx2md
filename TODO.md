@@ -20,27 +20,35 @@
 ## Phase 3: First-Cut Features
 
 - [x] Paragraph extraction
-- [ ] Heading detection
-- [ ] Inline formatting
+- [x] Heading detection
+- [x] Inline formatting
 - [x] External hyperlinks
 - [x] Internal hyperlinks
-- [ ] Lists with nesting
-- [ ] Tables
-- [ ] Merge placeholders `←M←` / `↑M↑`
+- [x] Lists with nesting
+- [x] Tables
+- [x] Merge placeholders `←M←` / `↑M↑`
 
 ## Phase 4: Diagnostics
 
-- [ ] Summary counts
-- [ ] Unsupported element diagnostics
-- [ ] Debug option for unsupported HTML comments
+- [x] Summary counts
+- [x] Unsupported element diagnostics
+- [x] Debug option for unsupported HTML comments
 
 ## Phase 5: Tests
 
 - [x] Plain paragraph fixture
-- [ ] Heading fixture
-- [ ] Inline formatting fixture
+- [x] Heading fixture
+- [x] Inline formatting fixture
 - [x] External hyperlink fixture
 - [x] Internal hyperlink fixture
-- [ ] Nested list fixture
-- [ ] Table fixture
-- [ ] Unsupported element debug fixture
+- [x] Nested list fixture
+- [x] Table fixture
+- [x] Unsupported element debug fixture
+
+## Phase 6: Post First-Cut Refinement
+
+- [x] Normalize internal bookmark anchors and internal hyperlink fragments
+- [x] Preserve list-like paragraphs inside table cells as simplified inline list text
+- [ ] Decide whether table-cell headings need dedicated rendering or current simplified text is sufficient
+- [ ] Classify unsupported elements in more detail than raw local-name passthrough where useful
+- [ ] Expand implementation docs for style inheritance depth and direct-format precedence

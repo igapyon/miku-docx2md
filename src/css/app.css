@@ -1,0 +1,137 @@
+/*
+ * Copyright 2026 Toshiki Iga
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:root {
+  color-scheme: light;
+}
+
+body.md-page {
+  margin: 0;
+  background:
+    radial-gradient(circle at top right, rgba(58, 107, 138, 0.16), transparent 24%),
+    linear-gradient(180deg, #eef5fb 0%, #f7fafc 100%);
+  color: #183043;
+}
+
+.md-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 24px auto 48px;
+}
+
+.md-card {
+  padding: 24px;
+}
+
+.md-section {
+  margin-top: 24px;
+}
+
+.md-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #21435d;
+}
+
+.md-stack-sm > * + * {
+  margin-top: 12px;
+}
+
+.md-stack-md > * + * {
+  margin-top: 16px;
+}
+
+.md-panel {
+  padding: 18px;
+  border: 1px solid rgba(102, 141, 172, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 32px rgba(46, 87, 118, 0.08);
+}
+
+.md-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.md-grid--two {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+  .md-grid--two {
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  }
+}
+
+.md-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.md-button {
+  appearance: none;
+  border: 1px solid rgba(63, 101, 129, 0.28);
+  border-radius: 999px;
+  background: #f8fbff;
+  color: #21435d;
+  padding: 11px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.md-button:hover:not(:disabled) {
+  background: #edf5fb;
+}
+
+.md-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.md-button--accent {
+  background: linear-gradient(135deg, #2c6f91 0%, #4d8bb0 100%);
+  color: #f7fbff;
+  border-color: rgba(34, 79, 104, 0.55);
+}
+
+.md-button--accent:hover:not(:disabled) {
+  background: linear-gradient(135deg, #245d79 0%, #3f7d9e 100%);
+}
+
+.md-caption {
+  color: #517087;
+  line-height: 1.6;
+}
+
+.md-status-box {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(77, 139, 176, 0.1);
+  color: #21435d;
+  font-weight: 500;
+}
+
+.md-inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: rgba(77, 139, 176, 0.12);
+  border-radius: 8px;
+  padding: 0.08rem 0.38rem;
+}
+
+lht-preview-output {
+  display: block;
+}
+
+#summaryOutput,
+#markdownOutput {
+  min-height: 180px;
+}
+
+#markdownOutput {
+  min-height: 480px;
+}
