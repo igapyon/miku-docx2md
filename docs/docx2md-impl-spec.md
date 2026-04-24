@@ -260,6 +260,7 @@ Current browser UI behavior:
 - allows file selection first and explicit conversion second
 - supports Markdown save and summary save
 - supports image-asset ZIP save when resolved embedded image assets are available
+- browser image-asset ZIP export writes stored ZIP entries with CRC32 values and the UTF-8 filename flag
 - uses `lht-preview-output` built-in copy actions for preview text
 - toggles unsupported HTML comments via a switch
 

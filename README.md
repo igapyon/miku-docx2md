@@ -1,171 +1,122 @@
 # miku-docx2md
 
-`miku-docx2md` is one of the tools in Mikuku's software series.
+`miku-docx2md` は、Word の `.docx` ファイルを Markdown に変換するローカル実行ツールです。
 
-## What is this?
+見た目を Word どおりに再現するためのツールではありません。文章、見出し、リスト、表、リンクなどの文書構造を Markdown として読みやすく取り出すことを目的にしています。
 
-`miku-docx2md` is a tool that reads Word documents in `.docx` format and converts their textual structure into Markdown.
+## できること
 
-- runs locally
-- aims at meaningful Markdown extraction rather than visual reproduction
-- is designed for both human readability and generative AI input
+- `.docx` ファイルを Markdown に変換
+- ブラウザだけでローカル変換
+- Node.js CLI で変換
+- 見出し、段落、箇条書き、番号付きリスト、表を出力
+- 太字、斜体、取り消し線、下線を一部保持
+- 外部リンクと解決可能な文書内リンクを出力
+- 解決可能な埋め込み画像を sidecar asset として出力
+- 変換サマリーを表示または保存
+- debug 用に unsupported 要素の HTML comment trace を出力
 
-This project follows the sibling-app direction of `miku-xlsx2md` where practical, while adapting the parsing model to Word documents.
+## 使い方: ブラウザ
 
-- browser UI follows `lht-cmn/` and prefers `lht-*` components
-- the page structure and visual language intentionally stay close to `miku-xlsx2md` where reasonable
+`index.html` をブラウザで開きます。
 
-## Features Direction
+1. `.docx` ファイルを選択します。
+2. 変換ボタンを押します。
+3. Markdown と summary を確認します。
+4. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
 
-The first cut focuses on text-oriented Word content that maps naturally into GitHub-compatible Markdown / HTML.
+画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。
 
-- paragraphs
-- headings
-- inline formatting such as `bold`, `italic`, `strike`, and `underline`
-- paragraph-internal line breaks as `<br>`
-- external hyperlinks
-- document-internal hyperlinks when resolvable
-- bullet lists
-- numbered lists
-- nested lists
-- tables
-
-## Out of Scope in First Cut
-
-The first cut intentionally excludes visual and layout-heavy Word features.
-
-- images
-- shapes
-- SmartArt
-- WordArt
-- text boxes
-- floating objects
-- charts
-- drawing objects
-- exact page layout reproduction
-- headers / footers
-- footnotes / endnotes
-- comments
-- tracked changes
-- macros
-
-## Conversion Policy
-
-`miku-docx2md` prioritizes extracting document structure into meaningful Markdown rather than reproducing Word appearance exactly.
-
-- preserve features that fit naturally into GitHub-compatible Markdown / HTML
-- do not force awkward pseudo-reproduction for features that do not fit that output model
-- preserve document order
-- prefer stable and deterministic output
-
-## Current Design Decisions
-
-- `.docx` is handled as a ZIP package
-- ZIP expansion is intended to be implemented in-house, following the sibling-app style
-- source-of-truth implementation is intended to live under `src/ts/`
-- `main.ts` is intended as the browser UI entry point
-- `core.ts` is intended as the conversion orchestration layer
-
-Current first-cut document handling direction includes:
-
-- heading detection by both paragraph style and outline level
-- nested list support via `numbering.xml`
-- table cell line breaks rendered as `<br>`
-- merged table cells simplified with `←M←` and `↑M↑`
-- document bookmarks rendered as `<a id="..."></a>` anchors when available
-- tabs normalized to four spaces
-- consecutive meaningless empty paragraphs compressed
-- unsupported elements omitted by default, with optional HTML comment traces in a debug-oriented mode
-
-## Feature Support Overview
-
-| Item | `miku-docx2md` status | Notes |
-| --- | --- | --- |
-| Read `.docx` files | Implemented | Primary first-cut input |
-| Convert document text into Markdown | Implemented | Main project goal |
-| Preserve headings | Implemented | Style + outline level based |
-| Preserve inline formatting | Implemented | GitHub-compatible Markdown / HTML subset |
-| Preserve external hyperlinks | Implemented | Markdown links |
-| Preserve document-internal hyperlinks | Implemented | Bookmark-based anchors are emitted as HTML anchors |
-| Preserve nested lists | Implemented | Based on numbering structure |
-| Extract tables | Implemented | Structural Markdown tables |
-| Preserve merged table layout exactly | Not supported | Uses `←M←` / `↑M↑` placeholders instead |
-| Extract images and shapes | Partially implemented | Resolved embedded images can be exported as sidecar files via CLI |
-| Reproduce Word appearance exactly | Not supported | Structure over visual fidelity |
-
-## How it works
-
-The intended first-cut flow is:
-
-1. Read a `.docx` file locally
-2. Expand the ZIP package
-3. Read `document.xml`, rels, styles, and numbering data
-4. Build an internal document model
-5. Convert supported structure into Markdown
-
-## Node CLI
-
-A basic Node.js CLI path is available in the repository.
-
-Options currently include:
-
-- `--out <file>`
-- `--assets-dir <dir>`
-- `--summary`
-- `--summary-out <file>`
-- `--debug`
-- `--include-unsupported-comments`
-- `--help`
-
-Example:
+## 使い方: CLI
 
 ```bash
-npm run cli -- ./sample.docx --out ./sample.md --assets-dir ./sample.assets --summary --summary-out ./sample.summary.txt
+npm run cli -- ./sample.docx --out ./sample.md
 ```
 
-`--debug` enables unsupported-element HTML comment traces in Markdown output.
-`--assets-dir` exports resolved embedded image files under the specified directory using their package-relative paths such as `word/media/example.png`, and generated Markdown switches from `[Image: ...]` placeholders to relative `![](...)` links when possible.
-When `[Content_Types].xml` is available, exported asset metadata prefers the package-declared content type over extension-based inference.
-Asset exports currently include `manifest.json` with exported file paths, media types, alt text, and byte sizes.
-The manifest also records the originating unsupported trace string, owning block index, and a finer `documentPosition` object with block kind and trace index for each exported image asset.
+summary も出力する例:
 
-## Browser UI
+```bash
+npm run cli -- ./sample.docx --out ./sample.md --summary --summary-out ./sample.summary.txt
+```
 
-A minimal browser UI is also available via `index.html`.
+画像 asset も出力する例:
 
-- select a local `.docx` file
-- convert explicitly after file selection
-- review summary counts
-- review generated Markdown
-- download Markdown and summary text
-- download resolved image assets as a ZIP archive when available
-- use built-in preview copy buttons
-- optionally enable unsupported-element HTML comments
+```bash
+npm run cli -- ./sample.docx --out ./sample.md --assets-dir ./sample.assets
+```
 
-Build example:
+debug comment も含める例:
+
+```bash
+npm run cli -- ./sample.docx --out ./sample.md --debug
+```
+
+## CLI オプション
+
+| Option | Description |
+| --- | --- |
+| `--out <file>` | Markdown の出力先 |
+| `--assets-dir <dir>` | 解決可能な埋め込み画像 asset の出力先 |
+| `--summary` | summary を標準出力へ表示 |
+| `--summary-out <file>` | summary の出力先 |
+| `--debug` | unsupported 要素の HTML comment trace を Markdown に含める |
+| `--include-unsupported-comments` | `--debug` と同じ |
+| `--help` | ヘルプを表示 |
+
+`--assets-dir` を指定すると、解決可能な画像は `word/media/example.png` のような package-relative path で保存されます。Markdown 側も、可能な場合は `[Image: ...]` placeholder ではなく相対 `![](...)` link を出力します。
+
+asset 出力先には `manifest.json` も作成されます。manifest には asset path、media type、alt text、byte size、source trace、block index、document position が含まれます。
+
+## 出力方針
+
+`miku-docx2md` は、Word の見た目ではなく文書構造を優先します。
+
+- Word のページレイアウトは再現しません。
+- 変換結果は GitHub-compatible Markdown / HTML に寄せます。
+- 表の結合セルは `←M←` と `↑M↑` の placeholder で簡略表現します。
+- 画像は本文内の完全再現ではなく、解決可能なものを asset として出力します。
+- unsupported 要素は通常 Markdown には出しません。
+- `--debug` 使用時のみ、unsupported 要素の trace を HTML comment として出します。
+
+## 主な対応内容
+
+| Content | Status |
+| --- | --- |
+| 段落 | 対応 |
+| 見出し | 対応 |
+| 太字、斜体、取り消し線、下線 | 一部対応 |
+| 段落内改行 | 対応 |
+| 外部リンク | 対応 |
+| 解決可能な文書内リンク | 対応 |
+| 箇条書き、番号付きリスト、ネスト | 対応 |
+| 表 | 対応 |
+| 表の結合セル | placeholder で簡略対応 |
+| 埋め込み画像 | 解決可能なものを sidecar asset として出力 |
+| Word の見た目の完全再現 | 非対応 |
+
+## ビルド
 
 ```bash
 npm run build
 ```
 
-This regenerates `index.html` from `index-src.html` and refreshes the generated files under `src/js/`.
+`index-src.html` と `src/ts/` から、配布用の `index.html` と `src/js/` を再生成します。
 
-## Specifications
+## テスト
 
-For more details, see:
+```bash
+npm run test:unit
+```
 
-- High-level specification and design policy: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
-- Implementation-oriented specification: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
-- Upstream reference policy: [docs/upstream.md](./docs/upstream.md)
+## 詳細ドキュメント
 
-## Tech Direction
-
-- Runtime: local processing, browser-capable
-- Source language: TypeScript
-- Build direction: single-file web app style where practical
-- Test direction: fixture-based tests
+- 利用者向け補足: [docs/usage.md](./docs/usage.md)
+- 仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
+- 実装仕様: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
+- upstream 参照方針: [docs/upstream.md](./docs/upstream.md)
 
 ## License
 
-- Released under the Apache License 2.0
-- See [LICENSE](./LICENSE) for the full license text
+Apache License 2.0
+
+See [LICENSE](./LICENSE).
