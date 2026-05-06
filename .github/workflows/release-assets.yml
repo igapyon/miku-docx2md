@@ -1,0 +1,91 @@
+name: Release assets
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag name, such as v0.8.2"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  PRODUCT_NAME: miku-docx2md
+  RELEASE_ASSETS_DIR: release-assets
+
+jobs:
+  release-assets:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.release.tag_name || github.event.inputs.tag_name, 'v')
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Verify release tag
+        run: |
+          case "$TAG_NAME" in
+            v*) ;;
+            *)
+              echo "Release asset upload only supports tags starting with v: $TAG_NAME" >&2
+              exit 1
+              ;;
+          esac
+
+          package_version="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+          tag_version="${TAG_NAME#v}"
+
+          case "$tag_version" in
+            "$package_version"|"$package_version".*) ;;
+            *)
+              echo "Tag version ($tag_version) must match package.json version ($package_version) or start with ${package_version}." >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build single-file Web app
+        run: npm run build
+
+      - name: Test
+        run: npm run test:unit
+
+      - name: CLI version smoke
+        run: npm run smoke:version
+
+      - name: Prepare release assets
+        run: |
+          version="${TAG_NAME#v}"
+          mkdir -p "${RELEASE_ASSETS_DIR}"
+          cp "${PRODUCT_NAME}.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"
+          cp "index.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-index-${version}.html"
+          git archive --format=tar.gz --prefix="${PRODUCT_NAME}-sources-${version}/" -o "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz" HEAD
+
+      - name: Verify Web app bundle assets
+        run: |
+          version="${TAG_NAME#v}"
+          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"
+          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-index-${version}.html"
+          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG_NAME" "${RELEASE_ASSETS_DIR}"/* --clobber

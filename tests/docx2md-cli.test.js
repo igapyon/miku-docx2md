@@ -167,6 +167,23 @@ function createCliNestedUnsupportedDocxBytes() {
 }
 
 describe("docx2md cli", () => {
+  it("prints version without requiring an input file", () => {
+    const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
+    const versionOutput = execFileSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "--version"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(versionOutput).toBe(`miku-docx2md ${packageJson.version}\n`);
+  });
+
   it("writes markdown and can include debug comments and summary", () => {
     const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-"));
     try {

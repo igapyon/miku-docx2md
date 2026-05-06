@@ -63,6 +63,7 @@ npm run cli -- ./sample.docx --out ./sample.md --debug
 | `--summary-out <file>` | summary の出力先 |
 | `--debug` | unsupported 要素の HTML comment trace を Markdown に含める |
 | `--include-unsupported-comments` | `--debug` と同じ |
+| `--version` | バージョンを表示 |
 | `--help` | ヘルプを表示 |
 
 `--assets-dir` を指定すると、解決可能な画像は `word/media/example.png` のような package-relative path で保存されます。Markdown 側も、可能な場合は `[Image: ...]` placeholder ではなく相対 `![](...)` link を出力します。
