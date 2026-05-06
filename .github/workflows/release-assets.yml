@@ -64,6 +64,9 @@ jobs:
       - name: Build single-file Web app
         run: npm run build
 
+      - name: Verify generated files are current
+        run: git diff --exit-code -- index.html miku-docx2md.html src/js
+
       - name: Test
         run: npm run test:unit
 

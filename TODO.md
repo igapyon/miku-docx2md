@@ -91,23 +91,49 @@
 
 ## Phase 13: Real Document Quality Pass
 
-- [ ] Collect a small local validation set of real `.docx` documents
+- [x] Collect a small local validation set of real `.docx` documents
 - [ ] Run browser conversion against the validation set
-- [ ] Run CLI conversion against the validation set
+- [x] Run CLI conversion against the validation set
 - [ ] Compare Markdown readability for headings, lists, links, tables, and image placeholders
-- [ ] Review generated summaries for obviously wrong counts
+  - [x] Word-round-tripped local validation docs 01/02 checked for headings, lists, links, and tables
+  - [x] Word-authored `BasicSample01.docx` checked for Heading 1-5 and paragraphs
+  - [x] Word-authored `BasicSample01.docx` committed as `tests/fixtures/docx/BasicSample01.docx`
+  - [ ] Image placeholder readability is blocked by missed image extraction in `BasicSample01.docx`
+- [x] Review generated summaries for obviously wrong counts
 - [ ] Review debug output for unsupported trace usefulness
 - [ ] Verify image asset export and `manifest.json` on documents with embedded images
-- [ ] Record recurring incompatibilities as focused fixtures or known limitations
+  - [ ] Replace invalid generated image validation candidates; `03-image-and-unsupported.docx` and `04-parser-image-asset.docx` were not Word-openable
+  - [ ] Fix or characterize missed image extraction from Word-authored `BasicSample01.docx`
+- [x] Record recurring incompatibilities as focused fixtures or known limitations
+
+## Phase 13.5: Additional Real Document Test Patterns
+
+- [ ] Add a Word-authored fixture with an embedded inline image that is recognized as an exported asset
+- [ ] Add a Word-authored fixture with image alt text / description and verify Markdown alt text
+- [ ] Add a Word-authored fixture with bullet and numbered lists created through Word UI
+- [ ] Add a Word-authored fixture with nested lists created through Word UI
+- [ ] Add a Word-authored fixture with external hyperlink and internal bookmark hyperlink
+- [ ] Add a Word-authored fixture with a table created through Word UI, including a merged cell
+- [ ] Add a Word-authored fixture with bold / italic / underline / strike combinations across multiple runs
+- [ ] Add a focused fixture for Word proofing markers such as `w:proofErr` between formatted runs
+- [ ] Add browser-side smoke notes or manual checklist coverage for the committed fixtures
+
+## Phase 13.6: Post-Validation Refactoring
+
+- [ ] After the real-document test pattern additions are complete, refactor the affected parsing modules
+- [ ] Keep parser behavior covered by committed fixtures before refactoring
+- [ ] Revisit drawing/image extraction boundaries after fixing or characterizing `BasicSample01.docx`
+- [ ] Revisit inline formatting run coalescing after adding `w:proofErr` coverage
+- [ ] Re-run `npm run build`, `npm run test:unit`, `npm run smoke:version`, and generated artifact sync check after refactoring
 
 ## Phase 14: Release Readiness
 
-- [ ] Re-read README from a first-time user perspective
-- [ ] Re-read `docs/usage.md` for CLI and browser workflow accuracy
-- [ ] Confirm generated `index.html` and `miku-docx2md.html` are in sync with source files
-- [ ] Run `npm run build`
-- [ ] Run `npm run test:unit`
-- [ ] Prepare release notes from user-visible changes
+- [x] Re-read README from a first-time user perspective
+- [x] Re-read `docs/usage.md` for CLI and browser workflow accuracy
+- [x] Confirm generated `index.html` and `miku-docx2md.html` are in sync with source files
+- [x] Run `npm run build`
+- [x] Run `npm run test:unit`
+- [x] Prepare release notes from user-visible changes
 
 ## Phase 15: Refactoring
 

@@ -53,6 +53,12 @@ npm run cli -- ./sample.docx --out ./sample.md --debug
 npm run cli -- --version
 ```
 
+CLI の詳細な契約、出力先、asset、終了コード、実行例を確認します。
+
+```bash
+npm run cli -- --help
+```
+
 ## 画像 asset 出力
 
 `--assets-dir <dir>` を指定すると、解決可能な埋め込み画像が asset directory 配下へ保存されます。

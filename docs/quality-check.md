@@ -2,6 +2,8 @@
 
 この文書は、実際の `.docx` ファイルで変換品質を確認するための手順です。
 
+確認結果を repository-safe な形で記録する場合は、[real-document-validation-template.md](./real-document-validation-template.md) を使います。
+
 ## 目的
 
 fixture test は既知の挙動を確認します。実文書での確認は、実用的な Word 文書で初めて見つかる変換ギャップを拾うために行います。

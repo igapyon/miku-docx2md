@@ -115,6 +115,8 @@ npm run test:unit
 
 - 利用者向け補足: [docs/usage.md](./docs/usage.md)
 - 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
+- 実文書品質確認の記録テンプレート: [docs/real-document-validation-template.md](./docs/real-document-validation-template.md)
+- 実文書品質確認メモ v0.8.2: [docs/real-document-validation-v0.8.2.md](./docs/real-document-validation-v0.8.2.md)
 - 仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
 - 実装仕様: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
 - upstream 参照方針: [docs/upstream.md](./docs/upstream.md)

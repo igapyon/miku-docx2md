@@ -1,5 +1,6 @@
 // @vitest-environment node
 
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -93,6 +94,11 @@ function createStoredZip(entries) {
   }
   out.set(eocd, cursor);
   return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+}
+
+function readFixtureArrayBuffer(...segments) {
+  const buffer = readFileSync(path.resolve(__dirname, "fixtures", ...segments));
+  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 }
 
 function createMinimalDocxArrayBuffer() {
@@ -891,5 +897,31 @@ describe("docx2md node runtime", () => {
     });
     expect(Array.from(parsed.assets[0].bytes)).toEqual([9, 8, 7, 6]);
     expect(markdown).toContain("![Typed asset](./assets/word/media/typed-image.bin)");
+  });
+
+  it("converts the Word-authored BasicSample01 fixture headings and paragraphs", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await api.parseDocx(readFixtureArrayBuffer("docx", "BasicSample01.docx"));
+    const markdown = api.renderMarkdown(parsed, {
+      imagePathResolver: (sourcePath) => `./assets/${sourcePath}`
+    });
+
+    expect(markdown).toContain("# 見出し1");
+    expect(markdown).toContain("## 見出し2");
+    expect(markdown).toContain("### 見出し3");
+    expect(markdown).toContain("#### 見出し4");
+    expect(markdown).toContain("##### 見出し5");
+    expect(markdown).toContain("# Image Validation");
+    expect(markdown).toContain("Before image.");
+    expect(markdown).toContain("After image.");
+    expect(parsed.summary).toMatchObject({
+      headings: 6,
+      paragraphs: 2,
+      images: 0,
+      imageAssets: 0
+    });
   });
 });

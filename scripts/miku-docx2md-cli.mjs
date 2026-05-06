@@ -4,22 +4,88 @@ import path from "node:path";
 import { loadDocx2mdNodeApi } from "./lib/docx2md-node-runtime.mjs";
 
 function printHelp() {
-  console.log(`Usage:
+  console.log(`miku-docx2md - local-first DOCX to Markdown converter
+
+USAGE
   node scripts/miku-docx2md-cli.mjs <input.docx> [options]
+  node scripts/miku-docx2md-cli.mjs --version
+  node scripts/miku-docx2md-cli.mjs --help
 
-Options:
-  --out <file>                    Write Markdown to this file
-  --assets-dir <dir>              Export resolved embedded image assets into this directory
-  --summary                       Print summary to stdout
-  --summary-out <file>            Write summary text to this file
-  --debug                         Include unsupported-element HTML comments in Markdown output
-  --include-unsupported-comments  Alias for --debug
-  --version                       Show version and exit
-  --help                          Show help and exit
+CONTRACT
+  Input is exactly one local .docx file path.
+  Primary output is Markdown.
+  If --out is set, Markdown is written to that file.
+  If --out is omitted, Markdown is written to stdout.
+  --summary prints conversion summary text to stdout.
+  --summary-out writes conversion summary text to a file.
+  If --out is omitted, avoid --summary unless mixed stdout output is acceptable.
+  --help and --version are metadata commands and must be used without other arguments.
 
-Exit codes:
-  0                               Success
-  1                               Error
+OPTIONS
+  --out <file>
+      Write Markdown to this file. Parent directories are created.
+
+  --assets-dir <dir>
+      Export resolved embedded image assets into this directory.
+      Also writes <dir>/manifest.json.
+      Markdown image links are made relative to --out, or to the current directory
+      when --out is omitted.
+
+  --summary
+      Print summary text to stdout.
+
+  --summary-out <file>
+      Write summary text to this file. Parent directories are created.
+
+  --debug
+      Include unsupported-element HTML comment traces in Markdown.
+
+  --include-unsupported-comments
+      Alias for --debug.
+
+  --version
+      Show product name and package version, then exit.
+
+  --help
+      Show this help, then exit.
+
+OUTPUTS
+  Markdown:
+      Main converted document structure.
+
+  Summary:
+      Text counts and diagnostics for converted document content.
+
+  Asset directory:
+      Contains resolved embedded image files at package-relative paths such as
+      word/media/example.png, plus manifest.json.
+
+  Asset manifest:
+      JSON with asset path, media type, alt text, byte size, source trace,
+      block index, and document position.
+
+EXAMPLES
+  Write Markdown to a file:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md
+
+  Print Markdown to stdout:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx
+
+  Write Markdown and summary files:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --summary-out ./sample.summary.txt
+
+  Write Markdown and export image assets:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --assets-dir ./sample.assets
+
+  Include unsupported-element debug traces:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --debug
+
+  Show version:
+    node scripts/miku-docx2md-cli.mjs --version
+
+EXIT CODES
+  0  Success, or explicit metadata command such as --version / --help.
+  1  CLI usage error, file I/O error, parse error, or unexpected runtime error.
 `);
 }
 
@@ -29,15 +95,23 @@ async function readPackageVersion() {
 }
 
 function parseArgs(argv) {
+  if (argv.length === 1 && argv[0] === "--help") {
+    return { help: true };
+  }
+  if (argv.length === 1 && argv[0] === "--version") {
+    return { version: true };
+  }
+  if (argv.includes("--help") || argv.includes("--version")) {
+    throw new Error("Use --help or --version without other arguments.");
+  }
+
   const options = {
     inputPath: null,
     outPath: null,
     assetsDir: null,
     summaryOutPath: null,
     summary: false,
-    includeUnsupportedComments: false,
-    version: false,
-    help: false
+    includeUnsupportedComments: false
   };
   const positionals = [];
 
@@ -45,14 +119,6 @@ function parseArgs(argv) {
     const arg = argv[index];
     if (!arg.startsWith("--")) {
       positionals.push(arg);
-      continue;
-    }
-    if (arg === "--help") {
-      options.help = true;
-      continue;
-    }
-    if (arg === "--version") {
-      options.version = true;
       continue;
     }
     if (arg === "--summary") {

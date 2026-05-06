@@ -167,6 +167,32 @@ function createCliNestedUnsupportedDocxBytes() {
 }
 
 describe("docx2md cli", () => {
+  it("prints agent-readable help without requiring an input file", () => {
+    const helpOutput = execFileSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "--help"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(helpOutput).toContain("miku-docx2md - local-first DOCX to Markdown converter");
+    expect(helpOutput).toContain("USAGE");
+    expect(helpOutput).toContain("CONTRACT");
+    expect(helpOutput).toContain("OPTIONS");
+    expect(helpOutput).toContain("OUTPUTS");
+    expect(helpOutput).toContain("EXAMPLES");
+    expect(helpOutput).toContain("EXIT CODES");
+    expect(helpOutput).toContain("Input is exactly one local .docx file path.");
+    expect(helpOutput).toContain("If --out is omitted, Markdown is written to stdout.");
+    expect(helpOutput).toContain("--help and --version are metadata commands and must be used without other arguments.");
+    expect(helpOutput).toContain("manifest.json");
+  });
+
   it("prints version without requiring an input file", () => {
     const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
     const versionOutput = execFileSync(
@@ -182,6 +208,48 @@ describe("docx2md cli", () => {
     );
 
     expect(versionOutput).toBe(`miku-docx2md ${packageJson.version}\n`);
+  });
+
+  it("rejects metadata commands mixed with other arguments", () => {
+    for (const args of [
+      ["sample.docx", "--version"],
+      ["--help", "--version"]
+    ]) {
+      try {
+        execFileSync(
+          process.execPath,
+          [
+            "scripts/miku-docx2md-cli.mjs",
+            ...args
+          ],
+          {
+            cwd: path.resolve(__dirname, ".."),
+            encoding: "utf8",
+            stdio: "pipe"
+          }
+        );
+        throw new Error(`Expected command to fail: ${args.join(" ")}`);
+      } catch (error) {
+        expect(error.status).toBe(1);
+        expect(error.stdout).toBe("");
+        expect(error.stderr).toContain("Use --help or --version without other arguments.");
+      }
+    }
+  });
+
+  it("keeps npm version smoke script aligned with the CLI", () => {
+    const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
+    expect(packageJson.scripts["smoke:version"]).toBe("node scripts/miku-docx2md-cli.mjs --version");
+  });
+
+  it("keeps release workflow checks aligned with generated artifacts and version smoke", () => {
+    const workflow = readFileSync(path.resolve(__dirname, "..", ".github/workflows/release-assets.yml"), "utf8");
+    expect(workflow).toContain("npm run build");
+    expect(workflow).toContain("git diff --exit-code -- index.html miku-docx2md.html src/js");
+    expect(workflow).toContain("npm run test:unit");
+    expect(workflow).toContain("npm run smoke:version");
+    expect(workflow).toContain('cp "${PRODUCT_NAME}.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"');
+    expect(workflow).toContain('git archive --format=tar.gz --prefix="${PRODUCT_NAME}-sources-${version}/"');
   });
 
   it("writes markdown and can include debug comments and summary", () => {
