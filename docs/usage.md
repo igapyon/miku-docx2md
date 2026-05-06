@@ -47,6 +47,12 @@ unsupported 要素の debug comment も出力します。
 npm run cli -- ./sample.docx --out ./sample.md --debug
 ```
 
+バージョンを確認します。
+
+```bash
+npm run cli -- --version
+```
+
 ## 画像 asset 出力
 
 `--assets-dir <dir>` を指定すると、解決可能な埋め込み画像が asset directory 配下へ保存されます。

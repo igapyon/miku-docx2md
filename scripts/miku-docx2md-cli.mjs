@@ -14,12 +14,18 @@ Options:
   --summary-out <file>            Write summary text to this file
   --debug                         Include unsupported-element HTML comments in Markdown output
   --include-unsupported-comments  Alias for --debug
+  --version                       Show version and exit
   --help                          Show help and exit
 
 Exit codes:
   0                               Success
   1                               Error
 `);
+}
+
+async function readPackageVersion() {
+  const packageJson = JSON.parse(await fs.readFile(new URL("../package.json", import.meta.url), "utf8"));
+  return typeof packageJson.version === "string" ? packageJson.version : "0.0.0";
 }
 
 function parseArgs(argv) {
@@ -30,6 +36,7 @@ function parseArgs(argv) {
     summaryOutPath: null,
     summary: false,
     includeUnsupportedComments: false,
+    version: false,
     help: false
   };
   const positionals = [];
@@ -42,6 +49,10 @@ function parseArgs(argv) {
     }
     if (arg === "--help") {
       options.help = true;
+      continue;
+    }
+    if (arg === "--version") {
+      options.version = true;
       continue;
     }
     if (arg === "--summary") {
@@ -110,14 +121,20 @@ function toPosixPath(filePath) {
 }
 
 async function main() {
-  const api = loadDocx2mdNodeApi();
   const options = parseArgs(process.argv.slice(2));
+
+  if (options.version) {
+    const version = await readPackageVersion();
+    console.log(`miku-docx2md ${version}`);
+    process.exit(0);
+  }
 
   if (options.help || !options.inputPath) {
     printHelp();
     process.exit(options.help ? 0 : 1);
   }
 
+  const api = loadDocx2mdNodeApi();
   const inputPath = path.resolve(options.inputPath);
   const inputBytes = await fs.readFile(inputPath);
   const parsed = await api.parseDocx(toArrayBuffer(inputBytes));
