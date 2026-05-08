@@ -4796,6 +4796,7 @@ if (!customElements.get("lht-page-menu")) {
     const moduleRegistry = getDocx2mdModuleRegistry();
     const imageTrace = moduleRegistry.getModule("imageTrace");
     const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const assetPath = moduleRegistry.getModule("assetPath");
     const textDecoder = new TextDecoder("utf-8");
     function inferImageMediaType(sourcePath) {
         const normalized = sourcePath.toLowerCase();
@@ -4875,11 +4876,11 @@ if (!customElements.get("lht-page-menu")) {
             ? [block.type]
             : (block.unsupportedTypes || []);
     }
-    function createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes) {
+    function createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, safeSourcePath, bytes, contentTypes) {
         return {
             kind: "image",
-            sourcePath: parsedTrace.sourcePath,
-            mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+            sourcePath: safeSourcePath,
+            mediaType: resolveImageMediaType(safeSourcePath, contentTypes),
             altText: parsedTrace.altText,
             sourceTrace: traceType,
             blockIndex,
@@ -4900,13 +4901,16 @@ if (!customElements.get("lht-page-menu")) {
                 const parsedTrace = imageTrace === null || imageTrace === void 0 ? void 0 : imageTrace.parseImageTrace(traceType);
                 if (!parsedTrace)
                     continue;
-                if (seen.has(parsedTrace.sourcePath))
+                const safeSourcePath = (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(parsedTrace.sourcePath)) || "";
+                if (!safeSourcePath)
                     continue;
-                const bytes = files.get(parsedTrace.sourcePath);
+                if (seen.has(safeSourcePath))
+                    continue;
+                const bytes = files.get(safeSourcePath);
                 if (!bytes)
                     continue;
-                seen.add(parsedTrace.sourcePath);
-                assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes));
+                seen.add(safeSourcePath);
+                assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, safeSourcePath, bytes, contentTypes));
             }
         }
         return assets;
@@ -5215,6 +5219,7 @@ if (!customElements.get("lht-page-menu")) {
 (() => {
     const moduleRegistry = getDocx2mdModuleRegistry();
     const utf8FileNameFlag = 0x0800;
+    const fixedZipEntryTimestamp = toDosDateTime(2025, 1, 1, 0, 0, 0);
     function createCrc32Table() {
         const table = new Uint32Array(256);
         for (let index = 0; index < table.length; index += 1) {
@@ -5234,6 +5239,12 @@ if (!customElements.get("lht-page-menu")) {
         }
         return (crc ^ 0xffffffff) >>> 0;
     }
+    function toDosDateTime(year, month, day, hour, minute, second) {
+        return {
+            dosDate: ((year - 1980) << 9) | (month << 5) | day,
+            dosTime: (hour << 11) | (minute << 5) | Math.floor(second / 2)
+        };
+    }
     function createLocalFileHeader(entry) {
         const localHeader = new Uint8Array(30 + entry.nameBytes.length);
         const localView = new DataView(localHeader.buffer);
@@ -5241,8 +5252,8 @@ if (!customElements.get("lht-page-menu")) {
         localView.setUint16(4, 20, true);
         localView.setUint16(6, utf8FileNameFlag, true);
         localView.setUint16(8, 0, true);
-        localView.setUint16(10, 0, true);
-        localView.setUint16(12, 0, true);
+        localView.setUint16(10, fixedZipEntryTimestamp.dosTime, true);
+        localView.setUint16(12, fixedZipEntryTimestamp.dosDate, true);
         localView.setUint32(14, entry.crc32, true);
         localView.setUint32(18, entry.dataBytes.length, true);
         localView.setUint32(22, entry.dataBytes.length, true);
@@ -5259,8 +5270,8 @@ if (!customElements.get("lht-page-menu")) {
         centralView.setUint16(6, 20, true);
         centralView.setUint16(8, utf8FileNameFlag, true);
         centralView.setUint16(10, 0, true);
-        centralView.setUint16(12, 0, true);
-        centralView.setUint16(14, 0, true);
+        centralView.setUint16(12, fixedZipEntryTimestamp.dosTime, true);
+        centralView.setUint16(14, fixedZipEntryTimestamp.dosDate, true);
         centralView.setUint32(16, entry.crc32, true);
         centralView.setUint32(20, entry.dataBytes.length, true);
         centralView.setUint32(24, entry.dataBytes.length, true);
@@ -5320,7 +5331,8 @@ if (!customElements.get("lht-page-menu")) {
         return copyChunks([...localChunks, ...centralChunks, eocd]);
     }
     moduleRegistry.registerModule("browserZip", {
-        createStoredZip
+        createStoredZip,
+        fixedZipEntryTimestamp
     });
 })();
   </script>
@@ -5334,6 +5346,7 @@ if (!customElements.get("lht-page-menu")) {
     const moduleRegistry = getDocx2mdModuleRegistry();
     const docx2md = moduleRegistry.getModule("docx2md");
     const browserZip = moduleRegistry.getModule("browserZip");
+    const assetPath = moduleRegistry.getModule("assetPath");
     function requireDocx2md() {
         if (!docx2md) {
             throw new Error("docx2md core module is not loaded");
@@ -5353,10 +5366,12 @@ if (!customElements.get("lht-page-menu")) {
                 name: "manifest.json",
                 data: manifestBytes
             },
-            ...parsedDocument.assets.map((asset) => ({
-                name: asset.sourcePath,
+            ...parsedDocument.assets
+                .map((asset) => ({
+                name: (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(asset.sourcePath)) || "",
                 data: asset.bytes
             }))
+                .filter((entry) => entry.name)
         ];
     }
     function createAssetsZipBlob(parsedDocument) {
@@ -5385,6 +5400,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     const docx2mdApi = docx2md;
     const browserAssetsExport = moduleRegistry.getModule("browserAssetsExport");
+    const assetPath = moduleRegistry.getModule("assetPath");
     if (!browserAssetsExport) {
         throw new Error("browser assets export module is not loaded");
     }
@@ -5427,7 +5443,10 @@ window.addEventListener("DOMContentLoaded", () => {
         return docx2mdApi.renderMarkdown(currentParsedDocument, {
             includeUnsupportedComments: getDebugEnabled(),
             imagePathResolver: imageLinkFolder
-                ? (sourcePath) => `${imageLinkFolder}/${sourcePath}`
+                ? (sourcePath) => {
+                    const safeSourcePath = (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(sourcePath)) || "";
+                    return safeSourcePath ? `${imageLinkFolder}/${safeSourcePath}` : "";
+                }
                 : undefined
         });
     }

@@ -6,6 +6,7 @@
     const moduleRegistry = getDocx2mdModuleRegistry();
     const imageTrace = moduleRegistry.getModule("imageTrace");
     const xmlUtils = moduleRegistry.getModule("xmlUtils");
+    const assetPath = moduleRegistry.getModule("assetPath");
     const textDecoder = new TextDecoder("utf-8");
     function inferImageMediaType(sourcePath) {
         const normalized = sourcePath.toLowerCase();
@@ -85,11 +86,11 @@
             ? [block.type]
             : (block.unsupportedTypes || []);
     }
-    function createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes) {
+    function createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, safeSourcePath, bytes, contentTypes) {
         return {
             kind: "image",
-            sourcePath: parsedTrace.sourcePath,
-            mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+            sourcePath: safeSourcePath,
+            mediaType: resolveImageMediaType(safeSourcePath, contentTypes),
             altText: parsedTrace.altText,
             sourceTrace: traceType,
             blockIndex,
@@ -110,13 +111,16 @@
                 const parsedTrace = imageTrace === null || imageTrace === void 0 ? void 0 : imageTrace.parseImageTrace(traceType);
                 if (!parsedTrace)
                     continue;
-                if (seen.has(parsedTrace.sourcePath))
+                const safeSourcePath = (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(parsedTrace.sourcePath)) || "";
+                if (!safeSourcePath)
                     continue;
-                const bytes = files.get(parsedTrace.sourcePath);
+                if (seen.has(safeSourcePath))
+                    continue;
+                const bytes = files.get(safeSourcePath);
                 if (!bytes)
                     continue;
-                seen.add(parsedTrace.sourcePath);
-                assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes));
+                seen.add(safeSourcePath);
+                assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, safeSourcePath, bytes, contentTypes));
             }
         }
         return assets;

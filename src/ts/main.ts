@@ -21,6 +21,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const browserAssetsExport = moduleRegistry.getModule<{
     createAssetsZipBlob: (parsedDocument: Docx2mdParsedDocx | null) => Blob | null;
   }>("browserAssetsExport");
+  const assetPath = moduleRegistry.getModule<{
+    getSafeDocxAssetPath: (sourcePath: string) => string;
+  }>("assetPath");
 
   if (!browserAssetsExport) {
     throw new Error("browser assets export module is not loaded");
@@ -81,7 +84,10 @@ window.addEventListener("DOMContentLoaded", () => {
     return docx2mdApi.renderMarkdown(currentParsedDocument, {
       includeUnsupportedComments: getDebugEnabled(),
       imagePathResolver: imageLinkFolder
-        ? (sourcePath) => `${imageLinkFolder}/${sourcePath}`
+        ? (sourcePath) => {
+          const safeSourcePath = assetPath?.getSafeDocxAssetPath(sourcePath) || "";
+          return safeSourcePath ? `${imageLinkFolder}/${safeSourcePath}` : "";
+        }
         : undefined
     });
   }

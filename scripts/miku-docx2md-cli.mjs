@@ -3,6 +3,39 @@ import path from "node:path";
 
 import { loadDocx2mdNodeApi } from "./lib/docx2md-node-runtime.mjs";
 
+const FLAG_OPTIONS = {
+  "--summary"(options) {
+    options.summary = true;
+  },
+  "--debug"(options) {
+    options.includeUnsupportedComments = true;
+  },
+  "--include-unsupported-comments"(options) {
+    options.includeUnsupportedComments = true;
+  },
+  "--verbose"(options) {
+    options.verbose = true;
+  }
+};
+
+const VALUE_OPTIONS = {
+  "--out": {
+    apply(options, value) {
+      options.outPath = value;
+    }
+  },
+  "--assets-dir": {
+    apply(options, value) {
+      options.assetsDir = value;
+    }
+  },
+  "--summary-out": {
+    apply(options, value) {
+      options.summaryOutPath = value;
+    }
+  }
+};
+
 function printHelp() {
   console.log(`miku-docx2md - local-first DOCX to Markdown converter
 
@@ -19,6 +52,7 @@ CONTRACT
   --summary prints conversion summary text to stdout.
   --summary-out writes conversion summary text to a file.
   If --out is omitted, avoid --summary unless mixed stdout output is acceptable.
+  --verbose writes progress and timing diagnostics to stderr.
   --help and --version are metadata commands and must be used without other arguments.
 
 OPTIONS
@@ -42,6 +76,10 @@ OPTIONS
 
   --include-unsupported-comments
       Alias for --debug.
+
+  --verbose
+      Write progress and timing diagnostics to stderr with a "verbose:" prefix.
+      Primary Markdown and summary outputs are unchanged.
 
   --version
       Show product name and package version, then exit.
@@ -80,6 +118,9 @@ EXAMPLES
   Include unsupported-element debug traces:
     node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --debug
 
+  Show progress diagnostics on stderr:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --verbose
+
   Show version:
     node scripts/miku-docx2md-cli.mjs --version
 
@@ -111,7 +152,8 @@ function parseArgs(argv) {
     assetsDir: null,
     summaryOutPath: null,
     summary: false,
-    includeUnsupportedComments: false
+    includeUnsupportedComments: false,
+    verbose: false
   };
   const positionals = [];
 
@@ -121,41 +163,24 @@ function parseArgs(argv) {
       positionals.push(arg);
       continue;
     }
-    if (arg === "--summary") {
-      options.summary = true;
+
+    const flagHandler = FLAG_OPTIONS[arg];
+    if (flagHandler) {
+      flagHandler(options);
       continue;
     }
-    if (arg === "--debug" || arg === "--include-unsupported-comments") {
-      options.includeUnsupportedComments = true;
-      continue;
-    }
-    if (arg === "--out") {
+
+    const valueOption = VALUE_OPTIONS[arg];
+    if (valueOption) {
       const value = argv[index + 1];
       if (!value) {
-        throw new Error("Missing value for --out");
+        throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
-      options.outPath = value;
+      valueOption.apply(options, value);
       continue;
     }
-    if (arg === "--assets-dir") {
-      const value = argv[index + 1];
-      if (!value) {
-        throw new Error("Missing value for --assets-dir");
-      }
-      index += 1;
-      options.assetsDir = value;
-      continue;
-    }
-    if (arg === "--summary-out") {
-      const value = argv[index + 1];
-      if (!value) {
-        throw new Error("Missing value for --summary-out");
-      }
-      index += 1;
-      options.summaryOutPath = value;
-      continue;
-    }
+
     throw new Error(`Unknown option: ${arg}`);
   }
 
@@ -186,8 +211,45 @@ function toPosixPath(filePath) {
   return filePath.split(path.sep).join("/");
 }
 
+function createVerboseLogger(enabled, startedAt) {
+  return (message) => {
+    if (!enabled) return;
+    const elapsedMs = Date.now() - startedAt;
+    console.error(`verbose: +${elapsedMs}ms ${message}`);
+  };
+}
+
+function formatDocumentError(inputPath, stage, error) {
+  const inputName = path.basename(inputPath || "input.docx");
+  const message = error instanceof Error ? error.message : String(error);
+  return `[${inputName}] ${stage}: ${message}`;
+}
+
+function requireAssetPathApi() {
+  const assetPath = globalThis.__docx2mdModuleRegistry?.getModule("assetPath");
+  if (!assetPath || typeof assetPath.getSafeDocxAssetPath !== "function") {
+    throw new Error("DOCX asset path module is not loaded.");
+  }
+  return assetPath;
+}
+
+function resolveAssetOutputPath(assetsRootDir, sourcePath, assetPathApi) {
+  const safeSourcePath = assetPathApi.getSafeDocxAssetPath(sourcePath);
+  if (!safeSourcePath) {
+    throw new Error(`Unsafe DOCX asset path: ${sourcePath}`);
+  }
+  const outputPath = path.resolve(assetsRootDir, ...safeSourcePath.split("/"));
+  const relativePath = path.relative(assetsRootDir, outputPath);
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    throw new Error(`DOCX asset path escapes assets directory: ${sourcePath}`);
+  }
+  return outputPath;
+}
+
 async function main() {
+  const startedAt = Date.now();
   const options = parseArgs(process.argv.slice(2));
+  const verbose = createVerboseLogger(options.verbose, startedAt);
 
   if (options.version) {
     const version = await readPackageVersion();
@@ -201,45 +263,91 @@ async function main() {
   }
 
   const api = loadDocx2mdNodeApi();
+  const assetPathApi = requireAssetPathApi();
   const inputPath = path.resolve(options.inputPath);
-  const inputBytes = await fs.readFile(inputPath);
-  const parsed = await api.parseDocx(toArrayBuffer(inputBytes));
   const resolvedOutputPath = options.outPath ? path.resolve(options.outPath) : null;
   const resolvedAssetsDir = options.assetsDir ? path.resolve(options.assetsDir) : null;
-  const markdown = api.renderMarkdown(parsed, {
-    includeUnsupportedComments: options.includeUnsupportedComments,
-    imagePathResolver: resolvedAssetsDir
-      ? (sourcePath) => {
-        const exportedAssetPath = path.join(resolvedAssetsDir, sourcePath);
-        const relativeBase = resolvedOutputPath
-          ? path.dirname(resolvedOutputPath)
-          : process.cwd();
-        return toPosixPath(path.relative(relativeBase, exportedAssetPath) || path.basename(exportedAssetPath));
-      }
-      : undefined
-  });
-  const summaryText = api.createSummaryText(parsed);
-  const assetsManifestText = api.createAssetsManifestText(parsed);
 
-  if (resolvedAssetsDir) {
-    await writeTextFile(path.join(resolvedAssetsDir, "manifest.json"), assetsManifestText);
-    for (const asset of parsed.assets || []) {
-      await writeBinaryFile(path.join(resolvedAssetsDir, asset.sourcePath), asset.bytes);
+  try {
+    verbose(`input=${options.inputPath}`);
+    verbose(`output=${options.outPath || "stdout"}`);
+    verbose(`summary=${options.summaryOutPath || (options.summary ? "stdout" : "disabled")}`);
+    verbose(`assets=${options.assetsDir || "disabled"}`);
+    let inputBytes;
+    try {
+      inputBytes = await fs.readFile(inputPath);
+    } catch (error) {
+      throw new Error(formatDocumentError(inputPath, "read failed", error));
     }
-  }
+    verbose(`input-bytes=${inputBytes.byteLength}`);
+    let parsed;
+    try {
+      parsed = await api.parseDocx(toArrayBuffer(inputBytes));
+    } catch (error) {
+      throw new Error(formatDocumentError(inputPath, "parse failed", error));
+    }
+    verbose(`parsed blocks=${parsed.blocks.length} assets=${parsed.assets.length}`);
+    const markdown = api.renderMarkdown(parsed, {
+      includeUnsupportedComments: options.includeUnsupportedComments,
+      imagePathResolver: resolvedAssetsDir
+        ? (sourcePath) => {
+          const safeSourcePath = assetPathApi.getSafeDocxAssetPath(sourcePath);
+          if (!safeSourcePath) return "";
+          const exportedAssetPath = path.resolve(resolvedAssetsDir, ...safeSourcePath.split("/"));
+          const relativeBase = resolvedOutputPath
+            ? path.dirname(resolvedOutputPath)
+            : process.cwd();
+          return toPosixPath(path.relative(relativeBase, exportedAssetPath) || path.basename(exportedAssetPath));
+        }
+        : undefined
+    });
+    const summaryText = api.createSummaryText(parsed);
+    const assetsManifestText = api.createAssetsManifestText(parsed);
 
-  if (options.summary) {
-    console.log(summaryText);
-  }
+    if (resolvedAssetsDir) {
+      try {
+        await writeTextFile(path.join(resolvedAssetsDir, "manifest.json"), assetsManifestText);
+        for (const asset of parsed.assets || []) {
+          await writeBinaryFile(resolveAssetOutputPath(resolvedAssetsDir, asset.sourcePath, assetPathApi), asset.bytes);
+        }
+      } catch (error) {
+        throw new Error(formatDocumentError(inputPath, "asset write failed", error));
+      }
+      verbose(`assets-written count=${parsed.assets.length}`);
+    }
 
-  if (options.summaryOutPath) {
-    await writeTextFile(path.resolve(options.summaryOutPath), summaryText);
-  }
+    if (options.summary) {
+      console.log(summaryText);
+      verbose("summary-written stdout");
+    }
 
-  if (resolvedOutputPath) {
-    await writeTextFile(resolvedOutputPath, markdown);
-  } else {
-    process.stdout.write(markdown);
+    if (options.summaryOutPath) {
+      try {
+        await writeTextFile(path.resolve(options.summaryOutPath), summaryText);
+      } catch (error) {
+        throw new Error(formatDocumentError(inputPath, "summary write failed", error));
+      }
+      verbose(`summary-written ${options.summaryOutPath}`);
+    }
+
+    if (resolvedOutputPath) {
+      try {
+        await writeTextFile(resolvedOutputPath, markdown);
+      } catch (error) {
+        throw new Error(formatDocumentError(inputPath, "markdown write failed", error));
+      }
+      verbose(`markdown-written ${options.outPath}`);
+    } else {
+      process.stdout.write(markdown);
+      verbose("markdown-written stdout");
+    }
+    verbose(`done total-ms=${Date.now() - startedAt}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.startsWith(`[${path.basename(inputPath)}] `)) {
+      throw error;
+    }
+    throw new Error(formatDocumentError(inputPath, "failed", error));
   }
 }
 

@@ -6,6 +6,7 @@
     const moduleRegistry = getDocx2mdModuleRegistry();
     const docx2md = moduleRegistry.getModule("docx2md");
     const browserZip = moduleRegistry.getModule("browserZip");
+    const assetPath = moduleRegistry.getModule("assetPath");
     function requireDocx2md() {
         if (!docx2md) {
             throw new Error("docx2md core module is not loaded");
@@ -25,10 +26,12 @@
                 name: "manifest.json",
                 data: manifestBytes
             },
-            ...parsedDocument.assets.map((asset) => ({
-                name: asset.sourcePath,
+            ...parsedDocument.assets
+                .map((asset) => ({
+                name: (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(asset.sourcePath)) || "",
                 data: asset.bytes
             }))
+                .filter((entry) => entry.name)
         ];
     }
     function createAssetsZipBlob(parsedDocument) {

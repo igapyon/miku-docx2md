@@ -10,6 +10,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     const docx2mdApi = docx2md;
     const browserAssetsExport = moduleRegistry.getModule("browserAssetsExport");
+    const assetPath = moduleRegistry.getModule("assetPath");
     if (!browserAssetsExport) {
         throw new Error("browser assets export module is not loaded");
     }
@@ -52,7 +53,10 @@ window.addEventListener("DOMContentLoaded", () => {
         return docx2mdApi.renderMarkdown(currentParsedDocument, {
             includeUnsupportedComments: getDebugEnabled(),
             imagePathResolver: imageLinkFolder
-                ? (sourcePath) => `${imageLinkFolder}/${sourcePath}`
+                ? (sourcePath) => {
+                    const safeSourcePath = (assetPath === null || assetPath === void 0 ? void 0 : assetPath.getSafeDocxAssetPath(sourcePath)) || "";
+                    return safeSourcePath ? `${imageLinkFolder}/${safeSourcePath}` : "";
+                }
                 : undefined
         });
     }

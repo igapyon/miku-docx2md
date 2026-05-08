@@ -92,7 +92,7 @@
 ## Phase 13: Real Document Quality Pass
 
 - [x] Collect a small local validation set of real `.docx` documents
-- [ ] Run browser conversion against the validation set
+- [x] Run browser conversion against the validation set
 - [x] Run CLI conversion against the validation set
 - [x] Compare Markdown readability for headings, lists, links, tables, and image placeholders
   - [x] Word-round-tripped local validation docs 01/02 checked for headings, lists, links, and tables
@@ -209,3 +209,21 @@
 - [x] Consider extracting browser asset ZIP packaging from `main.ts`
 - [x] Decide whether `.github/workflows/release-assets.yml` should move from GitHub Release published trigger to the miku-soft standard `v*` tag push trigger
 - [x] Re-run `npm run build`, `npm run test:unit`, `npm run smoke:version`, `npx tsc --noEmit`, and `git diff --check` after this refactoring slice
+
+## Phase 18: Sister-App Review Follow-up
+
+- [x] Add CLI `--verbose` progress and timing diagnostics on stderr with a stable `verbose:` prefix
+- [x] Refactor CLI option parsing toward `FLAG_OPTIONS` and value option definitions, following the `miku-xlsx2md` shape
+- [x] Add stage-aware CLI error messages such as `[sample.docx] read failed:` and `[sample.docx] parse failed:`
+- [x] Harden image asset export paths so only safe `word/media/...` package paths are exported or linked
+  - Reject empty segments, `.` / `..`, absolute paths, and non-`word/media` paths before CLI file output or browser ZIP entry creation
+  - Verify CLI `--assets-dir` output cannot escape the selected asset directory
+- [x] Fix browser asset ZIP entry timestamps to `2025-01-01 00:00:00` for reproducible ZIP bytes
+- [x] Add regression coverage for fixed browser ZIP timestamps and byte-stable output
+- [x] Add browser automation for the official Web UI path
+  - Cover fixture load, auto-conversion, image link toggle, image link folder changes, and download button enabled/disabled states
+  - Covered with `jsdom` against the committed Web UI path to avoid adding a browser test dependency.
+- [x] Add `.docx` fixture hygiene tests modeled after `miku-xlsx2md`
+  - Check `docProps/core.xml` for creator, lastModifiedBy, created, and modified metadata
+  - Check `docProps/app.xml` for Application and AppVersion metadata
+  - Reject committed fixtures containing `word/comments.xml`, `word/embeddings/`, `word/vbaProject.bin`, or external relationships unless intentionally documented
