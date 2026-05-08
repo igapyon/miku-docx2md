@@ -4,6 +4,8 @@
 
 見た目を Word どおりに再現するためのツールではありません。文章、見出し、リスト、表、リンクなどの文書構造を Markdown として読みやすく取り出すことを目的にしています。
 
+この README は、概要と最短の使い方をまとめます。詳しいブラウザ操作、CLI option、画像 asset、debug 出力は [docs/usage.md](./docs/usage.md) を参照してください。
+
 ## できること
 
 - `.docx` ファイルを Markdown に変換
@@ -23,11 +25,10 @@
 1. `index.html` を開きます。
 2. `miku-docx2md.html` へ進みます。
 3. `.docx` ファイルを選択します。
-4. 変換ボタンを押します。
-5. Markdown と summary を確認します。
-6. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
+4. 選択後、自動変換された Markdown と summary を確認します。
+5. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
 
-画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。
+画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。`Use image asset links` を ON にすると、Markdown には指定した image link folder を使った `![](...)` link が出力されます。
 
 ## 使い方: CLI
 
@@ -53,21 +54,13 @@ debug comment も含める例:
 npm run cli -- ./sample.docx --out ./sample.md --debug
 ```
 
-## CLI オプション
+進捗と処理時間の診断を stderr に出す例:
 
-| Option | Description |
-| --- | --- |
-| `--out <file>` | Markdown の出力先 |
-| `--assets-dir <dir>` | 解決可能な埋め込み画像 asset の出力先 |
-| `--summary` | summary を標準出力へ表示 |
-| `--summary-out <file>` | summary の出力先 |
-| `--debug` | unsupported 要素の HTML comment trace を Markdown に含める |
-| `--include-unsupported-comments` | `--debug` と同じ |
-| `--help` | ヘルプを表示 |
+```bash
+npm run cli -- ./sample.docx --out ./sample.md --verbose
+```
 
-`--assets-dir` を指定すると、解決可能な画像は `word/media/example.png` のような package-relative path で保存されます。Markdown 側も、可能な場合は `[Image: ...]` placeholder ではなく相対 `![](...)` link を出力します。
-
-asset 出力先には `manifest.json` も作成されます。manifest には asset path、media type、alt text、byte size、source trace、block index、document position が含まれます。
+CLI option の一覧、終了コード、asset 出力、`manifest.json` の詳細は [docs/usage.md](./docs/usage.md) と `npm run cli -- --help` にまとめています。
 
 ## 出力方針
 
@@ -112,10 +105,13 @@ npm run test:unit
 
 ## 詳細ドキュメント
 
-- 利用者向け補足: [docs/usage.md](./docs/usage.md)
+- 利用者向けの操作手順と CLI 詳細: [docs/usage.md](./docs/usage.md)
 - 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
-- 仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
-- 実装仕様: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
+- ブラウザ smoke checklist: [docs/browser-smoke-checklist.md](./docs/browser-smoke-checklist.md)
+- 実文書品質確認の記録テンプレート: [docs/real-document-validation-template.md](./docs/real-document-validation-template.md)
+- 実文書品質確認メモ v0.8.2: [docs/real-document-validation-v0.8.2.md](./docs/real-document-validation-v0.8.2.md)
+- 変換仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
+- 実装に沿った現在の挙動: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
 - upstream 参照方針: [docs/upstream.md](./docs/upstream.md)
 
 ## License

@@ -1,6 +1,6 @@
 {
   "name": "miku-docx2md",
-  "version": "0.8.1",
+  "version": "0.8.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "test:unit": "vitest run",
     "test:watch": "vitest",
     "cli": "node scripts/miku-docx2md-cli.mjs",
+    "smoke:version": "node scripts/miku-docx2md-cli.mjs --version",
     "build": "node scripts/build-miku-docx2md.mjs"
   },
   "devDependencies": {

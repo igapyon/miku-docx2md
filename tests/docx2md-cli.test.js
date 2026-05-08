@@ -1,104 +1,21 @@
 // @vitest-environment node
 
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { createStoredZipBytes } from "./helpers/docx-fixture.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function createStoredZip(entries) {
-  const encoder = new TextEncoder();
-  const localChunks = [];
-  const centralChunks = [];
-  let offset = 0;
-
-  for (const entry of entries) {
-    const nameBytes = encoder.encode(entry.name);
-    const dataBytes = entry.data;
-
-    const localHeader = new Uint8Array(30 + nameBytes.length);
-    const localView = new DataView(localHeader.buffer);
-    localView.setUint32(0, 0x04034b50, true);
-    localView.setUint16(4, 20, true);
-    localView.setUint16(6, 0, true);
-    localView.setUint16(8, 0, true);
-    localView.setUint16(10, 0, true);
-    localView.setUint16(12, 0, true);
-    localView.setUint32(14, 0, true);
-    localView.setUint32(18, dataBytes.length, true);
-    localView.setUint32(22, dataBytes.length, true);
-    localView.setUint16(26, nameBytes.length, true);
-    localView.setUint16(28, 0, true);
-    localHeader.set(nameBytes, 30);
-    localChunks.push(localHeader, dataBytes);
-
-    const centralHeader = new Uint8Array(46 + nameBytes.length);
-    const centralView = new DataView(centralHeader.buffer);
-    centralView.setUint32(0, 0x02014b50, true);
-    centralView.setUint16(4, 20, true);
-    centralView.setUint16(6, 20, true);
-    centralView.setUint16(8, 0, true);
-    centralView.setUint16(10, 0, true);
-    centralView.setUint16(12, 0, true);
-    centralView.setUint16(14, 0, true);
-    centralView.setUint32(16, 0, true);
-    centralView.setUint32(20, dataBytes.length, true);
-    centralView.setUint32(24, dataBytes.length, true);
-    centralView.setUint16(28, nameBytes.length, true);
-    centralView.setUint16(30, 0, true);
-    centralView.setUint16(32, 0, true);
-    centralView.setUint16(34, 0, true);
-    centralView.setUint16(36, 0, true);
-    centralView.setUint32(38, 0, true);
-    centralView.setUint32(42, offset, true);
-    centralHeader.set(nameBytes, 46);
-    centralChunks.push(centralHeader);
-
-    offset += localHeader.length + dataBytes.length;
-  }
-
-  const centralDirectoryOffset = offset;
-  let centralDirectorySize = 0;
-  for (const chunk of centralChunks) {
-    centralDirectorySize += chunk.length;
-  }
-
-  const eocd = new Uint8Array(22);
-  const eocdView = new DataView(eocd.buffer);
-  eocdView.setUint32(0, 0x06054b50, true);
-  eocdView.setUint16(4, 0, true);
-  eocdView.setUint16(6, 0, true);
-  eocdView.setUint16(8, entries.length, true);
-  eocdView.setUint16(10, entries.length, true);
-  eocdView.setUint32(12, centralDirectorySize, true);
-  eocdView.setUint32(16, centralDirectoryOffset, true);
-  eocdView.setUint16(20, 0, true);
-
-  const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-    + centralChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-    + eocd.length;
-  const out = new Uint8Array(totalLength);
-  let cursor = 0;
-  for (const chunk of localChunks) {
-    out.set(chunk, cursor);
-    cursor += chunk.length;
-  }
-  for (const chunk of centralChunks) {
-    out.set(chunk, cursor);
-    cursor += chunk.length;
-  }
-  out.set(eocd, cursor);
-  return out;
-}
-
 function createCliDocxBytes() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipBytes([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -144,7 +61,7 @@ function createCliDocxBytes() {
 
 function createCliNestedUnsupportedDocxBytes() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipBytes([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -166,7 +83,154 @@ function createCliNestedUnsupportedDocxBytes() {
   ]);
 }
 
+function createCliUnsafeAssetPathDocxBytes() {
+  const encoder = new TextEncoder();
+  return createStoredZipBytes([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>
+    <w:drawing>
+      <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+        <wp:docPr id="1" name="Unsafe image" descr="Unsafe image alt"/>
+      </wp:inline>
+      <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:graphicData>
+          <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:blipFill>
+              <a:blip r:embed="rIdImage1"/>
+            </pic:blipFill>
+          </pic:pic>
+        </a:graphicData>
+      </a:graphic>
+    </w:drawing>
+  </w:body>
+</w:document>`
+      )
+    },
+    {
+      name: "word/_rels/document.xml.rels",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../outside.png"/>
+</Relationships>`
+      )
+    },
+    {
+      name: "outside.png",
+      data: Uint8Array.from([1, 2, 3, 4])
+    }
+  ]);
+}
+
 describe("docx2md cli", () => {
+  it("prints agent-readable help without requiring an input file", () => {
+    const helpOutput = execFileSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "--help"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(helpOutput).toContain("miku-docx2md - local-first DOCX to Markdown converter");
+    expect(helpOutput).toContain("USAGE");
+    expect(helpOutput).toContain("CONTRACT");
+    expect(helpOutput).toContain("OPTIONS");
+    expect(helpOutput).toContain("OUTPUTS");
+    expect(helpOutput).toContain("EXAMPLES");
+    expect(helpOutput).toContain("EXIT CODES");
+    expect(helpOutput).toContain("Input is exactly one local .docx file path.");
+    expect(helpOutput).toContain("If --out is omitted, Markdown is written to stdout.");
+    expect(helpOutput).toContain("--verbose writes progress and timing diagnostics to stderr.");
+    expect(helpOutput).toContain("--help and --version are metadata commands and must be used without other arguments.");
+    expect(helpOutput).toContain("manifest.json");
+  });
+
+  it("prints version without requiring an input file", () => {
+    const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
+    const versionOutput = execFileSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "--version"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(versionOutput).toBe(`miku-docx2md ${packageJson.version}\n`);
+  });
+
+  it("rejects metadata commands mixed with other arguments", () => {
+    for (const args of [
+      ["sample.docx", "--version"],
+      ["--help", "--version"]
+    ]) {
+      try {
+        execFileSync(
+          process.execPath,
+          [
+            "scripts/miku-docx2md-cli.mjs",
+            ...args
+          ],
+          {
+            cwd: path.resolve(__dirname, ".."),
+            encoding: "utf8",
+            stdio: "pipe"
+          }
+        );
+        throw new Error(`Expected command to fail: ${args.join(" ")}`);
+      } catch (error) {
+        expect(error.status).toBe(1);
+        expect(error.stdout).toBe("");
+        expect(error.stderr).toContain("Use --help or --version without other arguments.");
+      }
+    }
+  });
+
+  it("reports read failures with the input document name and stage", () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "does-not-exist.docx"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("[does-not-exist.docx] read failed:");
+  });
+
+  it("keeps npm version smoke script aligned with the CLI", () => {
+    const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
+    expect(packageJson.scripts["smoke:version"]).toBe("node scripts/miku-docx2md-cli.mjs --version");
+  });
+
+  it("keeps release workflow checks aligned with generated artifacts and version smoke", () => {
+    const workflow = readFileSync(path.resolve(__dirname, "..", ".github/workflows/release-assets.yml"), "utf8");
+    expect(workflow).toContain("npm run build");
+    expect(workflow).toContain("git diff --exit-code -- index.html miku-docx2md.html src/js");
+    expect(workflow).toContain("npm run test:unit");
+    expect(workflow).toContain("npm run smoke:version");
+    expect(workflow).toContain('cp "${PRODUCT_NAME}.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"');
+    expect(workflow).toContain('git archive --format=tar.gz --prefix="${PRODUCT_NAME}-sources-${version}/"');
+  });
+
   it("writes markdown and can include debug comments and summary", () => {
     const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-"));
     try {
@@ -234,6 +298,89 @@ describe("docx2md cli", () => {
           }
         ]
       });
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes verbose progress diagnostics to stderr without changing primary outputs", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-verbose-"));
+    try {
+      const inputPath = path.join(tempDir, "sample.docx");
+      const outputPath = path.join(tempDir, "sample.md");
+      const summaryPath = path.join(tempDir, "sample.summary.txt");
+      const assetsDirPath = path.join(tempDir, "sample.assets");
+      writeFileSync(inputPath, createCliDocxBytes());
+
+      const result = spawnSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--summary-out",
+          summaryPath,
+          "--assets-dir",
+          assetsDirPath,
+          "--verbose"
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toContain("verbose:");
+      expect(result.stderr).toContain(`input=${inputPath}`);
+      expect(result.stderr).toContain(`output=${outputPath}`);
+      expect(result.stderr).toContain(`summary=${summaryPath}`);
+      expect(result.stderr).toContain(`assets=${assetsDirPath}`);
+      expect(result.stderr).toContain("input-bytes=");
+      expect(result.stderr).toContain("parsed blocks=");
+      expect(result.stderr).toContain("assets-written count=1");
+      expect(result.stderr).toContain(`summary-written ${summaryPath}`);
+      expect(result.stderr).toContain(`markdown-written ${outputPath}`);
+      expect(result.stderr).toContain("done total-ms=");
+      expect(readFileSync(outputPath, "utf8")).toContain("Hello CLI");
+      expect(readFileSync(summaryPath, "utf8")).toContain("imageAssets: 1");
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not export DOCX image assets outside word/media package paths", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-unsafe-"));
+    try {
+      const inputPath = path.join(tempDir, "unsafe.docx");
+      const outputPath = path.join(tempDir, "unsafe.md");
+      const assetsDirPath = path.join(tempDir, "unsafe.assets");
+      writeFileSync(inputPath, createCliUnsafeAssetPathDocxBytes());
+
+      execFileSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--assets-dir",
+          assetsDirPath
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      const markdown = readFileSync(outputPath, "utf8");
+      const manifest = JSON.parse(readFileSync(path.join(assetsDirPath, "manifest.json"), "utf8"));
+      expect(markdown).toContain("[Image: Unsafe image alt]");
+      expect(markdown).not.toContain("![](unsafe.assets/../outside.png)");
+      expect(manifest).toEqual({ version: 1, assets: [] });
+      expect(existsSync(path.join(tempDir, "outside.png"))).toBe(false);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }

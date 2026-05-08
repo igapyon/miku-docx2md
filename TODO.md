@@ -91,23 +91,90 @@
 
 ## Phase 13: Real Document Quality Pass
 
-- [ ] Collect a small local validation set of real `.docx` documents
-- [ ] Run browser conversion against the validation set
-- [ ] Run CLI conversion against the validation set
-- [ ] Compare Markdown readability for headings, lists, links, tables, and image placeholders
-- [ ] Review generated summaries for obviously wrong counts
-- [ ] Review debug output for unsupported trace usefulness
-- [ ] Verify image asset export and `manifest.json` on documents with embedded images
-- [ ] Record recurring incompatibilities as focused fixtures or known limitations
+- [x] Collect a small local validation set of real `.docx` documents
+- [x] Run browser conversion against the validation set
+- [x] Run CLI conversion against the validation set
+- [x] Compare Markdown readability for headings, lists, links, tables, and image placeholders
+  - [x] Word-round-tripped local validation docs 01/02 checked for headings, lists, links, and tables
+  - [x] Word-authored `word-headings-basic.docx` checked for Heading 1-5 and paragraphs
+  - [x] Word-authored focused fixtures committed under `tests/fixtures/docx/word-*.docx`
+  - [x] Image placeholder readability checked with `word-inline-image-basic.docx` and `word-image-alt-text-basic.docx`
+- [x] Review generated summaries for obviously wrong counts
+- [x] Review debug output for unsupported trace usefulness
+- [x] Verify image asset export and `manifest.json` on documents with embedded images
+  - [x] Replace invalid generated image validation candidates; `03-image-and-unsupported.docx` and `04-parser-image-asset.docx` were not Word-openable
+  - [x] Fixed Word-authored inline image extraction from `word-inline-image-basic.docx`
+- [x] Record recurring incompatibilities as focused fixtures or known limitations
+
+## Phase 13.5: Additional Real Document Test Patterns
+
+- [x] Add a Word-authored fixture with bullet lists created through Word UI
+  - Word UI operation: create a new document, type three short lines, select them, then use Home > Bullets to make a normal bullet list.
+  - Fixture: `tests/fixtures/docx/word-bullet-list-basic.docx`
+- [x] Add a Word-authored fixture with numbered lists created through Word UI
+  - Word UI operation: create a new document, type three short lines, select them, then use Home > Numbering to make a normal numbered list.
+  - Fixture: `tests/fixtures/docx/word-numbered-list-basic.docx`
+- [x] Add a Word-authored fixture with nested lists created through Word UI
+  - Word UI operation: create a bullet or numbered list, place the cursor on the second item, then use Home > Increase Indent or press Tab to create a nested child item.
+  - Fixture: `tests/fixtures/docx/word-nested-list-basic.docx`
+- [x] Add a Word-authored fixture with external hyperlink and internal bookmark hyperlink
+  - Word UI operation: create one external link with Insert > Link to `https://example.com`, then create a bookmark with Insert > Bookmark and link another text run to Place in This Document / the bookmark.
+  - Fixture: `tests/fixtures/docx/word-links-basic.docx`
+- [x] Add a Word-authored fixture with a table created through Word UI, including a merged cell
+  - Word UI operation: use Insert > Table to create a small 3x3 table, fill every cell with short text, select two adjacent cells, then use Table Layout > Merge Cells.
+  - Fixture: `tests/fixtures/docx/word-table-merged-cell-basic.docx`
+- [x] Add a Word-authored fixture with bold / italic / underline / strike combinations across multiple runs
+  - Word UI operation: type one paragraph with separate words for bold, italic, underline, strikethrough, and a combined-format word, then apply formatting from Home > Font buttons.
+  - Fixture: `tests/fixtures/docx/word-inline-formatting-basic.docx`
+- [x] Add a Word-authored fixture with Heading 1 through Heading 5 styles created through Word UI
+  - Word UI operation: type short heading lines, then apply Home > Styles > Heading 1 through Heading 5.
+  - Fixture: `tests/fixtures/docx/word-headings-basic.docx`
+- [x] Extend the Word-authored heading fixture to cover Heading 6
+  - Word UI operation: add one `Heading 6` line, then apply Home > Styles > Heading 6.
+  - Expected Markdown output: `###### Heading 6`.
+  - Fixture: `tests/fixtures/docx/word-headings-basic.docx`
+- [x] Support custom paragraph heading styles that expose `w:outlineLvl`
+  - Design rule: treat outline-level paragraph styles as headings; do not infer headings only from visual formatting.
+  - Word UI operation for fixture: create or modify a custom paragraph style with an outline level, then apply it to a short line.
+  - Regression coverage: focused DOCX test creates a custom paragraph style with `w:outlineLvl`.
+- [x] Add a Word-authored fixture with an embedded inline image that is recognized as an exported asset
+  - Word UI operation: use Insert > Pictures to insert a small local PNG, then set Layout Options to In Line with Text if Word does not choose inline placement automatically.
+  - Fixture: `tests/fixtures/docx/word-inline-image-basic.docx`
+  - Current parser result: `images: 1`, `imageAssets: 1`.
+- [x] Add a Word-authored fixture with image alt text / description and verify Markdown alt text
+  - Word UI operation: insert a small local PNG, open Picture Format > Alt Text, then set a short description such as `Sample alt text for fixture`.
+  - Fixture: `tests/fixtures/docx/word-image-alt-text-basic.docx`
+  - Current parser result: `images: 1`, `imageAssets: 1`; Markdown alt text is emitted as `Sample alt text for fixture`.
+- [x] Add regression tests for the prepared Word-authored fixtures
+  - Cover list counts, link counts, merged-cell placeholder output, and inline formatting output first.
+  - Word inline image extraction and alt text are covered by regression tests for `word-inline-image-basic.docx` and `word-image-alt-text-basic.docx`.
+- [x] Add a Word-authored table fixture with vertical merged cells
+  - Word UI operation: create a small table, select two cells in the same column, then use Table Layout > Merge Cells.
+  - Expected Markdown output: use `↑M↑` for the vertically merged continuation cell.
+  - Regression coverage: focused DOCX test covers `w:vMerge` restart/continue.
+- [x] Add a Word-authored table fixture with line breaks inside a table cell
+  - Word UI operation: create a small table, type `line1`, insert a line break inside the same cell, then type `line2`.
+  - Expected Markdown output: keep the cell readable with `<br>`.
+  - Regression coverage: focused DOCX test covers ordered `w:t`, `w:br`, `w:t` inside one table cell run.
+- [x] Add a focused fixture for Word proofing markers such as `w:proofErr` between formatted runs
+- [x] Add browser-side smoke notes or manual checklist coverage for the committed fixtures
+
+## Phase 13.6: Post-Validation Refactoring
+
+- [x] After the real-document test pattern additions are complete, refactor the affected parsing modules
+- [x] Keep parser behavior covered by committed fixtures before refactoring
+- [x] Revisit drawing/image extraction boundaries after fixing or characterizing `word-inline-image-basic.docx`
+- [x] Revisit inline formatting run coalescing after adding `w:proofErr` coverage
+- [x] Re-run `npm run build`, `npm run test:unit`, `npm run smoke:version`, and generated artifact sync check after refactoring
 
 ## Phase 14: Release Readiness
 
-- [ ] Re-read README from a first-time user perspective
-- [ ] Re-read `docs/usage.md` for CLI and browser workflow accuracy
-- [ ] Confirm generated `index.html` and `miku-docx2md.html` are in sync with source files
-- [ ] Run `npm run build`
-- [ ] Run `npm run test:unit`
-- [ ] Prepare release notes from user-visible changes
+- [x] Re-read README from a first-time user perspective
+- [x] Re-read `docs/usage.md` for CLI and browser workflow accuracy
+- [x] Confirm generated `index.html` and `miku-docx2md.html` are in sync with source files
+- [x] Run `npm run build`
+- [x] Run `npm run test:unit`
+- [x] Prepare release notes from user-visible changes
 
 ## Phase 15: Refactoring
 
@@ -132,3 +199,31 @@
 - [x] Split table cell text extraction after inline/textbox callback boundary stabilized
 - [x] After each slice, update `scripts/lib/docx2md-module-order.mjs`, `miku-docx2md-src.html`, and generated `src/js/`
 - [x] After each slice, run `npm run build`, `npm run test:unit`, `npx tsc --noEmit`, and `git diff --check`
+
+## Phase 17: miku-soft Maintenance Refactoring
+
+- [x] Remove unused inline parser helpers before larger parser refactoring
+- [x] Share test DOCX ZIP fixture helpers between CLI and runtime tests
+- [x] After `w:proofErr` coverage lands, split inline text style resolution from run parsing
+- [x] Consider extracting hyperlink target resolution from `document-inline-parser.ts`
+- [x] Consider extracting browser asset ZIP packaging from `main.ts`
+- [x] Decide whether `.github/workflows/release-assets.yml` should move from GitHub Release published trigger to the miku-soft standard `v*` tag push trigger
+- [x] Re-run `npm run build`, `npm run test:unit`, `npm run smoke:version`, `npx tsc --noEmit`, and `git diff --check` after this refactoring slice
+
+## Phase 18: Sister-App Review Follow-up
+
+- [x] Add CLI `--verbose` progress and timing diagnostics on stderr with a stable `verbose:` prefix
+- [x] Refactor CLI option parsing toward `FLAG_OPTIONS` and value option definitions, following the `miku-xlsx2md` shape
+- [x] Add stage-aware CLI error messages such as `[sample.docx] read failed:` and `[sample.docx] parse failed:`
+- [x] Harden image asset export paths so only safe `word/media/...` package paths are exported or linked
+  - Reject empty segments, `.` / `..`, absolute paths, and non-`word/media` paths before CLI file output or browser ZIP entry creation
+  - Verify CLI `--assets-dir` output cannot escape the selected asset directory
+- [x] Fix browser asset ZIP entry timestamps to `2025-01-01 00:00:00` for reproducible ZIP bytes
+- [x] Add regression coverage for fixed browser ZIP timestamps and byte-stable output
+- [x] Add browser automation for the official Web UI path
+  - Cover fixture load, auto-conversion, image link toggle, image link folder changes, and download button enabled/disabled states
+  - Covered with `jsdom` against the committed Web UI path to avoid adding a browser test dependency.
+- [x] Add `.docx` fixture hygiene tests modeled after `miku-xlsx2md`
+  - Check `docProps/core.xml` for creator, lastModifiedBy, created, and modified metadata
+  - Check `docProps/app.xml` for Application and AppVersion metadata
+  - Reject committed fixtures containing `word/comments.xml`, `word/embeddings/`, `word/vbaProject.bin`, or external relationships unless intentionally documented

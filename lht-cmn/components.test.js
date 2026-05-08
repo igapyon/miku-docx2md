@@ -601,7 +601,7 @@ describe("lht critical components mode matrix", () => {
     expect(document.querySelector("lht-help-tooltip md-icon-button")).not.toBeNull();
     expect(document.querySelector("lht-text-field-help md-outlined-text-field")).not.toBeNull();
     expect(document.querySelector("lht-select-help md-outlined-select")).not.toBeNull();
-    expect(document.querySelector("lht-file-select md-filled-button")).not.toBeNull();
+    expect(document.querySelector("lht-file-select button.lht-file-select__button--fallback")).not.toBeNull();
     expect(document.querySelector("lht-switch-help md-switch")).not.toBeNull();
     expect(document.querySelector("lht-command-block md-icon-button")).not.toBeNull();
   });
@@ -623,7 +623,7 @@ describe("lht components in material-loaded mode", () => {
     expect(document.querySelector("lht-help-tooltip md-icon-button")).not.toBeNull();
     expect(document.querySelector("lht-text-field-help md-outlined-text-field")).not.toBeNull();
     expect(document.querySelector("lht-select-help md-outlined-select")).not.toBeNull();
-    expect(document.querySelector("lht-file-select md-filled-button")).not.toBeNull();
+    expect(document.querySelector("lht-file-select button.lht-file-select__button--fallback")).not.toBeNull();
     expect(document.querySelector("lht-switch-help md-switch")).not.toBeNull();
     expect(document.querySelector("lht-command-block md-icon-button")).not.toBeNull();
   });

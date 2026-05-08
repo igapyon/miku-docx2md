@@ -43,6 +43,15 @@
               Unsupported elements are omitted by default. Enable this only when you want Markdown output to include debug-oriented <span class="md-inline-code">&lt;!-- unsupported: ... --&gt;</span> traces.
             </lht-switch-help>
 
+            <lht-switch-help switch-id="imageLinksEnabled" label="Use image asset links" help-label="About image links" checked>
+              When enabled, resolved embedded images are rendered as Markdown image links using the folder below. Turn it off to use text placeholders such as <span class="md-inline-code">[Image: ...]</span>.
+            </lht-switch-help>
+
+            <label class="md-field">
+              <span class="md-field__label">Image link folder</span>
+              <input id="imageLinkFolder" class="md-field__input" type="text" value="" placeholder="sample.assets" />
+            </label>
+
             <div class="md-actions">
               <button id="convertBtn" class="md-button md-button--accent" type="button">Convert to Markdown</button>
               <button id="downloadBtn" class="md-button" type="button" disabled>Save Markdown</button>
@@ -82,6 +91,8 @@
   <script src="src/js/document-summary.js"></script>
   <script src="src/js/document-anchor-parser.js"></script>
   <script src="src/js/document-drawing-parser.js"></script>
+  <script src="src/js/document-text-style-parser.js"></script>
+  <script src="src/js/document-hyperlink-parser.js"></script>
   <script src="src/js/document-paragraph-parser.js"></script>
   <script src="src/js/document-inline-parser.js"></script>
   <script src="src/js/document-cell-parser.js"></script>
@@ -96,6 +107,7 @@
   <script src="src/js/docx-package-loader.js"></script>
   <script src="src/js/core.js"></script>
   <script src="src/js/browser-zip.js"></script>
+  <script src="src/js/browser-assets-export.js"></script>
   <script src="src/js/main.js"></script>
 </body>
 </html>

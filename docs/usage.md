@@ -1,6 +1,8 @@
 # miku-docx2md 利用ガイド
 
-この文書は、README に置くには長い利用者向けの補足をまとめます。
+この文書は、README に置くには長い利用者向けの操作手順をまとめます。
+
+README は概要と最短手順を扱い、この文書はブラウザ操作、CLI option、画像 asset、debug 出力の詳細を扱います。変換仕様は [docx2md-spec.md](./docx2md-spec.md)、実装に沿った現在の挙動は [docx2md-impl-spec.md](./docx2md-impl-spec.md) を参照してください。
 
 ## ブラウザで使う
 
@@ -9,11 +11,12 @@
 1. `index.html` を開きます。
 2. `miku-docx2md.html` へ進みます。
 3. `.docx` ファイルを選択します。
-4. 変換を実行します。
-5. Markdown と summary を確認します。
-6. 必要に応じて Markdown、summary text、画像 asset をダウンロードします。
+4. 選択後、自動変換された Markdown と summary を確認します。
+5. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
 
 ブラウザ版は、選択したローカルファイルをブラウザ UI 上で処理します。
+
+画像入り文書では、`Use image asset links` を ON にすると Markdown の画像出力が `![](...)` link になります。`Image link folder` には、画像 asset ZIP を展開する予定のフォルダ名を指定します。OFF にすると alt text ベースの `[Image: ...]` placeholder を出力します。
 
 ## CLI で使う
 
@@ -46,6 +49,40 @@ unsupported 要素の debug comment も出力します。
 ```bash
 npm run cli -- ./sample.docx --out ./sample.md --debug
 ```
+
+進捗と処理時間の診断を stderr に出力します。
+
+```bash
+npm run cli -- ./sample.docx --out ./sample.md --verbose
+```
+
+バージョンを確認します。
+
+```bash
+npm run cli -- --version
+```
+
+CLI の詳細な契約、出力先、asset、終了コード、実行例を確認します。
+
+```bash
+npm run cli -- --help
+```
+
+`--verbose` の出力は `verbose:` prefix 付きで stderr に出ます。Markdown を stdout に出す場合でも、primary output とは混ざりません。
+
+## CLI option
+
+| Option | Description |
+| --- | --- |
+| `--out <file>` | Markdown の出力先 |
+| `--assets-dir <dir>` | 解決可能な埋め込み画像 asset の出力先 |
+| `--summary` | summary を標準出力へ表示 |
+| `--summary-out <file>` | summary の出力先 |
+| `--debug` | unsupported 要素の HTML comment trace を Markdown に含める |
+| `--include-unsupported-comments` | `--debug` と同じ |
+| `--verbose` | 進捗と処理時間の診断を `verbose:` prefix 付きで stderr に出力 |
+| `--version` | バージョンを表示 |
+| `--help` | ヘルプを表示 |
 
 ## 画像 asset 出力
 

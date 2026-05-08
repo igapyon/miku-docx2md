@@ -108,6 +108,39 @@ body.md-page {
   line-height: 1.6;
 }
 
+.md-field {
+  display: grid;
+  gap: 6px;
+}
+
+.md-field__label {
+  color: #21435d;
+  font-weight: 700;
+}
+
+.md-field__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(63, 101, 129, 0.28);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #183043;
+  padding: 9px 12px;
+  font: inherit;
+}
+
+.md-field__input:focus {
+  outline: 3px solid rgba(77, 139, 176, 0.22);
+  border-color: #4d8bb0;
+}
+
+.md-field__input:disabled {
+  background: #edf3f7;
+  color: #7d92a2;
+  cursor: not-allowed;
+}
+
 .md-status-box {
   padding: 12px 14px;
   border-radius: 14px;
