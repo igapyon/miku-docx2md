@@ -219,16 +219,22 @@ describe("docx2md cli", () => {
   it("keeps npm version smoke script aligned with the CLI", () => {
     const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
     expect(packageJson.scripts["smoke:version"]).toBe("node scripts/miku-docx2md-cli.mjs --version");
+    expect(packageJson.scripts["build:bundle"]).toBe("node scripts/build-cli-bundle.mjs");
+    expect(packageJson.scripts["smoke:bundle"]).toBe("node scripts/smoke-cli-bundle.mjs");
   });
 
-  it("keeps release workflow checks aligned with generated artifacts and version smoke", () => {
+  it("keeps release workflow checks aligned with CLI bundle artifacts and smoke", () => {
     const workflow = readFileSync(path.resolve(__dirname, "..", ".github/workflows/release-assets.yml"), "utf8");
-    expect(workflow).toContain("npm run build");
+    expect(workflow).toContain("npm run build:all");
     expect(workflow).toContain("git diff --exit-code -- index.html miku-docx2md.html src/js");
     expect(workflow).toContain("npm run test:unit");
     expect(workflow).toContain("npm run smoke:version");
-    expect(workflow).toContain('cp "${PRODUCT_NAME}.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"');
-    expect(workflow).toContain('git archive --format=tar.gz --prefix="${PRODUCT_NAME}-sources-${version}/"');
+    expect(workflow).toContain("npm run smoke:bundle");
+    expect(workflow).toContain('cp "bundle/${PRODUCT_NAME}.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"');
+    expect(workflow).toContain('cp "bundle/${PRODUCT_NAME}-sources.tgz" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"');
+    expect(workflow).toContain('test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d \' \')" = "2"');
+    expect(workflow).not.toContain("gh release delete-asset");
+    expect(workflow).not.toContain("${PRODUCT_NAME}.html");
   });
 
   it("writes markdown and can include debug comments and summary", () => {

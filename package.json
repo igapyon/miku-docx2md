@@ -9,10 +9,14 @@
     "test:watch": "vitest",
     "cli": "node scripts/miku-docx2md-cli.mjs",
     "smoke:version": "node scripts/miku-docx2md-cli.mjs --version",
-    "build": "node scripts/build-miku-docx2md.mjs"
+    "smoke:bundle": "node scripts/smoke-cli-bundle.mjs",
+    "build": "node scripts/build-miku-docx2md.mjs",
+    "build:bundle": "node scripts/build-cli-bundle.mjs",
+    "build:all": "npm run build && npm run build:bundle"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.9.9",
+    "esbuild": "^0.27.7",
     "jsdom": "^26.0.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.0"
