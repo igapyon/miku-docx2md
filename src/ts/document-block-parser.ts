@@ -166,7 +166,7 @@
     numbering: Docx2mdNumberingDefinition,
     context: Docx2mdParseContext,
     emittedAnchorIds: Set<string>
-  ): ParsedParagraph | null {
+  ): ParsedParagraph | ParsedUnsupported | null {
     const unsupportedTypes: string[] = [];
     const text = documentInlineParser?.extractTextRuns(
       element,
@@ -180,7 +180,9 @@
     ) || "";
     const level = getHeadingLevel(element, styles);
     const listMetadata = getListMetadata(element, numbering);
-    if (!text) return null;
+    if (!text) {
+      return unsupportedTypes.length ? { kind: "unsupported", type: unsupportedTypes[0] } : null;
+    }
 
     const anchorIds = claimUniqueAnchorIds(extractParagraphAnchors(element), emittedAnchorIds);
     if (listMetadata) {

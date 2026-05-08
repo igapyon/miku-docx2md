@@ -4,7 +4,7 @@
 
 - Date: 2026-05-06
 - Version or commit: v0.8.2 work in progress
-- Validation set location: local `workplace/validation-docx/`; committed fixture `tests/fixtures/docx/BasicSample01.docx`
+- Validation set location: local `workplace/validation-docx/`; committed focused fixtures under `tests/fixtures/docx/word-*.docx`
 - Number of documents checked in this pass: 3
 - Word round-trip: opened and closed in Microsoft Word before CLI conversion
 - Browser checked: no
@@ -14,7 +14,7 @@
 
 Additional generated image validation candidates were attempted but excluded from this pass because Microsoft Word could not open them.
 
-Most `.docx` files used for this pass are local validation files under `workplace/` and are not committed to the repository. `BasicSample01.docx` is intentionally committed as `tests/fixtures/docx/BasicSample01.docx` because it is a Word-authored validation fixture.
+Most `.docx` files used for this pass are local validation files under `workplace/` and are not committed to the repository. The earlier mixed `BasicSample01.docx` fixture was replaced by focused Word-authored fixtures under `tests/fixtures/docx/word-*.docx`.
 
 ## Document Matrix
 
@@ -22,14 +22,15 @@ Most `.docx` files used for this pass are local validation files under `workplac
 | --- | --- | --- | --- | --- |
 | doc-001 | validation memo | paragraphs, inline formatting, external link, nested list, table | issue | Conversion completed, but heading style was not preserved after Word save; inline formatting around proofing markers produced noisy Markdown. |
 | doc-002 | validation structure sample | section-like labels, numbered list, grid-span table | pass with caveat | Conversion completed; table grid-span placeholder was preserved. Section-like labels were plain paragraphs after Word save. |
-| doc-003 | Word-authored basic sample | Heading 1-5, paragraph text, embedded JPEG image | issue | Headings were preserved. Embedded image package part existed, but converter reported `images: 0` and exported no image assets. |
+| doc-003 | Word-authored focused fixtures | Heading 1-5, paragraph text, embedded JPEG image | pass | Headings are covered by `word-headings-basic.docx`. Word inline images are covered by focused image fixtures, and converter reports `images: 1` with exported image assets for them. |
 
 ## CLI Commands
 
 ```bash
 npm run cli -- workplace/validation-docx/01-basic-structure.docx --out workplace/validation-docx/out/01-basic-structure-word.md --summary-out workplace/validation-docx/out/01-basic-structure-word.summary.txt --debug
 npm run cli -- workplace/validation-docx/02-lists-and-tables.docx --out workplace/validation-docx/out/02-lists-and-tables-word.md --summary-out workplace/validation-docx/out/02-lists-and-tables-word.summary.txt --debug
-npm run cli -- workplace/validation-docx/BasicSample01.docx --out workplace/validation-docx/out/BasicSample01.md --summary-out workplace/validation-docx/out/BasicSample01.summary.txt --assets-dir workplace/validation-docx/out/BasicSample01.assets --debug
+npm run cli -- tests/fixtures/docx/word-headings-basic.docx --out workplace/validation-docx/out/word-headings-basic.md --summary-out workplace/validation-docx/out/word-headings-basic.summary.txt --debug
+npm run cli -- tests/fixtures/docx/word-inline-image-basic.docx --out workplace/validation-docx/out/word-inline-image-basic.md --summary-out workplace/validation-docx/out/word-inline-image-basic.summary.txt --assets-dir workplace/validation-docx/out/word-inline-image-basic.assets --debug
 ```
 
 Both commands completed successfully.
@@ -83,35 +84,36 @@ Observed after Word save and CLI conversion:
 
 Expected structure:
 
-- Heading 1 through Heading 5
-- Heading 1 section for image validation
-- normal paragraphs before and after image
-- embedded JPEG image
+- Heading 1 through Heading 5 in `word-headings-basic.docx`
+- normal paragraphs before and after image in `word-inline-image-basic.docx`
+- embedded JPEG image in `word-inline-image-basic.docx`
 
 Observed after CLI conversion:
 
 - Heading styles were preserved and rendered as Markdown headings.
-- Summary reported `headings: 6`.
-- Normal paragraphs before and after the image were preserved.
+- `word-headings-basic.docx` summary reported `headings: 5`.
+- Normal paragraphs before and after the image were preserved in `word-inline-image-basic.docx`.
 - The embedded image part existed in the DOCX package at `word/media/image1.jpeg`.
 - The drawing referenced `rId5`, and `word/_rels/document.xml.rels` mapped `rId5` to `media/image1.jpeg`.
-- The converter reported `images: 0` and `imageAssets: 0`.
-- The generated asset manifest was empty.
+- The converter now reports `images: 1` and `imageAssets: 1` for the focused image fixtures.
+- The generated asset manifest includes `word/media/image1.jpeg`.
 
-This is a focused bug candidate for Word-authored inline drawing image extraction.
+This covers Word-authored inline drawing image extraction.
 
-The document is also committed as a regression fixture:
+The behavior is now split across focused regression fixtures:
 
-- `tests/fixtures/docx/BasicSample01.docx`
+- `tests/fixtures/docx/word-headings-basic.docx`
+- `tests/fixtures/docx/word-inline-image-basic.docx`
+- `tests/fixtures/docx/word-image-alt-text-basic.docx`
 
-The current regression test covers the parts that already work: Heading 1-5, the `Image Validation` heading, and the surrounding paragraphs. The missed image extraction remains recorded as a follow-up item.
+The current regression tests cover heading behavior, inline image extraction, and image alt text behavior.
 
 ## Findings
 
 ### Bugs
 
 - Inline formatting can become noisy when Word inserts proofing markers between adjacent formatted runs.
-- Word-authored inline drawing images can be missed even when the image part and relationship exist.
+- Word-authored inline drawing image extraction is covered by focused regression fixtures.
 
 ### Invalid Validation Candidates
 
@@ -123,18 +125,45 @@ These files are local `workplace/` candidates only and should not be treated as 
 ### Missing Fixtures
 
 - Add a focused fixture for `w:proofErr` inside or between formatted runs.
-- Add a Word-round-tripped fixture or local validation sample that uses real Word heading styles, created directly through Word's UI rather than only generated XML.
-- Add a focused fixture based on the Word-authored inline drawing shape from `BasicSample01.docx`.
+- Word-authored heading fixture regression coverage has been added.
+- Focused regression coverage based on `word-inline-image-basic.docx` has been added.
 
 ### Known Limitations / Data Notes
 
 - The generated validation documents are useful for exercising parser paths, but Word can normalize minimal generated DOCX structures. This means a Word-saved validation file may reveal generator limitations as well as converter behavior.
-- `BasicSample01.docx` covers a Word-authored embedded JPEG image, but image extraction currently fails for that shape.
+- `word-inline-image-basic.docx` covers a Word-authored embedded JPEG image and is now extracted as an image asset.
 
 ## Follow-Up Actions
 
-- [ ] Add a focused regression test for inline formatting across `w:proofErr`.
-- [ ] Create or collect a Word-authored document with actual Heading 1 / Heading 2 styles.
+- [x] Add a focused regression test for inline formatting across `w:proofErr`.
+- [x] Create or collect a Word-authored document with actual Heading 1 / Heading 2 styles.
 - [ ] Run browser validation for these two documents.
-- [ ] Fix or characterize image asset extraction for the Word-authored inline drawing shape in `BasicSample01.docx`.
-- [ ] Replace invalid generated image candidates with a Word-openable image validation document.
+- [x] Fix or characterize image asset extraction for the Word-authored inline drawing shape in `word-inline-image-basic.docx`.
+- [x] Replace invalid generated image candidates with a Word-openable image validation document.
+
+## v0.8.3 Recheck Notes
+
+Date: 2026-05-08
+
+Commands rerun against local validation documents:
+
+```bash
+npm run cli -- workplace/validation-docx/01-basic-structure.docx --out workplace/validation-docx/out-current/01-basic-structure.md --summary-out workplace/validation-docx/out-current/01-basic-structure.summary.txt --debug
+npm run cli -- workplace/validation-docx/02-lists-and-tables.docx --out workplace/validation-docx/out-current/02-lists-and-tables.md --summary-out workplace/validation-docx/out-current/02-lists-and-tables.summary.txt --debug
+npm run cli -- workplace/validation-docx/05-word-openable-image.docx --out workplace/validation-docx/out-current/05-word-openable-image.md --summary-out workplace/validation-docx/out-current/05-word-openable-image.summary.txt --assets-dir workplace/validation-docx/out-current/05-word-openable-image.assets --debug
+npm run cli -- tests/fixtures/docx/word-image-alt-text-basic.docx --out workplace/validation-docx/out-current/word-image-alt-text-basic.md --summary-out workplace/validation-docx/out-current/word-image-alt-text-basic.summary.txt --assets-dir workplace/validation-docx/out-current/word-image-alt-text-basic.assets --debug
+```
+
+Recheck observations:
+
+- `05-word-openable-image.docx` converted with `images: 1` and `imageAssets: 1`.
+- Its asset manifest contains `word/media/word-openable-image.png`, media type `image/png`, alt text `Word openable image alt`, and a nonzero size.
+- `word-image-alt-text-basic.docx` converted with `images: 1` and `imageAssets: 1`; manifest media type is `image/jpeg` and alt text is preserved.
+- Debug output for image documents contains useful drawing traces with source path, alt text, and dimensions.
+- Debug output also exposes `sectPr` as an unsupported trace in these validation documents. This is acceptable diagnostic noise for now.
+- Generated `01-basic-structure.docx` still produces noisy inline Markdown around adjacent formatted runs. The focused `w:proofErr` regression is now covered, but broader run coalescing remains a known limitation for generated/minimal validation documents.
+
+Browser automation note:
+
+- No Playwright/Puppeteer dependency is present in this repository.
+- Browser validation remains a manual smoke path documented in [browser-smoke-checklist.md](./browser-smoke-checklist.md).

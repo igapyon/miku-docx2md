@@ -73,11 +73,12 @@
     options?: Docx2mdMarkdownRenderOptions
   ): string {
     const parsedImageTrace = imageTrace?.parseImageTrace(type);
-    if (!parsedImageTrace || !parsedImageTrace.altText) return "";
+    if (!parsedImageTrace) return "";
     const resolvedPath = options?.imagePathResolver?.(parsedImageTrace.sourcePath) || "";
     if (resolvedPath) {
       return `![${escapeMarkdownImageAltText(parsedImageTrace.altText)}](${escapeMarkdownLinkDestination(resolvedPath)})`;
     }
+    if (!parsedImageTrace.altText) return "";
     return `[Image: ${formatImagePlaceholderAltText(parsedImageTrace.altText)}]`;
   }
 
@@ -157,10 +158,18 @@
     options?: Docx2mdMarkdownRenderOptions
   ): string {
     const includeUnsupportedComments = !!options?.includeUnsupportedComments;
-    return parsedDocument.blocks
-      .map((block) => renderMarkdownBlock(block, includeUnsupportedComments, options))
-      .filter((block) => block !== "")
-      .join("\n\n");
+    const renderedBlocks = parsedDocument.blocks
+      .map((block) => ({
+        kind: block.kind,
+        markdown: renderMarkdownBlock(block, includeUnsupportedComments, options)
+      }))
+      .filter((block) => block.markdown !== "");
+    return renderedBlocks.reduce((markdown, block, index) => {
+      if (index === 0) return block.markdown;
+      const previousBlock = renderedBlocks[index - 1];
+      const separator = previousBlock.kind === "listItem" && block.kind === "listItem" ? "\n" : "\n\n";
+      return `${markdown}${separator}${block.markdown}`;
+    }, "");
   }
 
   moduleRegistry.registerModule("markdownRenderer", {

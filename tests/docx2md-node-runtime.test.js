@@ -7,103 +7,23 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { loadDocx2mdNodeApi } from "../scripts/lib/docx2md-node-runtime.mjs";
+import { createStoredZipArrayBuffer } from "./helpers/docx-fixture.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-function createStoredZip(entries) {
-  const encoder = new TextEncoder();
-  const localChunks = [];
-  const centralChunks = [];
-  let offset = 0;
-
-  for (const entry of entries) {
-    const nameBytes = encoder.encode(entry.name);
-    const dataBytes = entry.data;
-
-    const localHeader = new Uint8Array(30 + nameBytes.length);
-    const localView = new DataView(localHeader.buffer);
-    localView.setUint32(0, 0x04034b50, true);
-    localView.setUint16(4, 20, true);
-    localView.setUint16(6, 0, true);
-    localView.setUint16(8, 0, true);
-    localView.setUint16(10, 0, true);
-    localView.setUint16(12, 0, true);
-    localView.setUint32(14, 0, true);
-    localView.setUint32(18, dataBytes.length, true);
-    localView.setUint32(22, dataBytes.length, true);
-    localView.setUint16(26, nameBytes.length, true);
-    localView.setUint16(28, 0, true);
-    localHeader.set(nameBytes, 30);
-    localChunks.push(localHeader, dataBytes);
-
-    const centralHeader = new Uint8Array(46 + nameBytes.length);
-    const centralView = new DataView(centralHeader.buffer);
-    centralView.setUint32(0, 0x02014b50, true);
-    centralView.setUint16(4, 20, true);
-    centralView.setUint16(6, 20, true);
-    centralView.setUint16(8, 0, true);
-    centralView.setUint16(10, 0, true);
-    centralView.setUint16(12, 0, true);
-    centralView.setUint16(14, 0, true);
-    centralView.setUint32(16, 0, true);
-    centralView.setUint32(20, dataBytes.length, true);
-    centralView.setUint32(24, dataBytes.length, true);
-    centralView.setUint16(28, nameBytes.length, true);
-    centralView.setUint16(30, 0, true);
-    centralView.setUint16(32, 0, true);
-    centralView.setUint16(34, 0, true);
-    centralView.setUint16(36, 0, true);
-    centralView.setUint32(38, 0, true);
-    centralView.setUint32(42, offset, true);
-    centralHeader.set(nameBytes, 46);
-    centralChunks.push(centralHeader);
-
-    offset += localHeader.length + dataBytes.length;
-  }
-
-  const centralDirectoryOffset = offset;
-  let centralDirectorySize = 0;
-  for (const chunk of centralChunks) {
-    centralDirectorySize += chunk.length;
-  }
-
-  const eocd = new Uint8Array(22);
-  const eocdView = new DataView(eocd.buffer);
-  eocdView.setUint32(0, 0x06054b50, true);
-  eocdView.setUint16(4, 0, true);
-  eocdView.setUint16(6, 0, true);
-  eocdView.setUint16(8, entries.length, true);
-  eocdView.setUint16(10, entries.length, true);
-  eocdView.setUint32(12, centralDirectorySize, true);
-  eocdView.setUint32(16, centralDirectoryOffset, true);
-  eocdView.setUint16(20, 0, true);
-
-  const totalLength = localChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-    + centralChunks.reduce((sum, chunk) => sum + chunk.length, 0)
-    + eocd.length;
-  const out = new Uint8Array(totalLength);
-  let cursor = 0;
-  for (const chunk of localChunks) {
-    out.set(chunk, cursor);
-    cursor += chunk.length;
-  }
-  for (const chunk of centralChunks) {
-    out.set(chunk, cursor);
-    cursor += chunk.length;
-  }
-  out.set(eocd, cursor);
-  return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
-}
 
 function readFixtureArrayBuffer(...segments) {
   const buffer = readFileSync(path.resolve(__dirname, "fixtures", ...segments));
   return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 }
 
+async function parseDocxFixture(api, fixtureName) {
+  return api.parseDocx(readFixtureArrayBuffer("docx", fixtureName));
+}
+
 function createMinimalDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -397,7 +317,7 @@ function createMinimalDocxArrayBuffer() {
 
 function createContentTypeResolvedDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "[Content_Types].xml",
       data: encoder.encode(
@@ -448,9 +368,109 @@ function createContentTypeResolvedDocxArrayBuffer() {
   ]);
 }
 
+function createCustomOutlineHeadingDocxArrayBuffer() {
+  const encoder = new TextEncoder();
+  return createStoredZipArrayBuffer([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:pPr><w:pStyle w:val="CustomOutlineHeading"/></w:pPr>
+      <w:r><w:t>Custom outline heading</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:pPr><w:pStyle w:val="VisualOnlyTitle"/></w:pPr>
+      <w:r><w:t>Visual only title</w:t></w:r>
+    </w:p>
+  </w:body>
+</w:document>`
+      )
+    },
+    {
+      name: "word/styles.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:styleId="CustomOutlineHeading">
+    <w:name w:val="Custom Outline Heading"/>
+    <w:pPr><w:outlineLvl w:val="2"/></w:pPr>
+  </w:style>
+  <w:style w:type="paragraph" w:styleId="VisualOnlyTitle">
+    <w:name w:val="Visual Only Title"/>
+    <w:rPr><w:b/><w:sz w:val="32"/></w:rPr>
+  </w:style>
+</w:styles>`
+      )
+    }
+  ]);
+}
+
+function createTableMergeAndBreakDocxArrayBuffer() {
+  const encoder = new TextEncoder();
+  return createStoredZipArrayBuffer([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:tbl>
+      <w:tr>
+        <w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:r><w:t>B</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:vMerge w:val="restart"/></w:tcPr>
+          <w:p><w:r><w:t>Vertical start</w:t></w:r></w:p>
+        </w:tc>
+        <w:tc>
+          <w:p><w:r><w:t>line1</w:t><w:br/><w:t>line2</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:vMerge/></w:tcPr>
+          <w:p/>
+        </w:tc>
+        <w:tc><w:p><w:r><w:t>Bottom</w:t></w:r></w:p></w:tc>
+      </w:tr>
+    </w:tbl>
+  </w:body>
+</w:document>`
+      )
+    }
+  ]);
+}
+
+function createProofErrBetweenRunsDocxArrayBuffer() {
+  const encoder = new TextEncoder();
+  return createStoredZipArrayBuffer([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r><w:rPr><w:b/></w:rPr><w:t>Proof</w:t></w:r>
+      <w:proofErr w:type="spellStart"/>
+      <w:r><w:t xml:space="preserve"> marker</w:t></w:r>
+      <w:proofErr w:type="spellEnd"/>
+    </w:p>
+  </w:body>
+</w:document>`
+      )
+    }
+  ]);
+}
+
 function createImageAltWithParenthesisDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -495,7 +515,7 @@ function createImageAltWithParenthesisDocxArrayBuffer() {
 
 function createImagePathWithMarkdownSpecialCharsDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -539,7 +559,7 @@ function createImagePathWithMarkdownSpecialCharsDocxArrayBuffer() {
 
 function createImageAltWithMarkdownSpecialCharsDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -584,7 +604,7 @@ text"/>
 
 function createDuplicateAnchorDocxArrayBuffer() {
   const encoder = new TextEncoder();
-  return createStoredZip([
+  return createStoredZipArrayBuffer([
     {
       name: "word/document.xml",
       data: encoder.encode(
@@ -899,29 +919,297 @@ describe("docx2md node runtime", () => {
     expect(markdown).toContain("![Typed asset](./assets/word/media/typed-image.bin)");
   });
 
-  it("converts the Word-authored BasicSample01 fixture headings and paragraphs", async () => {
+  it("converts custom paragraph styles with outline levels as headings", async () => {
     const api = loadDocx2mdNodeApi({
       rootDir: path.resolve(__dirname, "..")
     });
 
-    const parsed = await api.parseDocx(readFixtureArrayBuffer("docx", "BasicSample01.docx"));
-    const markdown = api.renderMarkdown(parsed, {
-      imagePathResolver: (sourcePath) => `./assets/${sourcePath}`
+    const parsed = await api.parseDocx(createCustomOutlineHeadingDocxArrayBuffer());
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks[0]).toMatchObject({
+      kind: "heading",
+      level: 3,
+      text: "Custom outline heading"
+    });
+    expect(parsed.blocks[1]).toMatchObject({
+      kind: "paragraph",
+      text: "**Visual only title**"
+    });
+    expect(markdown).toContain("### Custom outline heading");
+    expect(markdown).toContain("**Visual only title**");
+    expect(parsed.summary).toMatchObject({
+      headings: 1,
+      paragraphs: 1
+    });
+  });
+
+  it("converts table vertical merges and line breaks", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
     });
 
-    expect(markdown).toContain("# 見出し1");
-    expect(markdown).toContain("## 見出し2");
-    expect(markdown).toContain("### 見出し3");
-    expect(markdown).toContain("#### 見出し4");
-    expect(markdown).toContain("##### 見出し5");
-    expect(markdown).toContain("# Image Validation");
-    expect(markdown).toContain("Before image.");
-    expect(markdown).toContain("After image.");
+    const parsed = await api.parseDocx(createTableMergeAndBreakDocxArrayBuffer());
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks[0]).toMatchObject({
+      kind: "table",
+      rows: [
+        ["A", "B"],
+        ["Vertical start", "line1<br>line2"],
+        ["↑M↑", "Bottom"]
+      ]
+    });
+    expect(markdown).toContain("| Vertical start | line1<br>line2 |");
+    expect(markdown).toContain("| ↑M↑ | Bottom |");
+    expect(parsed.summary).toMatchObject({
+      tables: 1
+    });
+  });
+
+  it("ignores Word proofing markers between formatted runs", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await api.parseDocx(createProofErrBetweenRunsDocxArrayBuffer());
+    const markdown = api.renderMarkdown(parsed, {
+      includeUnsupportedComments: true
+    });
+
+    expect(parsed.blocks[0]).toMatchObject({
+      kind: "paragraph",
+      text: "**Proof** marker"
+    });
+    expect(markdown).toContain("**Proof** marker");
+    expect(markdown).not.toContain("unsupported: proofErr");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      unsupportedElements: 0,
+      unsupportedCommentTraces: 0
+    });
+  });
+
+  it("converts the Word-authored headings fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-headings-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(markdown).toContain("# Heading 1");
+    expect(markdown).toContain("## Heading 2");
+    expect(markdown).toContain("### Heading 3");
+    expect(markdown).toContain("#### Heading 4");
+    expect(markdown).toContain("##### Heading 5");
+    expect(markdown).toContain("###### Heading 6");
+    expect(markdown).toContain("Normal paragraph.");
     expect(parsed.summary).toMatchObject({
       headings: 6,
       paragraphs: 2,
       images: 0,
       imageAssets: 0
+    });
+  });
+
+  it("converts the Word-authored bullet list fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-bullet-list-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 0, text: "Apple" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 0, text: "Banana" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 0, text: "Cherry" })
+    ]));
+    expect(markdown).toContain("- Apple");
+    expect(markdown).toContain("- Banana");
+    expect(markdown).toContain("- Cherry");
+    expect(markdown).toContain("- Apple\n- Banana\n- Cherry");
+    expect(markdown).not.toContain("- Apple\n\n- Banana");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      listItems: 3,
+      tables: 0,
+      links: 0
+    });
+  });
+
+  it("converts the Word-authored numbered list fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-numbered-list-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "listItem", listKind: "ordered", indent: 0, text: "Apple" }),
+      expect.objectContaining({ kind: "listItem", listKind: "ordered", indent: 0, text: "Banana" }),
+      expect.objectContaining({ kind: "listItem", listKind: "ordered", indent: 0, text: "Cherry" })
+    ]));
+    expect(markdown).toContain("1. Apple");
+    expect(markdown).toContain("1. Banana");
+    expect(markdown).toContain("1. Cherry");
+    expect(markdown).toContain("1. Apple\n1. Banana\n1. Cherry");
+    expect(markdown).not.toContain("1. Apple\n\n1. Banana");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      listItems: 3,
+      tables: 0,
+      links: 0
+    });
+  });
+
+  it("converts the Word-authored nested list fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-nested-list-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 0, text: "Fruit" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 1, text: "Apple" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 1, text: "Banana" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 0, text: "Vegetable" }),
+      expect.objectContaining({ kind: "listItem", listKind: "bullet", indent: 1, text: "Carrot" })
+    ]));
+    expect(markdown).toContain("- Fruit");
+    expect(markdown).toContain("    - Apple");
+    expect(markdown).toContain("    - Banana");
+    expect(markdown).toContain("- Vegetable");
+    expect(markdown).toContain("    - Carrot");
+    expect(markdown).toContain("- Fruit\n    - Apple\n    - Banana\n- Vegetable\n    - Carrot");
+    expect(markdown).not.toContain("- Fruit\n\n    - Apple");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      listItems: 5
+    });
+  });
+
+  it("converts the Word-authored links fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-links-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(markdown).toContain("[Example site](https://example.com/)");
+    expect(markdown).toContain("[Go to target section](#target_section)");
+    expect(markdown).toContain('<a id="target_section"></a>');
+    expect(markdown).toContain("Target section");
+    expect(markdown).toContain("This is the bookmark target.");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 5,
+      links: 2,
+      internalLinks: 1,
+      externalLinks: 1
+    });
+  });
+
+  it("converts the Word-authored merged table fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-table-merged-cell-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(parsed.blocks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "table",
+        rows: [
+          ["A1", "A2", "A3"],
+          ["B1", "B2", "←M←"],
+          ["C1", "C2", "C3"]
+        ]
+      })
+    ]));
+    expect(markdown).toContain("| A1 | A2 | A3 |");
+    expect(markdown).toContain("| B1 | B2 | ←M← |");
+    expect(markdown).toContain("| C1 | C2 | C3 |");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      tables: 1
+    });
+  });
+
+  it("converts the Word-authored inline formatting fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-inline-formatting-basic.docx");
+    const markdown = api.renderMarkdown(parsed);
+
+    expect(markdown).toContain("Inline formatting fixture");
+    expect(markdown).toContain("**Bold** *Italic* <ins>Underline</ins> ~~Strike~~ ***BoldItalic***");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 2,
+      listItems: 0,
+      tables: 0,
+      links: 0
+    });
+  });
+
+  it("converts the Word-authored inline image fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-inline-image-basic.docx");
+    const markdown = api.renderMarkdown(parsed, {
+      imagePathResolver: (sourcePath) => `./assets/${sourcePath}`
+    });
+
+    expect(markdown).toContain("Inline image fixture");
+    expect(markdown).toContain("![](./assets/word/media/image1.jpeg)");
+    expect(markdown).toContain("After image.");
+    expect(parsed.assets).toHaveLength(1);
+    expect(parsed.assets[0]).toMatchObject({
+      sourcePath: "word/media/image1.jpeg",
+      mediaType: "image/jpeg",
+      altText: ""
+    });
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 2,
+      images: 1,
+      imageAssets: 1,
+      drawingLikeUnsupported: 1
+    });
+  });
+
+  it("converts the Word-authored image alt text fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-image-alt-text-basic.docx");
+    const markdown = api.renderMarkdown(parsed, {
+      imagePathResolver: (sourcePath) => `./assets/${sourcePath}`
+    });
+
+    expect(markdown).toContain("Image alt text fixture");
+    expect(markdown).toContain("![Sample alt text for fixture](./assets/word/media/image1.jpeg)");
+    expect(markdown).toContain("After image with alt text.");
+    expect(parsed.assets).toHaveLength(1);
+    expect(parsed.assets[0]).toMatchObject({
+      sourcePath: "word/media/image1.jpeg",
+      mediaType: "image/jpeg",
+      altText: "Sample alt text for fixture"
+    });
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 2,
+      images: 1,
+      imageAssets: 1,
+      drawingLikeUnsupported: 1
     });
   });
 });

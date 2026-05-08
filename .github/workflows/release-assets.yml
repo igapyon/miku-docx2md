@@ -1,15 +1,9 @@
 name: Release assets
 
 on:
-  release:
-    types:
-      - published
-  workflow_dispatch:
-    inputs:
-      tag_name:
-        description: "Release tag name, such as v0.8.2"
-        required: true
-        type: string
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -21,15 +15,12 @@ env:
 jobs:
   release-assets:
     runs-on: ubuntu-latest
-    if: startsWith(github.event.release.tag_name || github.event.inputs.tag_name, 'v')
     env:
-      TAG_NAME: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
+      TAG_NAME: ${{ github.ref_name }}
 
     steps:
-      - name: Checkout release tag
+      - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ env.TAG_NAME }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

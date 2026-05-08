@@ -59,12 +59,14 @@
     function renderImagePlaceholder(type, options) {
         var _a;
         const parsedImageTrace = imageTrace === null || imageTrace === void 0 ? void 0 : imageTrace.parseImageTrace(type);
-        if (!parsedImageTrace || !parsedImageTrace.altText)
+        if (!parsedImageTrace)
             return "";
         const resolvedPath = ((_a = options === null || options === void 0 ? void 0 : options.imagePathResolver) === null || _a === void 0 ? void 0 : _a.call(options, parsedImageTrace.sourcePath)) || "";
         if (resolvedPath) {
             return `![${escapeMarkdownImageAltText(parsedImageTrace.altText)}](${escapeMarkdownLinkDestination(resolvedPath)})`;
         }
+        if (!parsedImageTrace.altText)
+            return "";
         return `[Image: ${formatImagePlaceholderAltText(parsedImageTrace.altText)}]`;
     }
     function renderUnsupportedPlaceholders(unsupportedTypes, options) {
@@ -118,10 +120,19 @@
     }
     function renderMarkdown(parsedDocument, options) {
         const includeUnsupportedComments = !!(options === null || options === void 0 ? void 0 : options.includeUnsupportedComments);
-        return parsedDocument.blocks
-            .map((block) => renderMarkdownBlock(block, includeUnsupportedComments, options))
-            .filter((block) => block !== "")
-            .join("\n\n");
+        const renderedBlocks = parsedDocument.blocks
+            .map((block) => ({
+            kind: block.kind,
+            markdown: renderMarkdownBlock(block, includeUnsupportedComments, options)
+        }))
+            .filter((block) => block.markdown !== "");
+        return renderedBlocks.reduce((markdown, block, index) => {
+            if (index === 0)
+                return block.markdown;
+            const previousBlock = renderedBlocks[index - 1];
+            const separator = previousBlock.kind === "listItem" && block.kind === "listItem" ? "\n" : "\n\n";
+            return `${markdown}${separator}${block.markdown}`;
+        }, "");
     }
     moduleRegistry.registerModule("markdownRenderer", {
         renderMarkdown

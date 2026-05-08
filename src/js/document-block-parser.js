@@ -61,8 +61,9 @@
         const text = (documentInlineParser === null || documentInlineParser === void 0 ? void 0 : documentInlineParser.extractTextRuns(element, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, documentInlineParser.getParagraphTextStyle(element, styles))) || "";
         const level = getHeadingLevel(element, styles);
         const listMetadata = getListMetadata(element, numbering);
-        if (!text)
-            return null;
+        if (!text) {
+            return unsupportedTypes.length ? { kind: "unsupported", type: unsupportedTypes[0] } : null;
+        }
         const anchorIds = claimUniqueAnchorIds(extractParagraphAnchors(element), emittedAnchorIds);
         if (listMetadata) {
             context.summary.listItems += 1;
