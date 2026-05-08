@@ -8,6 +8,8 @@ export const DOCX2MD_CORE_JS_ORDER = [
   "src/js/document-summary.js",
   "src/js/document-anchor-parser.js",
   "src/js/document-drawing-parser.js",
+  "src/js/document-text-style-parser.js",
+  "src/js/document-hyperlink-parser.js",
   "src/js/document-paragraph-parser.js",
   "src/js/document-inline-parser.js",
   "src/js/document-cell-parser.js",
@@ -33,6 +35,8 @@ export const DOCX2MD_APP_TS_ORDER = [
   "src/ts/document-summary.ts",
   "src/ts/document-anchor-parser.ts",
   "src/ts/document-drawing-parser.ts",
+  "src/ts/document-text-style-parser.ts",
+  "src/ts/document-hyperlink-parser.ts",
   "src/ts/document-paragraph-parser.ts",
   "src/ts/document-inline-parser.ts",
   "src/ts/document-cell-parser.ts",
@@ -47,5 +51,6 @@ export const DOCX2MD_APP_TS_ORDER = [
   "src/ts/docx-package-loader.ts",
   "src/ts/core.ts",
   "src/ts/browser-zip.ts",
+  "src/ts/browser-assets-export.ts",
   "src/ts/main.ts"
 ];

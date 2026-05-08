@@ -9,11 +9,11 @@ window.addEventListener("DOMContentLoaded", () => {
         throw new Error("docx2md core module is not loaded");
     }
     const docx2mdApi = docx2md;
-    const browserZip = moduleRegistry.getModule("browserZip");
-    if (!browserZip) {
-        throw new Error("browser ZIP module is not loaded");
+    const browserAssetsExport = moduleRegistry.getModule("browserAssetsExport");
+    if (!browserAssetsExport) {
+        throw new Error("browser assets export module is not loaded");
     }
-    const browserZipApi = browserZip;
+    const browserAssetsExportApi = browserAssetsExport;
     function getElement(id) {
         const element = document.getElementById(id);
         if (!element) {
@@ -39,11 +39,21 @@ window.addEventListener("DOMContentLoaded", () => {
     function getDebugEnabled() {
         return getInputElement("debugComments").checked;
     }
+    function getImageLinksEnabled() {
+        return getInputElement("imageLinksEnabled").checked;
+    }
+    function getImageLinkFolder() {
+        return getInputElement("imageLinkFolder").value.trim().replace(/\\/g, "/").replace(/\/+$/g, "");
+    }
     function getCurrentMarkdown() {
         if (!currentParsedDocument)
             return "";
+        const imageLinkFolder = getImageLinksEnabled() ? getImageLinkFolder() : "";
         return docx2mdApi.renderMarkdown(currentParsedDocument, {
-            includeUnsupportedComments: getDebugEnabled()
+            includeUnsupportedComments: getDebugEnabled(),
+            imagePathResolver: imageLinkFolder
+                ? (sourcePath) => `${imageLinkFolder}/${sourcePath}`
+                : undefined
         });
     }
     function getOutputBaseName(fileName) {
@@ -58,8 +68,14 @@ window.addEventListener("DOMContentLoaded", () => {
     function getAssetsDownloadFileName(fileName) {
         return getOutputBaseName(fileName) + ".assets.zip";
     }
+    function getDefaultImageLinkFolder(fileName) {
+        return getOutputBaseName(fileName) + ".assets";
+    }
     function getSummaryText() {
         return getPreview("summaryPreview").getText();
+    }
+    function updateImageLinkFolderState() {
+        getInputElement("imageLinkFolder").disabled = !getImageLinksEnabled();
     }
     function hasDownloadableAssets() {
         return !!currentParsedDocument && currentParsedDocument.assets.length > 0;
@@ -112,26 +128,6 @@ window.addEventListener("DOMContentLoaded", () => {
         link.remove();
         URL.revokeObjectURL(url);
     }
-    function createAssetsZipEntries(parsedDocument) {
-        const manifestBytes = new TextEncoder().encode(docx2mdApi.createAssetsManifestText(parsedDocument));
-        return [
-            {
-                name: "manifest.json",
-                data: manifestBytes
-            },
-            ...parsedDocument.assets.map((asset) => ({
-                name: asset.sourcePath,
-                data: asset.bytes
-            }))
-        ];
-    }
-    function createAssetsZipBlob() {
-        if (!currentParsedDocument || currentParsedDocument.assets.length === 0) {
-            return null;
-        }
-        const zipBytes = browserZipApi.createStoredZip(createAssetsZipEntries(currentParsedDocument));
-        return new Blob([zipBytes], { type: "application/zip" });
-    }
     function canDownloadRenderedDocument() {
         return !!currentParsedDocument && !!currentFileName;
     }
@@ -160,10 +156,12 @@ window.addEventListener("DOMContentLoaded", () => {
         selectedFile = file;
         currentFileName = file.name;
         currentParsedDocument = null;
+        getInputElement("imageLinkFolder").value = getDefaultImageLinkFolder(file.name);
         clearError();
         clearPreviews();
         updateActionState();
-        setStatus(`Selected ${file.name}. Ready to convert.`);
+        setStatus(`Selected ${file.name}. Converting...`);
+        await handleConvert();
     }
     async function handleConvert() {
         if (!selectedFile) {
@@ -183,6 +181,12 @@ window.addEventListener("DOMContentLoaded", () => {
         finally {
             setLoading(false);
         }
+    }
+    function handleConversionError(error) {
+        const message = error instanceof Error ? error.message : String(error);
+        showError(message);
+        setStatus(`Failed: ${message}`);
+        resetRenderedState();
     }
     function downloadMarkdown() {
         if (!canDownloadRenderedDocument()) {
@@ -206,7 +210,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (!canDownloadRenderedDocument()) {
             return;
         }
-        const assetsZip = createAssetsZipBlob();
+        const assetsZip = browserAssetsExportApi.createAssetsZipBlob(currentParsedDocument);
         if (!assetsZip) {
             setStatus("No image assets available.");
             return;
@@ -229,9 +233,25 @@ window.addEventListener("DOMContentLoaded", () => {
                 setStatus("No file selected.");
                 return;
             }
-            await handleFileSelect(file);
+            try {
+                await handleFileSelect(file);
+            }
+            catch (error) {
+                handleConversionError(error);
+            }
         });
         getInputElement("debugComments").addEventListener("change", () => {
+            if (currentParsedDocument) {
+                renderParsedDocument();
+            }
+        });
+        getInputElement("imageLinksEnabled").addEventListener("change", () => {
+            updateImageLinkFolderState();
+            if (currentParsedDocument) {
+                renderParsedDocument();
+            }
+        });
+        getInputElement("imageLinkFolder").addEventListener("input", () => {
             if (currentParsedDocument) {
                 renderParsedDocument();
             }
@@ -241,10 +261,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 await handleConvert();
             }
             catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                showError(message);
-                setStatus(`Failed: ${message}`);
-                resetRenderedState();
+                handleConversionError(error);
             }
         });
         getElement("downloadBtn").addEventListener("click", () => {
@@ -259,6 +276,7 @@ window.addEventListener("DOMContentLoaded", () => {
         getElement("clearBtn").addEventListener("click", () => {
             fileInput.value = "";
             getElement("docxFileName").textContent = "No file selected";
+            getInputElement("imageLinkFolder").value = "";
             selectedFile = null;
             currentFileName = "";
             clearError();
@@ -269,5 +287,6 @@ window.addEventListener("DOMContentLoaded", () => {
     bindEvents();
     setStatus("Select a .docx file to convert.");
     clearError();
+    updateImageLinkFolderState();
     resetRenderedState();
 });

@@ -1137,13 +1137,10 @@ class LhtFileSelect extends HTMLElement {
     const root = document.createElement("div");
     root.className = "lht-file-select";
 
-    const hasMdFilledButton = !!(window.customElements && window.customElements.get("md-filled-button"));
-    const triggerButton = document.createElement(hasMdFilledButton ? "md-filled-button" : "button");
-    if (!hasMdFilledButton) {
-      triggerButton.type = "button";
-    }
+    const triggerButton = document.createElement("button");
+    triggerButton.type = "button";
     triggerButton.id = buttonId;
-    triggerButton.className = `lht-file-select__button${hasMdFilledButton ? "" : " lht-file-select__button--fallback"}`;
+    triggerButton.className = "lht-file-select__button lht-file-select__button--fallback";
 
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("slot", "icon");

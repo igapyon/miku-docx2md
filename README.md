@@ -23,11 +23,10 @@
 1. `index.html` を開きます。
 2. `miku-docx2md.html` へ進みます。
 3. `.docx` ファイルを選択します。
-4. 変換ボタンを押します。
-5. Markdown と summary を確認します。
-6. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
+4. 選択後、自動変換された Markdown と summary を確認します。
+5. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
 
-画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。
+画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。`Use image asset links` を ON にすると、Markdown には指定した image link folder を使った `![](...)` link が出力されます。
 
 ## 使い方: CLI
 
@@ -115,6 +114,7 @@ npm run test:unit
 
 - 利用者向け補足: [docs/usage.md](./docs/usage.md)
 - 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
+- ブラウザ smoke checklist: [docs/browser-smoke-checklist.md](./docs/browser-smoke-checklist.md)
 - 実文書品質確認の記録テンプレート: [docs/real-document-validation-template.md](./docs/real-document-validation-template.md)
 - 実文書品質確認メモ v0.8.2: [docs/real-document-validation-v0.8.2.md](./docs/real-document-validation-v0.8.2.md)
 - 仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)

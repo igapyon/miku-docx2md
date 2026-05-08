@@ -9,11 +9,12 @@
 1. `index.html` を開きます。
 2. `miku-docx2md.html` へ進みます。
 3. `.docx` ファイルを選択します。
-4. 変換を実行します。
-5. Markdown と summary を確認します。
-6. 必要に応じて Markdown、summary text、画像 asset をダウンロードします。
+4. 選択後、自動変換された Markdown と summary を確認します。
+5. 必要に応じて Markdown、summary text、画像 asset をダウンロードします。
 
 ブラウザ版は、選択したローカルファイルをブラウザ UI 上で処理します。
+
+画像入り文書では、`Use image asset links` を ON にすると Markdown の画像出力が `![](...)` link になります。`Image link folder` には、画像 asset ZIP を展開する予定のフォルダ名を指定します。OFF にすると alt text ベースの `[Image: ...]` placeholder を出力します。
 
 ## CLI で使う
 
