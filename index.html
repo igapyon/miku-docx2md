@@ -168,7 +168,7 @@
   <main class="card">
     <div class="eyebrow">Local Browser Tool</div>
     <h1>miku-docx2md</h1>
-    <p class="meta">Version 0.8.1 / Updated 2026-04-24</p>
+    <p class="meta">Version 0.9.0</p>
 
     <section class="lang-block" aria-label="概要">
       <h2>What is this?</h2>
@@ -204,7 +204,7 @@
         <li>Markdown、summary、画像 asset ZIP を必要に応じて保存します。</li>
       </ol>
       <div class="link-row">
-        <a class="link-btn" href="./miku-docx2md.html?v=202604240000">miku-docx2md を開く</a>
+        <a class="link-btn" href="./miku-docx2md.html?v=0.9.0">miku-docx2md を開く</a>
         <a class="link-btn-secondary" href="./README.md">README</a>
         <a class="link-btn-secondary" href="./docs/usage.md">利用ガイド</a>
       </div>
@@ -238,19 +238,9 @@
   <script>
     (() => {
       const selector = 'a[href^="./miku-docx2md.html"]';
-      const buildVersionStamp = () => {
-        const d = new Date();
-        return (
-          d.getFullYear().toString() +
-          String(d.getMonth() + 1).padStart(2, "0") +
-          String(d.getDate()).padStart(2, "0") +
-          String(d.getHours()).padStart(2, "0") +
-          String(d.getMinutes()).padStart(2, "0")
-        );
-      };
       const stampAndGo = (anchor) => {
         const u = new URL(anchor.getAttribute("href"), location.href);
-        u.searchParams.set("v", buildVersionStamp());
+        u.searchParams.set("v", "0.9.0");
         anchor.setAttribute("href", u.pathname + u.search);
       };
       document.addEventListener("click", (ev) => {

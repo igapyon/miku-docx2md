@@ -19,16 +19,32 @@ const TARGETS = [
 ];
 
 const tsModule = await loadTypeScriptModule();
+const packageMetadata = loadPackageMetadata();
 
 for (const target of TARGETS) {
   transpileTypeScript(target.tsOrder, tsModule);
   const srcPath = path.resolve(ROOT, target.srcHtml);
   const outPath = path.resolve(ROOT, target.outHtml);
-  const source = fs.readFileSync(srcPath, "utf8");
+  const source = applyBuildPlaceholders(fs.readFileSync(srcPath, "utf8"), packageMetadata);
   const output = buildSingleHtmlFromSource(source, srcPath);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, output, "utf8");
   console.log(`[build:miku-docx2md] generated ${target.outHtml}`);
+}
+
+function loadPackageMetadata() {
+  const packageJson = JSON.parse(fs.readFileSync(path.resolve(ROOT, "package.json"), "utf8"));
+  const version = typeof packageJson.version === "string" ? packageJson.version : "0.0.0";
+  return {
+    version,
+    versionStamp: version
+  };
+}
+
+function applyBuildPlaceholders(source, metadata) {
+  return source
+    .replaceAll("__PACKAGE_VERSION__", metadata.version)
+    .replaceAll("__PACKAGE_VERSION_STAMP__", metadata.versionStamp);
 }
 
 async function loadTypeScriptModule() {
