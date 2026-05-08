@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build single-file Web app
-        run: npm run build
+      - name: Build generated artifacts
+        run: npm run build:all
 
       - name: Verify generated files are current
         run: git diff --exit-code -- index.html miku-docx2md.html src/js
@@ -64,20 +64,22 @@ jobs:
       - name: CLI version smoke
         run: npm run smoke:version
 
+      - name: CLI bundle smoke
+        run: npm run smoke:bundle
+
       - name: Prepare release assets
         run: |
           version="${TAG_NAME#v}"
           mkdir -p "${RELEASE_ASSETS_DIR}"
-          cp "${PRODUCT_NAME}.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"
-          cp "index.html" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-index-${version}.html"
-          git archive --format=tar.gz --prefix="${PRODUCT_NAME}-sources-${version}/" -o "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz" HEAD
+          cp "bundle/${PRODUCT_NAME}.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"
+          cp "bundle/${PRODUCT_NAME}-sources.tgz" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"
 
-      - name: Verify Web app bundle assets
+      - name: Verify release assets
         run: |
           version="${TAG_NAME#v}"
-          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.html"
-          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-index-${version}.html"
+          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"
           test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"
+          test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d ' ')" = "2"
 
       - name: Upload release assets
         env:
