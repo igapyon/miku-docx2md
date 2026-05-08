@@ -1,9 +1,9 @@
 // @vitest-environment node
 
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
@@ -83,6 +83,50 @@ function createCliNestedUnsupportedDocxBytes() {
   ]);
 }
 
+function createCliUnsafeAssetPathDocxBytes() {
+  const encoder = new TextEncoder();
+  return createStoredZipBytes([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>
+    <w:drawing>
+      <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+        <wp:docPr id="1" name="Unsafe image" descr="Unsafe image alt"/>
+      </wp:inline>
+      <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:graphicData>
+          <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:blipFill>
+              <a:blip r:embed="rIdImage1"/>
+            </pic:blipFill>
+          </pic:pic>
+        </a:graphicData>
+      </a:graphic>
+    </w:drawing>
+  </w:body>
+</w:document>`
+      )
+    },
+    {
+      name: "word/_rels/document.xml.rels",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../outside.png"/>
+</Relationships>`
+      )
+    },
+    {
+      name: "outside.png",
+      data: Uint8Array.from([1, 2, 3, 4])
+    }
+  ]);
+}
+
 describe("docx2md cli", () => {
   it("prints agent-readable help without requiring an input file", () => {
     const helpOutput = execFileSync(
@@ -106,6 +150,7 @@ describe("docx2md cli", () => {
     expect(helpOutput).toContain("EXIT CODES");
     expect(helpOutput).toContain("Input is exactly one local .docx file path.");
     expect(helpOutput).toContain("If --out is omitted, Markdown is written to stdout.");
+    expect(helpOutput).toContain("--verbose writes progress and timing diagnostics to stderr.");
     expect(helpOutput).toContain("--help and --version are metadata commands and must be used without other arguments.");
     expect(helpOutput).toContain("manifest.json");
   });
@@ -152,6 +197,23 @@ describe("docx2md cli", () => {
         expect(error.stderr).toContain("Use --help or --version without other arguments.");
       }
     }
+  });
+
+  it("reports read failures with the input document name and stage", () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        "scripts/miku-docx2md-cli.mjs",
+        "does-not-exist.docx"
+      ],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf8"
+      }
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("[does-not-exist.docx] read failed:");
   });
 
   it("keeps npm version smoke script aligned with the CLI", () => {
@@ -236,6 +298,89 @@ describe("docx2md cli", () => {
           }
         ]
       });
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes verbose progress diagnostics to stderr without changing primary outputs", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-verbose-"));
+    try {
+      const inputPath = path.join(tempDir, "sample.docx");
+      const outputPath = path.join(tempDir, "sample.md");
+      const summaryPath = path.join(tempDir, "sample.summary.txt");
+      const assetsDirPath = path.join(tempDir, "sample.assets");
+      writeFileSync(inputPath, createCliDocxBytes());
+
+      const result = spawnSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--summary-out",
+          summaryPath,
+          "--assets-dir",
+          assetsDirPath,
+          "--verbose"
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toContain("verbose:");
+      expect(result.stderr).toContain(`input=${inputPath}`);
+      expect(result.stderr).toContain(`output=${outputPath}`);
+      expect(result.stderr).toContain(`summary=${summaryPath}`);
+      expect(result.stderr).toContain(`assets=${assetsDirPath}`);
+      expect(result.stderr).toContain("input-bytes=");
+      expect(result.stderr).toContain("parsed blocks=");
+      expect(result.stderr).toContain("assets-written count=1");
+      expect(result.stderr).toContain(`summary-written ${summaryPath}`);
+      expect(result.stderr).toContain(`markdown-written ${outputPath}`);
+      expect(result.stderr).toContain("done total-ms=");
+      expect(readFileSync(outputPath, "utf8")).toContain("Hello CLI");
+      expect(readFileSync(summaryPath, "utf8")).toContain("imageAssets: 1");
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not export DOCX image assets outside word/media package paths", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-unsafe-"));
+    try {
+      const inputPath = path.join(tempDir, "unsafe.docx");
+      const outputPath = path.join(tempDir, "unsafe.md");
+      const assetsDirPath = path.join(tempDir, "unsafe.assets");
+      writeFileSync(inputPath, createCliUnsafeAssetPathDocxBytes());
+
+      execFileSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--assets-dir",
+          assetsDirPath
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      const markdown = readFileSync(outputPath, "utf8");
+      const manifest = JSON.parse(readFileSync(path.join(assetsDirPath, "manifest.json"), "utf8"));
+      expect(markdown).toContain("[Image: Unsafe image alt]");
+      expect(markdown).not.toContain("![](unsafe.assets/../outside.png)");
+      expect(manifest).toEqual({ version: 1, assets: [] });
+      expect(existsSync(path.join(tempDir, "outside.png"))).toBe(false);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }

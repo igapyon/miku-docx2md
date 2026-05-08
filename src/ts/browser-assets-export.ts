@@ -11,6 +11,9 @@
   const browserZip = moduleRegistry.getModule<{
     createStoredZip: (entries: Array<{ name: string; data: Uint8Array }>) => Uint8Array;
   }>("browserZip");
+  const assetPath = moduleRegistry.getModule<{
+    getSafeDocxAssetPath: (sourcePath: string) => string;
+  }>("assetPath");
 
   function requireDocx2md() {
     if (!docx2md) {
@@ -33,10 +36,12 @@
         name: "manifest.json",
         data: manifestBytes
       },
-      ...parsedDocument.assets.map((asset) => ({
-        name: asset.sourcePath,
-        data: asset.bytes
-      }))
+      ...parsedDocument.assets
+        .map((asset) => ({
+          name: assetPath?.getSafeDocxAssetPath(asset.sourcePath) || "",
+          data: asset.bytes
+        }))
+        .filter((entry) => entry.name)
     ];
   }
 

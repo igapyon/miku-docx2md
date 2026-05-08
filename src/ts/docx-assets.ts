@@ -11,6 +11,9 @@
   const xmlUtils = moduleRegistry.getModule<{
     getAttributeValue: (element: Element | null | undefined, name: string, fallback?: string) => string;
   }>("xmlUtils");
+  const assetPath = moduleRegistry.getModule<{
+    getSafeDocxAssetPath: (sourcePath: string) => string;
+  }>("assetPath");
   const textDecoder = new TextDecoder("utf-8");
 
   type ContentTypeMaps = {
@@ -101,13 +104,14 @@
     block: Docx2mdParsedBlock,
     blockIndex: number,
     traceIndex: number,
+    safeSourcePath: string,
     bytes: Uint8Array,
     contentTypes: ContentTypeMaps
   ): Docx2mdParsedImageAsset {
     return {
       kind: "image",
-      sourcePath: parsedTrace.sourcePath,
-      mediaType: resolveImageMediaType(parsedTrace.sourcePath, contentTypes),
+      sourcePath: safeSourcePath,
+      mediaType: resolveImageMediaType(safeSourcePath, contentTypes),
       altText: parsedTrace.altText,
       sourceTrace: traceType,
       blockIndex,
@@ -132,11 +136,13 @@
       for (const [traceIndex, traceType] of getBlockTraceTypes(block).entries()) {
         const parsedTrace = imageTrace?.parseImageTrace(traceType);
         if (!parsedTrace) continue;
-        if (seen.has(parsedTrace.sourcePath)) continue;
-        const bytes = files.get(parsedTrace.sourcePath);
+        const safeSourcePath = assetPath?.getSafeDocxAssetPath(parsedTrace.sourcePath) || "";
+        if (!safeSourcePath) continue;
+        if (seen.has(safeSourcePath)) continue;
+        const bytes = files.get(safeSourcePath);
         if (!bytes) continue;
-        seen.add(parsedTrace.sourcePath);
-        assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, bytes, contentTypes));
+        seen.add(safeSourcePath);
+        assets.push(createImageAsset(parsedTrace, traceType, block, blockIndex, traceIndex, safeSourcePath, bytes, contentTypes));
       }
     }
     return assets;

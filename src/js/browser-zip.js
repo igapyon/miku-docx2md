@@ -5,6 +5,7 @@
 (() => {
     const moduleRegistry = getDocx2mdModuleRegistry();
     const utf8FileNameFlag = 0x0800;
+    const fixedZipEntryTimestamp = toDosDateTime(2025, 1, 1, 0, 0, 0);
     function createCrc32Table() {
         const table = new Uint32Array(256);
         for (let index = 0; index < table.length; index += 1) {
@@ -24,6 +25,12 @@
         }
         return (crc ^ 0xffffffff) >>> 0;
     }
+    function toDosDateTime(year, month, day, hour, minute, second) {
+        return {
+            dosDate: ((year - 1980) << 9) | (month << 5) | day,
+            dosTime: (hour << 11) | (minute << 5) | Math.floor(second / 2)
+        };
+    }
     function createLocalFileHeader(entry) {
         const localHeader = new Uint8Array(30 + entry.nameBytes.length);
         const localView = new DataView(localHeader.buffer);
@@ -31,8 +38,8 @@
         localView.setUint16(4, 20, true);
         localView.setUint16(6, utf8FileNameFlag, true);
         localView.setUint16(8, 0, true);
-        localView.setUint16(10, 0, true);
-        localView.setUint16(12, 0, true);
+        localView.setUint16(10, fixedZipEntryTimestamp.dosTime, true);
+        localView.setUint16(12, fixedZipEntryTimestamp.dosDate, true);
         localView.setUint32(14, entry.crc32, true);
         localView.setUint32(18, entry.dataBytes.length, true);
         localView.setUint32(22, entry.dataBytes.length, true);
@@ -49,8 +56,8 @@
         centralView.setUint16(6, 20, true);
         centralView.setUint16(8, utf8FileNameFlag, true);
         centralView.setUint16(10, 0, true);
-        centralView.setUint16(12, 0, true);
-        centralView.setUint16(14, 0, true);
+        centralView.setUint16(12, fixedZipEntryTimestamp.dosTime, true);
+        centralView.setUint16(14, fixedZipEntryTimestamp.dosDate, true);
         centralView.setUint32(16, entry.crc32, true);
         centralView.setUint32(20, entry.dataBytes.length, true);
         centralView.setUint32(24, entry.dataBytes.length, true);
@@ -110,6 +117,7 @@
         return copyChunks([...localChunks, ...centralChunks, eocd]);
     }
     moduleRegistry.registerModule("browserZip", {
-        createStoredZip
+        createStoredZip,
+        fixedZipEntryTimestamp
     });
 })();
