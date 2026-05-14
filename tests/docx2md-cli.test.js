@@ -222,6 +222,9 @@ describe("docx2md cli", () => {
     expect(packageJson.scripts["prebuild:bundle"]).toBe("npm run build");
     expect(packageJson.scripts["build:bundle"]).toBe("node scripts/build-cli-bundle.mjs");
     expect(packageJson.scripts["smoke:bundle"]).toBe("node scripts/smoke-cli-bundle.mjs");
+    expect(packageJson.scripts["prebuild:runtime"]).toBe("npm run build");
+    expect(packageJson.scripts["build:runtime"]).toBe("node scripts/build-runtime-bundle.mjs");
+    expect(packageJson.scripts["smoke:runtime"]).toBe("node scripts/smoke-runtime-bundle.mjs");
   });
 
   it("keeps release workflow checks aligned with CLI bundle artifacts and smoke", () => {
@@ -231,9 +234,11 @@ describe("docx2md cli", () => {
     expect(workflow).toContain("npm run test:unit");
     expect(workflow).toContain("npm run smoke:version");
     expect(workflow).toContain("npm run smoke:bundle");
+    expect(workflow).toContain("npm run smoke:runtime");
     expect(workflow).toContain('cp "bundle/${PRODUCT_NAME}.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"');
+    expect(workflow).toContain('cp "bundle/${PRODUCT_NAME}-runtime.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-runtime-${version}.mjs"');
     expect(workflow).toContain('cp "bundle/${PRODUCT_NAME}-sources.tgz" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"');
-    expect(workflow).toContain('test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d \' \')" = "2"');
+    expect(workflow).toContain('test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d \' \')" = "3"');
     expect(workflow).not.toContain("gh release delete-asset");
     expect(workflow).not.toContain("${PRODUCT_NAME}.html");
   });

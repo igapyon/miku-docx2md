@@ -82,7 +82,7 @@ CLI option の一覧、終了コード、asset 出力、`manifest.json` の詳�
 npm run build
 ```
 
-`src/ts/` から Node.js runtime 用の `dist/js/` を再生成します。`dist/` は生成物なので Git 管理しません。CLI runtime bundle は `npm run build:bundle` で生成します。
+`src/ts/` から Node.js runtime 用の `dist/js/` を再生成します。`dist/` は生成物なので Git 管理しません。CLI runtime bundle は `npm run build:bundle`、Web / adapter 向け runtime bundle は `npm run build:runtime` で生成します。
 
 ## Web App
 
@@ -103,6 +103,7 @@ npm run test:unit
 - 変換仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)
 - 実装に沿った現在の挙動: [docs/docx2md-impl-spec.md](./docs/docx2md-impl-spec.md)
 - Node/Web 分離手順: [docs/node-web-separation.md](./docs/node-web-separation.md)
+- miku-soft 共有 reference: [docs/miku-soft-reference.md](./docs/miku-soft-reference.md)
 - upstream 参照方針: [docs/upstream.md](./docs/upstream.md)
 
 ## License
