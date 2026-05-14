@@ -4,12 +4,11 @@
 
 見た目を Word どおりに再現するためのツールではありません。文章、見出し、リスト、表、リンクなどの文書構造を Markdown として読みやすく取り出すことを目的にしています。
 
-この README は、概要と最短の使い方をまとめます。詳しいブラウザ操作、CLI option、画像 asset、debug 出力は [docs/usage.md](./docs/usage.md) を参照してください。
+この README は、概要と最短の使い方をまとめます。詳しい CLI option、画像 asset、debug 出力は [docs/usage.md](./docs/usage.md) を参照してください。
 
 ## できること
 
 - `.docx` ファイルを Markdown に変換
-- ブラウザだけでローカル変換
 - Node.js CLI で変換
 - 見出し、段落、箇条書き、番号付きリスト、表を出力
 - 太字、斜体、取り消し線、下線を一部保持
@@ -17,18 +16,6 @@
 - 解決可能な埋め込み画像を sidecar asset として出力
 - 変換サマリーを表示または保存
 - debug 用に unsupported 要素の HTML comment trace を出力
-
-## 使い方: ブラウザ
-
-`index.html` はランディングページです。変換本体は `miku-docx2md.html` で開きます。
-
-1. `index.html` を開きます。
-2. `miku-docx2md.html` へ進みます。
-3. `.docx` ファイルを選択します。
-4. 選択後、自動変換された Markdown と summary を確認します。
-5. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
-
-画像 asset ZIP は、変換結果に解決可能な埋め込み画像がある場合だけ利用できます。`Use image asset links` を ON にすると、Markdown には指定した image link folder を使った `![](...)` link が出力されます。
 
 ## 使い方: CLI
 
@@ -95,7 +82,11 @@ CLI option の一覧、終了コード、asset 出力、`manifest.json` の詳�
 npm run build
 ```
 
-`index-src.html`、`miku-docx2md-src.html`、`src/ts/` から、配布用の `index.html`、`miku-docx2md.html`、`src/js/` を再生成します。
+`src/ts/` から Node.js runtime 用の `src/js/` を再生成します。CLI runtime bundle は `npm run build:bundle` で生成します。
+
+## Web App
+
+ブラウザ UI と Single-file Web App 配布物は、分離済みの [miku-docx2md-web](https://github.com/igapyon/miku-docx2md-web) が担当します。この repository は product core、CLI、Node.js runtime bundle を担当します。
 
 ## テスト
 
@@ -107,7 +98,6 @@ npm run test:unit
 
 - 利用者向けの操作手順と CLI 詳細: [docs/usage.md](./docs/usage.md)
 - 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
-- ブラウザ smoke checklist: [docs/browser-smoke-checklist.md](./docs/browser-smoke-checklist.md)
 - 実文書品質確認の記録テンプレート: [docs/real-document-validation-template.md](./docs/real-document-validation-template.md)
 - 実文書品質確認メモ v0.8.2: [docs/real-document-validation-v0.8.2.md](./docs/real-document-validation-v0.8.2.md)
 - 変換仕様と設計方針: [docs/docx2md-spec.md](./docs/docx2md-spec.md)

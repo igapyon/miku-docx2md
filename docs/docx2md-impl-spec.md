@@ -30,11 +30,10 @@ The current first cut includes:
 - merge placeholders `←M←` and `↑M↑`
 - resolved embedded image asset discovery and optional sidecar export
 - lightweight image placeholders or Markdown image links when image metadata permits
-- asset manifest output for CLI and browser image asset exports
+- asset manifest output for CLI image asset exports
 - summary counts
 - unsupported-element diagnostics
 - Node.js CLI
-- browser UI based on `lht-cmn/`
 
 The current first cut still excludes:
 
@@ -252,25 +251,9 @@ Current image handling is also a limited compromise:
 - the current asset metadata prefers `[Content_Types].xml` declarations when available and falls back to extension-based media-type inference otherwise
 - current asset exports also include `manifest.json` with asset path, media type, alt text, byte size, originating unsupported trace, owning block index, and a finer `documentPosition` object with block kind and per-block trace index
 
-## 14. Browser UI and CLI
+## 14. Node.js CLI
 
-### 14.1 Browser UI
-
-Current browser UI behavior:
-
-- uses `lht-cmn/` as the shared component base
-- keeps `index.html` as the landing page and `miku-docx2md.html` as the conversion app page
-- uses `lht-page-hero`, `lht-file-select`, `lht-switch-help`, `lht-preview-output`, `lht-loading-overlay`, `lht-error-alert`, and `lht-toast`
-- allows file selection first and explicit conversion second
-- supports Markdown save and summary save
-- supports image-asset ZIP save when resolved embedded image assets are available
-- browser image-asset ZIP export writes stored ZIP entries with CRC32 values and the UTF-8 filename flag
-- uses `lht-preview-output` built-in copy actions for preview text
-- toggles unsupported HTML comments via a switch
-
-Page-local CSS lives in `src/css/app.css`.
-
-### 14.2 Node.js CLI
+Browser UI behavior is owned by the separated `miku-docx2md-web` repository.
 
 Current CLI options include:
 

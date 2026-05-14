@@ -26,33 +26,6 @@ export const DOCX2MD_CORE_JS_ORDER = [
   "src/js/core.js"
 ];
 
-export const DOCX2MD_APP_TS_ORDER = [
-  "src/ts/module-registry.ts",
-  "src/ts/zip-io.ts",
-  "src/ts/xml-utils.ts",
-  "src/ts/rels-parser.ts",
-  "src/ts/styles-parser.ts",
-  "src/ts/numbering-parser.ts",
-  "src/ts/document-summary.ts",
-  "src/ts/document-anchor-parser.ts",
-  "src/ts/document-drawing-parser.ts",
-  "src/ts/document-text-style-parser.ts",
-  "src/ts/document-hyperlink-parser.ts",
-  "src/ts/document-paragraph-parser.ts",
-  "src/ts/document-inline-parser.ts",
-  "src/ts/document-cell-parser.ts",
-  "src/ts/document-table-parser.ts",
-  "src/ts/document-block-parser.ts",
-  "src/ts/document-parser.ts",
-  "src/ts/image-trace.ts",
-  "src/ts/asset-path.ts",
-  "src/ts/docx-assets.ts",
-  "src/ts/markdown-renderer.ts",
-  "src/ts/summary.ts",
-  "src/ts/asset-manifest.ts",
-  "src/ts/docx-package-loader.ts",
-  "src/ts/core.ts",
-  "src/ts/browser-zip.ts",
-  "src/ts/browser-assets-export.ts",
-  "src/ts/main.ts"
-];
+export const DOCX2MD_CORE_TS_ORDER = DOCX2MD_CORE_JS_ORDER.map((relPath) =>
+  relPath.replace(/^src\/js\//, "src/ts/").replace(/\.js$/, ".ts")
+);

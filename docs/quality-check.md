@@ -26,31 +26,6 @@ fixture test は既知の挙動を確認します。実文書での確認は、�
 
 private または sensitive な文書は repository に commit しません。
 
-## ブラウザ確認
-
-各文書で次を確認します。
-
-1. `index.html` を開きます。
-2. `miku-docx2md.html` へ進みます。
-3. `.docx` ファイルを選択します。
-4. 変換を実行します。
-5. Markdown preview を確認します。
-6. summary preview を確認します。
-7. unsupported comment を有効にして debug-oriented output を確認します。
-8. 画像 asset がある場合は download します。
-
-確認観点:
-
-- 見出しが見出しとして読める
-- 段落が読みやすい
-- ネスト list の構造が残っている
-- 表が矩形で読みやすい
-- 文書内リンクが出力済み anchor だけを指している
-- 外部リンクが残っている
-- 画像 placeholder または画像 link が読みやすい
-- unsupported comment が不足内容の診断に使える程度に簡潔
-- summary count が明らかにおかしくない
-
 ## CLI 確認
 
 各文書で実行します。
@@ -105,5 +80,7 @@ npm run test:unit
 
 - README が現在の user-facing behavior と一致している
 - `docs/usage.md` の例が現在も使える
-- `index.html` と `miku-docx2md.html` が現在の source から生成されている
+- `src/js/` が現在の `src/ts/` から生成されている
 - private な検証用文書を commit していない
+
+ブラウザ UI の実文書確認は、分離済みの `miku-docx2md-web` repository で実施します。

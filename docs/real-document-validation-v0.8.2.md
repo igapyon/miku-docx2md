@@ -137,7 +137,7 @@ These files are local `workplace/` candidates only and should not be treated as 
 
 - [x] Add a focused regression test for inline formatting across `w:proofErr`.
 - [x] Create or collect a Word-authored document with actual Heading 1 / Heading 2 styles.
-- [ ] Run browser validation for these two documents.
+- [ ] Run browser validation for these two documents in the separated `miku-docx2md-web` repository.
 - [x] Fix or characterize image asset extraction for the Word-authored inline drawing shape in `word-inline-image-basic.docx`.
 - [x] Replace invalid generated image candidates with a Word-openable image validation document.
 
@@ -165,5 +165,4 @@ Recheck observations:
 
 Browser automation note:
 
-- No Playwright/Puppeteer dependency is present in this repository.
-- Browser validation remains a manual smoke path documented in [browser-smoke-checklist.md](./browser-smoke-checklist.md).
+- Browser validation is owned by the separated `miku-docx2md-web` repository.

@@ -2,21 +2,9 @@
 
 この文書は、README に置くには長い利用者向けの操作手順をまとめます。
 
-README は概要と最短手順を扱い、この文書はブラウザ操作、CLI option、画像 asset、debug 出力の詳細を扱います。変換仕様は [docx2md-spec.md](./docx2md-spec.md)、実装に沿った現在の挙動は [docx2md-impl-spec.md](./docx2md-impl-spec.md) を参照してください。
+README は概要と最短手順を扱い、この文書は CLI option、画像 asset、debug 出力の詳細を扱います。変換仕様は [docx2md-spec.md](./docx2md-spec.md)、実装に沿った現在の挙動は [docx2md-impl-spec.md](./docx2md-impl-spec.md) を参照してください。
 
-## ブラウザで使う
-
-ローカルのブラウザで変換したい場合は、ランディングページの `index.html` から本体の `miku-docx2md.html` を開きます。
-
-1. `index.html` を開きます。
-2. `miku-docx2md.html` へ進みます。
-3. `.docx` ファイルを選択します。
-4. 選択後、自動変換された Markdown と summary を確認します。
-5. 必要に応じて Markdown、summary、画像 asset ZIP をダウンロードします。
-
-ブラウザ版は、選択したローカルファイルをブラウザ UI 上で処理します。
-
-画像入り文書では、`Use image asset links` を ON にすると Markdown の画像出力が `![](...)` link になります。`Image link folder` には、画像 asset ZIP を展開する予定のフォルダ名を指定します。OFF にすると alt text ベースの `[Image: ...]` placeholder を出力します。
+ブラウザ UI は分離済みの [miku-docx2md-web](https://github.com/igapyon/miku-docx2md-web) が担当します。この repository の通常利用 path は Node.js CLI です。
 
 ## CLI で使う
 
