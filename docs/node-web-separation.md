@@ -137,6 +137,32 @@ Expected runtime-bundle use from the Web repository:
 4. Keep browser-specific ZIP download, UI, preview, and file-selection behavior
    in the Web repository.
 
+## Current Web Repository Runtime Use
+
+The separated `miku-docx2md-web` repository now uses a vendored upstream
+runtime release asset as its normal product-core dependency.
+
+Current recorded boundary:
+
+- `miku-docx2md-web` version: `1.0.0`
+- upstream runtime source: `miku-docx2md` GitHub Release `v1.0.0`
+- vendored runtime file: `vendor/miku-docx2md-runtime.mjs`
+- vendored runtime metadata: `vendor/miku-docx2md-runtime.json`
+- runtime asset name: `miku-docx2md-runtime-1.0.0.mjs`
+
+The Web repository no longer needs a `file:../miku-docx2md` package dependency
+or `DOCX2MD_UPSTREAM_ROOT` for normal builds. Its normal dependency direction
+is now:
+
+```text
+miku-docx2md-web -> miku-docx2md GitHub Release runtime asset
+```
+
+The Web repository owns browser UI, browser adapters, browser tests, and
+Single-file Web App distribution. Product conversion semantics, diagnostics,
+asset manifest behavior, and Markdown rendering remain owned by this main
+application repository.
+
 ## Documentation Updates
 
 Update main repository documents so they no longer present browser UI behavior
