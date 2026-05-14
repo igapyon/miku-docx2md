@@ -67,19 +67,24 @@ jobs:
       - name: CLI bundle smoke
         run: npm run smoke:bundle
 
+      - name: Runtime bundle smoke
+        run: npm run smoke:runtime
+
       - name: Prepare release assets
         run: |
           version="${TAG_NAME#v}"
           mkdir -p "${RELEASE_ASSETS_DIR}"
           cp "bundle/${PRODUCT_NAME}.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"
+          cp "bundle/${PRODUCT_NAME}-runtime.mjs" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-runtime-${version}.mjs"
           cp "bundle/${PRODUCT_NAME}-sources.tgz" "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"
 
       - name: Verify release assets
         run: |
           version="${TAG_NAME#v}"
           test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-${version}.mjs"
+          test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-runtime-${version}.mjs"
           test -s "${RELEASE_ASSETS_DIR}/${PRODUCT_NAME}-sources-${version}.tgz"
-          test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d ' ')" = "2"
+          test "$(find "${RELEASE_ASSETS_DIR}" -type f | wc -l | tr -d ' ')" = "3"
 
       - name: Upload release assets
         env:

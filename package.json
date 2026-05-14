@@ -1,6 +1,6 @@
 {
   "name": "miku-docx2md",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,10 +12,13 @@
     "cli": "node scripts/miku-docx2md-cli.mjs",
     "smoke:version": "node scripts/miku-docx2md-cli.mjs --version",
     "smoke:bundle": "node scripts/smoke-cli-bundle.mjs",
+    "smoke:runtime": "node scripts/smoke-runtime-bundle.mjs",
     "build": "node scripts/build-miku-docx2md.mjs",
     "prebuild:bundle": "npm run build",
     "build:bundle": "node scripts/build-cli-bundle.mjs",
-    "build:all": "npm run build:bundle"
+    "prebuild:runtime": "npm run build",
+    "build:runtime": "node scripts/build-runtime-bundle.mjs",
+    "build:all": "npm run build:bundle && npm run build:runtime"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.9.9",
