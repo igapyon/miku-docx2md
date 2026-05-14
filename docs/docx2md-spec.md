@@ -116,17 +116,14 @@ This is a deliberate output policy, not merely an implementation limitation.
 
 - documentation structure
 - separation of core logic and UI
-- browser-first local processing
-- optional CLI alignment
+- CLI-first local processing
 - test-first implementation style
 - ZIP container handling approach
 - XML parsing style
 - TypeScript-first source management
-- single-file web app packaging direction where practical
-- `lht-cmn/` based browser UI composition
 
-Unless there is a clear `docx`-specific reason to differ, `docx2md` should imitate `miku-xlsx2md` in overall repository structure, implementation style, naming discipline, test style, and browser/runtime separation.
-For browser UI, `docx2md` should treat `lht-cmn/` as the primary shared component layer and should prefer `lht-*` components over page-local widget implementations unless there is a clear reason to differ.
+Unless there is a clear `docx`-specific reason to differ, `docx2md` should imitate `miku-xlsx2md` in implementation style, naming discipline, test style, and browser/runtime separation.
+Browser UI composition and Single-file Web App packaging are owned by the separated `miku-docx2md-web` repository.
 
 However, `docx2md` should not inherit spreadsheet-specific behavior.
 There is no table-region detection problem equivalent to Excel sheet analysis.
@@ -138,7 +135,6 @@ The source file split should also imitate `miku-xlsx2md` where practical.
 
 - use `src/ts/` as the source-of-truth implementation directory
 - keep generated `src/js/` output separate from TypeScript source
-- keep `main.ts` as the browser UI entry point
 - keep `core.ts` as the central conversion orchestration layer
 - split helper logic into small focused modules instead of concentrating everything in one large parser file
 

@@ -197,7 +197,7 @@
 - [x] Keep `renderStructuredParagraphText` in `document-parser.ts` until inline/textbox extraction is stable
 - [x] After inline/textbox extraction, consider splitting top-level block parsing from `parseDocumentXml`
 - [x] Split table cell text extraction after inline/textbox callback boundary stabilized
-- [x] After each slice, update `scripts/lib/docx2md-module-order.mjs`, `miku-docx2md-src.html`, and generated `src/js/`
+- [x] After each slice, update `scripts/lib/docx2md-module-order.mjs` and generated `src/js/`
 - [x] After each slice, run `npm run build`, `npm run test:unit`, `npx tsc --noEmit`, and `git diff --check`
 
 ## Phase 17: miku-soft Maintenance Refactoring
@@ -218,11 +218,18 @@
 - [x] Harden image asset export paths so only safe `word/media/...` package paths are exported or linked
   - Reject empty segments, `.` / `..`, absolute paths, and non-`word/media` paths before CLI file output or browser ZIP entry creation
   - Verify CLI `--assets-dir` output cannot escape the selected asset directory
+
+## Phase 19: Node/Web Separation
+
+- [x] Establish separated Web repository `miku-docx2md-web`
+- [x] Keep browser UI, Single-file Web App generation, `lht-cmn`, and browser smoke tests in `miku-docx2md-web`
+- [x] Clean Web-only files from this main application repository
+- [x] Keep this repository focused on product core, CLI, Node.js runtime bundle, and upstream contract for Web
 - [x] Fix browser asset ZIP entry timestamps to `2025-01-01 00:00:00` for reproducible ZIP bytes
 - [x] Add regression coverage for fixed browser ZIP timestamps and byte-stable output
 - [x] Add browser automation for the official Web UI path
   - Cover fixture load, auto-conversion, image link toggle, image link folder changes, and download button enabled/disabled states
-  - Covered with `jsdom` against the committed Web UI path to avoid adding a browser test dependency.
+  - Moved with the separated Web UI path to `miku-docx2md-web`.
 - [x] Add `.docx` fixture hygiene tests modeled after `miku-xlsx2md`
   - Check `docProps/core.xml` for creator, lastModifiedBy, created, and modified metadata
   - Check `docProps/app.xml` for Application and AppVersion metadata

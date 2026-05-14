@@ -1,51 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildSingleHtmlFromSource } from "./lib/single-html.mjs";
-import { DOCX2MD_APP_TS_ORDER } from "./lib/docx2md-module-order.mjs";
+import { DOCX2MD_CORE_TS_ORDER } from "./lib/docx2md-module-order.mjs";
 
 const ROOT = process.cwd();
 
-const TARGETS = [
-  {
-    srcHtml: "index-src.html",
-    outHtml: "index.html"
-  },
-  {
-    srcHtml: "miku-docx2md-src.html",
-    outHtml: "miku-docx2md.html",
-    tsOrder: DOCX2MD_APP_TS_ORDER
-  }
-];
-
 const tsModule = await loadTypeScriptModule();
-const packageMetadata = loadPackageMetadata();
 
-for (const target of TARGETS) {
-  transpileTypeScript(target.tsOrder, tsModule);
-  const srcPath = path.resolve(ROOT, target.srcHtml);
-  const outPath = path.resolve(ROOT, target.outHtml);
-  const source = applyBuildPlaceholders(fs.readFileSync(srcPath, "utf8"), packageMetadata);
-  const output = buildSingleHtmlFromSource(source, srcPath);
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, output, "utf8");
-  console.log(`[build:miku-docx2md] generated ${target.outHtml}`);
-}
-
-function loadPackageMetadata() {
-  const packageJson = JSON.parse(fs.readFileSync(path.resolve(ROOT, "package.json"), "utf8"));
-  const version = typeof packageJson.version === "string" ? packageJson.version : "0.0.0";
-  return {
-    version,
-    versionStamp: version
-  };
-}
-
-function applyBuildPlaceholders(source, metadata) {
-  return source
-    .replaceAll("__PACKAGE_VERSION__", metadata.version)
-    .replaceAll("__PACKAGE_VERSION_STAMP__", metadata.versionStamp);
-}
+transpileTypeScript(DOCX2MD_CORE_TS_ORDER, tsModule);
+console.log("[build:miku-docx2md] generated core src/js modules");
 
 async function loadTypeScriptModule() {
   try {
@@ -61,10 +24,6 @@ async function loadTypeScriptModule() {
 }
 
 function transpileTypeScript(tsOrder, tsModule) {
-  if (!tsOrder) {
-    return;
-  }
-
   for (const relTsPath of tsOrder) {
     const tsPath = path.resolve(ROOT, relTsPath);
     const jsPath = path.resolve(ROOT, relTsPath.replace("/ts/", "/js/").replace(/\.ts$/, ".js"));

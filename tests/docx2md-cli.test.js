@@ -226,7 +226,7 @@ describe("docx2md cli", () => {
   it("keeps release workflow checks aligned with CLI bundle artifacts and smoke", () => {
     const workflow = readFileSync(path.resolve(__dirname, "..", ".github/workflows/release-assets.yml"), "utf8");
     expect(workflow).toContain("npm run build:all");
-    expect(workflow).toContain("git diff --exit-code -- index.html miku-docx2md.html src/js");
+    expect(workflow).toContain("git diff --exit-code -- src/js");
     expect(workflow).toContain("npm run test:unit");
     expect(workflow).toContain("npm run smoke:version");
     expect(workflow).toContain("npm run smoke:bundle");
