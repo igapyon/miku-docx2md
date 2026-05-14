@@ -8,7 +8,7 @@ const ROOT = process.cwd();
 const tsModule = await loadTypeScriptModule();
 
 transpileTypeScript(DOCX2MD_CORE_TS_ORDER, tsModule);
-console.log("[build:miku-docx2md] generated core src/js modules");
+console.log("[build:miku-docx2md] generated core dist/js modules");
 
 async function loadTypeScriptModule() {
   try {
@@ -26,7 +26,7 @@ async function loadTypeScriptModule() {
 function transpileTypeScript(tsOrder, tsModule) {
   for (const relTsPath of tsOrder) {
     const tsPath = path.resolve(ROOT, relTsPath);
-    const jsPath = path.resolve(ROOT, relTsPath.replace("/ts/", "/js/").replace(/\.ts$/, ".js"));
+    const jsPath = path.resolve(ROOT, relTsPath.replace(/^src\/ts\//, "dist/js/").replace(/\.ts$/, ".js"));
     const source = fs.readFileSync(tsPath, "utf8");
     const result = tsModule.transpileModule(source, {
       compilerOptions: {

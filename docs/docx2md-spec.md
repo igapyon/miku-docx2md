@@ -134,7 +134,7 @@ The main parsing targets are document order, paragraph style, numbering, runs, a
 The source file split should also imitate `miku-xlsx2md` where practical.
 
 - use `src/ts/` as the source-of-truth implementation directory
-- keep generated `src/js/` output separate from TypeScript source
+- keep generated `dist/js/` output separate from TypeScript source and out of Git
 - keep `core.ts` as the central conversion orchestration layer
 - split helper logic into small focused modules instead of concentrating everything in one large parser file
 

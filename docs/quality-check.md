@@ -80,7 +80,7 @@ npm run test:unit
 
 - README が現在の user-facing behavior と一致している
 - `docs/usage.md` の例が現在も使える
-- `src/js/` が現在の `src/ts/` から生成されている
+- `dist/js/` が現在の `src/ts/` から生成されている
 - private な検証用文書を commit していない
 
 ブラウザ UI の実文書確認は、分離済みの `miku-docx2md-web` repository で実施します。

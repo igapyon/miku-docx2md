@@ -219,6 +219,7 @@ describe("docx2md cli", () => {
   it("keeps npm version smoke script aligned with the CLI", () => {
     const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8"));
     expect(packageJson.scripts["smoke:version"]).toBe("node scripts/miku-docx2md-cli.mjs --version");
+    expect(packageJson.scripts["prebuild:bundle"]).toBe("npm run build");
     expect(packageJson.scripts["build:bundle"]).toBe("node scripts/build-cli-bundle.mjs");
     expect(packageJson.scripts["smoke:bundle"]).toBe("node scripts/smoke-cli-bundle.mjs");
   });
@@ -226,7 +227,7 @@ describe("docx2md cli", () => {
   it("keeps release workflow checks aligned with CLI bundle artifacts and smoke", () => {
     const workflow = readFileSync(path.resolve(__dirname, "..", ".github/workflows/release-assets.yml"), "utf8");
     expect(workflow).toContain("npm run build:all");
-    expect(workflow).toContain("git diff --exit-code -- src/js");
+    expect(workflow).toContain("test -s dist/js/core.js");
     expect(workflow).toContain("npm run test:unit");
     expect(workflow).toContain("npm run smoke:version");
     expect(workflow).toContain("npm run smoke:bundle");
