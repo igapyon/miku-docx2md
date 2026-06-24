@@ -1,6 +1,6 @@
 {
   "name": "miku-docx2md",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,8 +22,11 @@
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.9.9",
-    "esbuild": "^0.27.7",
+    "esbuild": "^0.28.1",
     "typescript": "^5.7.3",
     "vitest": "^3.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
   }
 }
