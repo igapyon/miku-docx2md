@@ -1,5 +1,6 @@
 export const DOCX2MD_CORE_JS_ORDER = [
   "dist/js/module-registry.js",
+  "dist/js/ms-office-core.js",
   "dist/js/zip-io.js",
   "dist/js/xml-utils.js",
   "dist/js/rels-parser.js",
@@ -28,4 +29,6 @@ export const DOCX2MD_CORE_JS_ORDER = [
 
 export const DOCX2MD_CORE_TS_ORDER = DOCX2MD_CORE_JS_ORDER.map((relPath) =>
   relPath.replace(/^dist\/js\//, "src/ts/").replace(/\.js$/, ".ts")
+).filter((relPath) =>
+  relPath !== "src/ts/ms-office-core.ts"
 );
