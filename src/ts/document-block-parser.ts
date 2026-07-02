@@ -72,6 +72,17 @@
     createEmptySummary: () => Docx2mdParsedSummary;
     recordUnsupportedSummary: (summary: Docx2mdParsedSummary, type: string) => void;
   }>("documentSummary");
+  const documentParseContext = moduleRegistry.getModule<{
+    createParseContext: (
+      body: Element,
+      summary: Docx2mdParsedSummary,
+      comments: Docx2mdParsedComment[]
+    ) => Docx2mdParseContext;
+    getReferencedComments: (
+      comments: Docx2mdParsedComment[],
+      context: Docx2mdParseContext
+    ) => Docx2mdParsedComment[];
+  }>("documentParseContext");
 
   type ParsedParagraph = Extract<Docx2mdParsedBlock, { kind: "paragraph" | "heading" | "listItem" }>;
   type ParsedTable = Extract<Docx2mdParsedBlock, { kind: "table" }>;
@@ -147,16 +158,6 @@
         tableUnsupportedTypes
       ) || ""
     ) || { kind: "table", rows: [] };
-  }
-
-  function collectKnownAnchorIds(body: Element): Set<string> {
-    const knownAnchorIds = new Set<string>();
-    for (const paragraphElement of xmlUtils?.getChildrenByLocalName(body, "p") || []) {
-      for (const anchorId of extractParagraphAnchors(paragraphElement)) {
-        knownAnchorIds.add(anchorId);
-      }
-    }
-    return knownAnchorIds;
   }
 
   function parseParagraphBlock(
@@ -238,11 +239,11 @@
     }
 
     const emittedAnchorIds = new Set<string>();
-    const context: Docx2mdParseContext = {
+    const context = documentParseContext?.createParseContext(body, summary, comments) || {
       summary,
-      knownAnchorIds: collectKnownAnchorIds(body),
+      knownAnchorIds: new Set<string>(),
       comments: new Map(comments.map((comment) => [comment.id, comment])),
-      referencedCommentIds: new Set()
+      referencedCommentIds: new Set<string>()
     };
     for (const child of Array.from(body.childNodes || []) as Node[]) {
       if (child.nodeType !== 1) continue;
@@ -252,7 +253,8 @@
         blocks.push(block);
       }
     }
-    const referencedComments = comments.filter((comment) => context.referencedCommentIds.has(comment.id));
+    const referencedComments = documentParseContext?.getReferencedComments(comments, context)
+      || comments.filter((comment) => context.referencedCommentIds.has(comment.id));
     return referencedComments.length ? { blocks, summary, comments: referencedComments } : { blocks, summary };
   }
 

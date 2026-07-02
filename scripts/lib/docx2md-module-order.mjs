@@ -10,6 +10,7 @@ export const DOCX2MD_CORE_JS_ORDER = [
   "dist/js/document-comments-parser.js",
   "dist/js/document-anchor-parser.js",
   "dist/js/document-drawing-parser.js",
+  "dist/js/document-parse-context.js",
   "dist/js/document-text-style-parser.js",
   "dist/js/document-hyperlink-parser.js",
   "dist/js/document-paragraph-parser.js",
