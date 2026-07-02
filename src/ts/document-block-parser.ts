@@ -228,7 +228,8 @@
     body: Element | null,
     relationships: Map<string, Docx2mdRelationship>,
     styles: Map<string, Docx2mdParsedStyleDefinition>,
-    numbering: Docx2mdNumberingDefinition
+    numbering: Docx2mdNumberingDefinition,
+    comments: Docx2mdParsedComment[] = []
   ): Docx2mdParsedDocument {
     const summary = requireDocumentSummary().createEmptySummary();
     const blocks: Array<ParsedParagraph | ParsedTable | ParsedUnsupported> = [];
@@ -239,7 +240,9 @@
     const emittedAnchorIds = new Set<string>();
     const context: Docx2mdParseContext = {
       summary,
-      knownAnchorIds: collectKnownAnchorIds(body)
+      knownAnchorIds: collectKnownAnchorIds(body),
+      comments: new Map(comments.map((comment) => [comment.id, comment])),
+      referencedCommentIds: new Set()
     };
     for (const child of Array.from(body.childNodes || []) as Node[]) {
       if (child.nodeType !== 1) continue;
@@ -249,7 +252,8 @@
         blocks.push(block);
       }
     }
-    return { blocks, summary };
+    const referencedComments = comments.filter((comment) => context.referencedCommentIds.has(comment.id));
+    return referencedComments.length ? { blocks, summary, comments: referencedComments } : { blocks, summary };
   }
 
   moduleRegistry.registerModule("documentBlockParser", {

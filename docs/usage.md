@@ -66,11 +66,41 @@ npm run cli -- --help
 | `--assets-dir <dir>` | 解決可能な埋め込み画像 asset の出力先 |
 | `--summary` | summary を標準出力へ表示 |
 | `--summary-out <file>` | summary の出力先 |
+| `--front-matter <mode>` | `include` または `exclude`。既定は `include` |
 | `--debug` | unsupported 要素の HTML comment trace を Markdown に含める |
 | `--include-unsupported-comments` | `--debug` と同じ |
 | `--verbose` | 進捗と処理時間の診断を `verbose:` prefix 付きで stderr に出力 |
 | `--version` | バージョンを表示 |
 | `--help` | ヘルプを表示 |
+
+## front matter
+
+CLI が出力する Markdown は、既定で document-level YAML front matter から始まります。
+
+```yaml
+---
+title: "sample.docx"
+type: converted
+conversion:
+  tool: miku-docx2md
+  version: "1.2.0"
+  unsupported_comments: exclude
+---
+```
+
+`--front-matter exclude` を指定すると省略できます。
+
+front matter の契約は [docx2md-front-matter.md](./docx2md-front-matter.md) を参照してください。
+
+## Word コメント
+
+Word コメントは Markdown footnote として出力されます。
+
+```markdown
+コメント対象の本文[^comment-1]
+
+[^comment-1]: コメント本文
+```
 
 ## 画像 asset 出力
 

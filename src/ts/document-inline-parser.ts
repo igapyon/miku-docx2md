@@ -8,6 +8,7 @@
   const xmlUtils = moduleRegistry.getModule<{
     getChildrenByLocalName: (parent: ParentNode, localName: string) => Element[];
     getTextContent: (node: Node | null | undefined) => string;
+    getWordAttributeValue: (element: Element | null | undefined, localName: string, fallback?: string) => string;
   }>("xmlUtils");
   const documentDrawingParser = moduleRegistry.getModule<{
     describeUnsupportedElement: (
@@ -74,6 +75,21 @@
     traces.push(type);
   }
 
+  function renderCommentReference(
+    commentReference: Element,
+    context: Docx2mdParseContext,
+    unsupportedTypes: string[]
+  ): string {
+    const id = xmlUtils?.getWordAttributeValue(commentReference, "id", "") || "";
+    const comment = context.comments.get(id);
+    if (!comment) {
+      recordUnsupportedTrace(context, unsupportedTypes, "commentReference");
+      return "";
+    }
+    context.referencedCommentIds.add(id);
+    return `[^${comment.label}]`;
+  }
+
   function extractTextboxText(
     textboxContent: Element,
     relationships: Map<string, Docx2mdRelationship>,
@@ -117,6 +133,8 @@
         pieces.push(documentTextStyleParser?.applyTextStyle(text, effectiveStyle) || text);
       } else if (element.localName === "br") {
         pieces.push("<br>");
+      } else if (element.localName === "commentReference") {
+        pieces.push(renderCommentReference(element, context, unsupportedTypes));
       } else if (element.localName === "drawing" || element.localName === "pict" || element.localName === "object") {
         recordUnsupportedTrace(context, unsupportedTypes, describeUnsupportedElement(element, relationships));
       }
@@ -186,7 +204,14 @@
         pieces.push(renderTrackedChangeElement(element, "inserted", relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, suppressUnderline));
       } else if (element.localName === "del") {
         pieces.push(renderTrackedChangeElement(element, "deleted", relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, suppressUnderline));
-      } else if (element.localName === "bookmarkStart" || element.localName === "bookmarkEnd" || element.localName === "pPr" || element.localName === "proofErr") {
+      } else if (
+        element.localName === "bookmarkStart"
+        || element.localName === "bookmarkEnd"
+        || element.localName === "pPr"
+        || element.localName === "proofErr"
+        || element.localName === "commentRangeStart"
+        || element.localName === "commentRangeEnd"
+      ) {
         continue;
       } else {
         recordUnsupportedTrace(context, unsupportedTypes, describeUnsupportedElement(element, relationships));

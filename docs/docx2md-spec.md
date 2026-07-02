@@ -63,11 +63,11 @@ The first cut intentionally excludes visual and layout-heavy reproduction.
 - exact page layout reproduction
 - headers / footers
 - footnotes / endnotes
-- Word comment body extraction from `word/comments.xml`
+- Word comment replies/thread metadata beyond basic comment text
 - macros
 
 Tracked insertion and deletion text is preserved as inline Markdown/HTML notation: `w:ins` becomes `<ins>...</ins>`, and `w:del` / `w:delText` becomes `~~...~~`.
-Word comment range markers may appear as unsupported debug traces, but comment body extraction remains out of scope.
+Word comments are preserved as Markdown footnotes such as `[^comment-1]` with matching footnote definitions.
 
 Resolved embedded image files may be exposed as sidecar assets, but this does not imply Word-like layout reproduction.
 Other visual features may be considered later, but should not complicate the first implementation.
@@ -164,6 +164,10 @@ The first cut should treat one `.docx` file as one input and produce one Markdow
 The primary output should be:
 
 - one combined Markdown file
+
+CLI output includes document-level YAML front matter by default. The front matter identifies the converted DOCX artifact and records conversion settings that materially affect the Markdown body. It can be omitted with `--front-matter exclude`.
+
+The front matter contract is intentionally small and is defined in [docx2md-front-matter.md](./docx2md-front-matter.md).
 
 When resolved embedded images are exported explicitly, a sidecar asset directory or archive may accompany the Markdown output.
 The primary output remains the Markdown document; sidecar image export is optional and should not require layout reconstruction.

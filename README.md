@@ -97,6 +97,7 @@ npm run test:unit
 ## 詳細ドキュメント
 
 - 利用者向けの操作手順と CLI 詳細: [docs/usage.md](./docs/usage.md)
+- 生成 Markdown の YAML front matter 契約: [docs/docx2md-front-matter.md](./docs/docx2md-front-matter.md)
 - 実文書での品質確認: [docs/quality-check.md](./docs/quality-check.md)
 - 実文書品質確認の記録テンプレート: [docs/real-document-validation-template.md](./docs/real-document-validation-template.md)
 - 実文書品質確認メモ v0.8.2: [docs/real-document-validation-v0.8.2.md](./docs/real-document-validation-v0.8.2.md)

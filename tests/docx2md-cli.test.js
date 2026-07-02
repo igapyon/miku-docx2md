@@ -150,6 +150,8 @@ describe("docx2md cli", () => {
     expect(helpOutput).toContain("EXIT CODES");
     expect(helpOutput).toContain("Input is exactly one local .docx file path.");
     expect(helpOutput).toContain("If --out is omitted, Markdown is written to stdout.");
+    expect(helpOutput).toContain("--front-matter <mode>");
+    expect(helpOutput).toContain("use --front-matter exclude to omit it");
     expect(helpOutput).toContain("--verbose writes progress and timing diagnostics to stderr.");
     expect(helpOutput).toContain("--help and --version are metadata commands and must be used without other arguments.");
     expect(helpOutput).toContain("manifest.json");
@@ -276,6 +278,14 @@ describe("docx2md cli", () => {
       const summaryText = readFileSync(summaryPath, "utf8");
       const assetBytes = readFileSync(path.join(assetsDirPath, "word/media/cli-image.png"));
       const manifest = JSON.parse(readFileSync(path.join(assetsDirPath, "manifest.json"), "utf8"));
+      expect(markdown.startsWith([
+        "---",
+        "title: \"sample.docx\"",
+        "type: converted",
+        "conversion:",
+        "  tool: miku-docx2md"
+      ].join("\n"))).toBe(true);
+      expect(markdown).toContain("  unsupported_comments: include");
       expect(markdown).toContain("Hello CLI");
       expect(markdown).toContain("![CLI image alt](sample.assets/word/media/cli-image.png)");
       expect(markdown).not.toContain("[Image: CLI image alt]");
@@ -310,6 +320,64 @@ describe("docx2md cli", () => {
           }
         ]
       });
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("omits front matter when requested", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-"));
+    try {
+      const inputPath = path.join(tempDir, "sample.docx");
+      const outputPath = path.join(tempDir, "sample.md");
+      writeFileSync(inputPath, createCliDocxBytes());
+
+      execFileSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--out",
+          outputPath,
+          "--front-matter",
+          "exclude"
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      const markdown = readFileSync(outputPath, "utf8");
+      expect(markdown.startsWith("---\n")).toBe(false);
+      expect(markdown.startsWith("Hello CLI")).toBe(true);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("fails for an invalid front matter mode", () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "docx2md-cli-"));
+    try {
+      const inputPath = path.join(tempDir, "sample.docx");
+      writeFileSync(inputPath, createCliDocxBytes());
+
+      const result = spawnSync(
+        process.execPath,
+        [
+          "scripts/miku-docx2md-cli.mjs",
+          inputPath,
+          "--front-matter",
+          "invalid"
+        ],
+        {
+          cwd: path.resolve(__dirname, ".."),
+          encoding: "utf8"
+        }
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid front matter mode: invalid");
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
