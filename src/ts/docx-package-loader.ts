@@ -24,6 +24,7 @@
       relationshipsBytes: files.get("word/_rels/document.xml.rels"),
       stylesBytes: files.get("word/styles.xml"),
       numberingBytes: files.get("word/numbering.xml"),
+      commentsBytes: files.get("word/comments.xml"),
       contentTypesBytes: files.get("[Content_Types].xml")
     };
   }

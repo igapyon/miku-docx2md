@@ -18,12 +18,16 @@
   const numberingParser = moduleRegistry.getModule<{
     parseNumbering: (bytes?: Uint8Array) => Docx2mdNumberingDefinition;
   }>("numberingParser");
+  const documentCommentsParser = moduleRegistry.getModule<{
+    parseComments: (commentsBytes?: Uint8Array) => Docx2mdParsedComment[];
+  }>("documentCommentsParser");
   const documentBlockParser = moduleRegistry.getModule<{
     parseDocumentBody: (
       body: Element | null,
       relationships: Map<string, Docx2mdRelationship>,
       styles: Map<string, Docx2mdParsedStyleDefinition>,
-      numbering: Docx2mdNumberingDefinition
+      numbering: Docx2mdNumberingDefinition,
+      comments: Docx2mdParsedComment[]
     ) => Docx2mdParsedDocument;
   }>("documentBlockParser");
   const documentSummary = moduleRegistry.getModule<{
@@ -41,14 +45,16 @@
     documentXmlBytes: Uint8Array,
     relationshipsBytes?: Uint8Array,
     stylesBytes?: Uint8Array,
-    numberingBytes?: Uint8Array
+    numberingBytes?: Uint8Array,
+    commentsBytes?: Uint8Array
   ): Docx2mdParsedDocument {
     const document = xmlUtils?.parseXml(documentXmlBytes);
     const body = document ? xmlUtils?.findDescendantsByLocalName(document, "body")[0] || null : null;
     const relationships = relationshipsBytes ? relsParser?.parseRelationships(relationshipsBytes, "word/document.xml") || new Map() : new Map();
     const styles = stylesParser?.parseStyles(stylesBytes) || new Map();
     const numbering = numberingParser?.parseNumbering(numberingBytes) || { abstractNums: new Map(), nums: new Map() };
-    return documentBlockParser?.parseDocumentBody(body, relationships, styles, numbering)
+    const comments = documentCommentsParser?.parseComments(commentsBytes) || [];
+    return documentBlockParser?.parseDocumentBody(body, relationships, styles, numbering, comments)
       || requireDocumentSummary().createEmptyParsedDocument();
   }
 

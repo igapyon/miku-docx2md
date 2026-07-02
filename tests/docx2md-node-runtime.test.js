@@ -799,6 +799,11 @@ describe("docx2md node runtime", () => {
     const markdownWithAssets = api.renderMarkdown(parsed, {
       imagePathResolver: (sourcePath) => `./exported-assets/${sourcePath}`
     });
+    const markdownWithFrontMatter = api.renderMarkdown(parsed, {
+      frontMatter: "include",
+      title: "minimal.docx",
+      toolVersion: "1.2.3"
+    });
     const debugMarkdown = api.renderMarkdown(parsed, {
       includeUnsupportedComments: true
     });
@@ -833,6 +838,20 @@ describe("docx2md node runtime", () => {
     expect(parsed.blocks[16]).toMatchObject({ kind: "unsupported", type: "drawing:image(word/media/sample-image.png):alt(Sample image alt):size-emu(914400x457200)" });
     expect(parsed.blocks[17]).toMatchObject({ kind: "unsupported", type: "chart" });
     expect(markdown).toContain("Hello world");
+    expect(markdown).not.toContain("title: \"minimal.docx\"");
+    expect(markdownWithFrontMatter).toContain([
+      "---",
+      "title: \"minimal.docx\"",
+      "type: converted",
+      "conversion:",
+      "  tool: miku-docx2md",
+      "  version: \"1.2.3\"",
+      "  unsupported_comments: exclude",
+      "---",
+      "",
+      '<a id="section-1"></a>',
+      "# Section Title"
+    ].join("\n"));
     expect(markdown).toContain('<a id="section-1"></a>');
     expect(markdown).toContain('<a id="section-2:-intro-notes"></a>');
     expect(markdown).toContain("# Section Title");
@@ -1233,7 +1252,7 @@ describe("docx2md node runtime", () => {
     });
   });
 
-  it("keeps body text from the Word-authored reviewing comments fixture", async () => {
+  it("converts the Word-authored reviewing comments fixture to footnotes", async () => {
     const api = loadDocx2mdNodeApi({
       rootDir: path.resolve(__dirname, "..")
     });
@@ -1244,14 +1263,17 @@ describe("docx2md node runtime", () => {
     });
 
     expect(markdown).toContain("コメントのテスト");
-    expect(markdown).toContain("コメントってどんなもの。");
-    expect(markdown).toContain("コメントへのコメントとは。");
-    expect(markdown).toContain("unsupported: commentRangeStart");
-    expect(markdown).toContain("unsupported: commentRangeEnd");
+    expect(markdown).toContain("コメントってどんな[^comment-1]もの。");
+    expect(markdown).toContain("コメントへのコメントとは[^comment-2][^comment-3]。");
+    expect(markdown).toContain("[^comment-1]: コメントがどのように扱われるのか。");
+    expect(markdown).toContain("[^comment-2]: コメントへのコメントとは。");
+    expect(markdown).toContain("[^comment-3]: これがコメントへの返信。");
+    expect(markdown).not.toContain("unsupported: commentRangeStart");
+    expect(markdown).not.toContain("unsupported: commentRangeEnd");
     expect(parsed.summary).toMatchObject({
       paragraphs: 3,
-      unsupportedElements: 6,
-      unsupportedCommentTraces: 6
+      unsupportedElements: 0,
+      unsupportedCommentTraces: 0
     });
   });
 

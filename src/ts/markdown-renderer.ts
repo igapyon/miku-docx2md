@@ -15,6 +15,27 @@
     return String(text || "").replace(/\|/g, "\\|");
   }
 
+  function quoteYamlString(value: string): string {
+    return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\r/g, "\\r").replace(/\n/g, "\\n")}"`;
+  }
+
+  function createFrontMatter(options?: Docx2mdMarkdownRenderOptions): string {
+    return [
+      "---",
+      `title: ${quoteYamlString(String(options?.title || "document.docx"))}`,
+      "type: converted",
+      "conversion:",
+      "  tool: miku-docx2md",
+      `  version: ${quoteYamlString(String(options?.toolVersion || "unknown"))}`,
+      `  unsupported_comments: ${options?.includeUnsupportedComments ? "include" : "exclude"}`,
+      "---"
+    ].join("\n");
+  }
+
+  function shouldIncludeFrontMatter(options?: Docx2mdMarkdownRenderOptions): boolean {
+    return String(options?.frontMatter || "exclude") !== "exclude";
+  }
+
   function renderTable(rows: string[][]): string {
     if (!rows.length) return "";
     const header = rows[0];
@@ -105,6 +126,14 @@
     return comments ? `${withPlaceholders}\n${comments}` : withPlaceholders;
   }
 
+  function renderCommentFootnotes(comments?: Docx2mdParsedComment[]): string {
+    if (!comments || comments.length === 0) return "";
+    return comments
+      .map((comment) => `[^${comment.label}]: ${String(comment.text || "").trim()}`)
+      .filter((definition) => !definition.endsWith(": "))
+      .join("\n");
+  }
+
   function renderSupportedBlockContent(block: SupportedMarkdownBlock): string {
     if (block.kind === "heading") {
       const anchors = renderAnchors(block.anchorIds);
@@ -154,6 +183,7 @@
   function renderMarkdown(
     parsedDocument: {
       blocks: Docx2mdParsedBlock[];
+      comments?: Docx2mdParsedComment[];
     },
     options?: Docx2mdMarkdownRenderOptions
   ): string {
@@ -164,12 +194,19 @@
         markdown: renderMarkdownBlock(block, includeUnsupportedComments, options)
       }))
       .filter((block) => block.markdown !== "");
-    return renderedBlocks.reduce((markdown, block, index) => {
-      if (index === 0) return block.markdown;
+    const bodyBlocks = renderedBlocks.map((block) => block.markdown);
+    const commentFootnotes = renderCommentFootnotes(parsedDocument.comments);
+    if (commentFootnotes) {
+      bodyBlocks.push(commentFootnotes);
+    }
+    const body = bodyBlocks.reduce((markdown, blockMarkdown, index) => {
+      if (index === 0) return blockMarkdown;
       const previousBlock = renderedBlocks[index - 1];
-      const separator = previousBlock.kind === "listItem" && block.kind === "listItem" ? "\n" : "\n\n";
-      return `${markdown}${separator}${block.markdown}`;
+      const currentKind = renderedBlocks[index]?.kind;
+      const separator = previousBlock?.kind === "listItem" && currentKind === "listItem" ? "\n" : "\n\n";
+      return `${markdown}${separator}${blockMarkdown}`;
     }, "");
+    return shouldIncludeFrontMatter(options) ? `${createFrontMatter(options)}\n\n${body}` : body;
   }
 
   moduleRegistry.registerModule("markdownRenderer", {

@@ -41,14 +41,14 @@ The current first cut still excludes:
 - drawing / shape layout extraction
 - exact layout reproduction
 - header / footer and footnotes
-- Word comment body extraction from `word/comments.xml`
+- Word comment replies/thread metadata beyond basic comment text
 
 Tracked insertion and deletion text is preserved in the Markdown text stream:
 
 - `w:ins` -> `<ins>...</ins>`
 - `w:del` / `w:delText` -> `~~...~~`
 
-Word comment range markers are currently surfaced only as unsupported debug traces when debug-style output is enabled. Comment body extraction remains out of scope for the current implementation.
+Word comments are rendered as Markdown footnotes. `w:commentReference` becomes a footnote reference such as `[^comment-1]`, and the corresponding `word/comments.xml` text is emitted as a footnote definition such as `[^comment-1]: ...`.
 
 ## 3. Overall Flow
 
@@ -269,11 +269,24 @@ Current CLI options include:
 - `--assets-dir <dir>`
 - `--summary`
 - `--summary-out <file>`
+- `--front-matter <mode>`
 - `--debug`
 - `--include-unsupported-comments`
 - `--help`
 
 `--debug` and `--include-unsupported-comments` currently enable the same Markdown behavior.
+
+CLI Markdown includes document-level YAML front matter by default. `--front-matter exclude` omits it. Runtime callers may request the same front matter with `frontMatter: "include"`.
+
+Front matter fields are intentionally small:
+
+- `title`
+- `type`
+- `conversion.tool`
+- `conversion.version`
+- `conversion.unsupported_comments`
+
+The detailed contract is in [docx2md-front-matter.md](./docx2md-front-matter.md).
 
 ## 15. Open Items
 

@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { loadDocx2mdNodeApi } from "./lib/docx2md-node-runtime.mjs";
 
+const FRONT_MATTER_MODES = new Set(["include", "exclude"]);
+
 const FLAG_OPTIONS = {
   "--summary"(options) {
     options.summary = true;
@@ -32,6 +34,14 @@ const VALUE_OPTIONS = {
   "--summary-out": {
     apply(options, value) {
       options.summaryOutPath = value;
+    }
+  },
+  "--front-matter": {
+    apply(options, value) {
+      if (!FRONT_MATTER_MODES.has(value)) {
+        throw new Error(`Invalid front matter mode: ${value}`);
+      }
+      options.frontMatter = value;
     }
   }
 };
@@ -71,6 +81,9 @@ OPTIONS
   --summary-out <file>
       Write summary text to this file. Parent directories are created.
 
+  --front-matter <mode>
+      include or exclude. Default: include.
+
   --debug
       Include unsupported-element HTML comment traces in Markdown.
 
@@ -89,7 +102,8 @@ OPTIONS
 
 OUTPUTS
   Markdown:
-      Main converted document structure.
+      Main converted document structure. Starts with YAML front matter by
+      default; use --front-matter exclude to omit it.
 
   Summary:
       Text counts and diagnostics for converted document content.
@@ -117,6 +131,9 @@ EXAMPLES
 
   Include unsupported-element debug traces:
     node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --debug
+
+  Omit YAML front matter:
+    node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --front-matter exclude
 
   Show progress diagnostics on stderr:
     node scripts/miku-docx2md-cli.mjs ./sample.docx --out ./sample.md --verbose
@@ -153,6 +170,7 @@ function parseArgs(argv) {
     summaryOutPath: null,
     summary: false,
     includeUnsupportedComments: false,
+    frontMatter: "include",
     verbose: false
   };
   const positionals = [];
@@ -264,6 +282,7 @@ async function main() {
 
   const api = loadDocx2mdNodeApi();
   const assetPathApi = requireAssetPathApi();
+  const packageVersion = await readPackageVersion();
   const inputPath = path.resolve(options.inputPath);
   const resolvedOutputPath = options.outPath ? path.resolve(options.outPath) : null;
   const resolvedAssetsDir = options.assetsDir ? path.resolve(options.assetsDir) : null;
@@ -289,6 +308,9 @@ async function main() {
     verbose(`parsed blocks=${parsed.blocks.length} assets=${parsed.assets.length}`);
     const markdown = api.renderMarkdown(parsed, {
       includeUnsupportedComments: options.includeUnsupportedComments,
+      frontMatter: options.frontMatter,
+      title: path.basename(inputPath),
+      toolVersion: packageVersion,
       imagePathResolver: resolvedAssetsDir
         ? (sourcePath) => {
           const safeSourcePath = assetPathApi.getSafeDocxAssetPath(sourcePath);

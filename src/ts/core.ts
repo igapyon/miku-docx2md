@@ -13,7 +13,8 @@
       documentXmlBytes: Uint8Array,
       relationshipsBytes?: Uint8Array,
       stylesBytes?: Uint8Array,
-      numberingBytes?: Uint8Array
+      numberingBytes?: Uint8Array,
+      commentsBytes?: Uint8Array
     ) => Docx2mdParsedDocument;
   }>("documentParser");
   const docxAssets = moduleRegistry.getModule<{
@@ -52,7 +53,8 @@
       loadedPackage.documentXmlBytes,
       loadedPackage.relationshipsBytes,
       loadedPackage.stylesBytes,
-      loadedPackage.numberingBytes
+      loadedPackage.numberingBytes,
+      loadedPackage.commentsBytes
     )
       || requireDocumentSummary().createEmptyParsedDocument();
     const assets = docxAssets?.collectImageAssets(

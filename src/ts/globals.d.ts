@@ -41,6 +41,13 @@ type Docx2mdParsedSummary = {
 type Docx2mdParsedDocument = {
   blocks: Docx2mdParsedBlock[];
   summary: Docx2mdParsedSummary;
+  comments?: Docx2mdParsedComment[];
+};
+
+type Docx2mdParsedComment = {
+  id: string;
+  label: string;
+  text: string;
 };
 
 type Docx2mdParsedImageAsset = {
@@ -68,12 +75,16 @@ type Docx2mdLoadedPackage = {
   relationshipsBytes?: Uint8Array;
   stylesBytes?: Uint8Array;
   numberingBytes?: Uint8Array;
+  commentsBytes?: Uint8Array;
   contentTypesBytes?: Uint8Array;
 };
 
 type Docx2mdMarkdownRenderOptions = {
   includeUnsupportedComments?: boolean;
   imagePathResolver?: (sourcePath: string) => string;
+  frontMatter?: "include" | "exclude" | string | null;
+  title?: string | null;
+  toolVersion?: string | null;
 };
 
 type Docx2mdParsedAssetDocument = {
@@ -128,6 +139,8 @@ type Docx2mdNumberingDefinition = {
 type Docx2mdParseContext = {
   summary: Docx2mdParsedSummary;
   knownAnchorIds: Set<string>;
+  comments: Map<string, Docx2mdParsedComment>;
+  referencedCommentIds: Set<string>;
 };
 
 type Docx2mdStructuredParagraphRenderer = (
