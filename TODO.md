@@ -233,4 +233,5 @@
 - [x] Add `.docx` fixture hygiene tests modeled after `miku-xlsx2md`
   - Check `docProps/core.xml` for creator, lastModifiedBy, created, and modified metadata
   - Check `docProps/app.xml` for Application and AppVersion metadata
-  - Reject committed fixtures containing `word/comments.xml`, `word/embeddings/`, `word/vbaProject.bin`, or external relationships unless intentionally documented
+  - Reject undocumented committed fixtures containing `word/comments.xml`, `word/embeddings/`, `word/vbaProject.bin`, or external relationships
+  - Allow documented comment fixtures only when comment author/date metadata is scrubbed

@@ -22,11 +22,17 @@ const fixtureNames = [
   "word-links-basic.docx",
   "word-nested-list-basic.docx",
   "word-numbered-list-basic.docx",
+  "word-reviewing-comments-basic.docx",
+  "word-reviewing-tracked-changes-basic.docx",
   "word-table-merged-cell-basic.docx"
 ];
 
 const intentionallyExternalRelationships = new Map([
   ["word-links-basic.docx", new Set(["https://example.com/"])]
+]);
+
+const intentionallyCommentedFixtures = new Set([
+  "word-reviewing-comments-basic.docx"
 ]);
 
 async function unzipFixture(fileName) {
@@ -63,6 +69,11 @@ function relationshipRecords(xmlText) {
   }));
 }
 
+function commentRecords(xmlText) {
+  const document = new DOMParser().parseFromString(xmlText, "application/xml");
+  return Array.from(document.getElementsByTagName("w:comment"));
+}
+
 describe("docx fixture hygiene", () => {
   it("keeps Word fixture metadata scrubbed and stable", async () => {
     for (const fixtureName of fixtureNames) {
@@ -79,12 +90,21 @@ describe("docx fixture hygiene", () => {
     }
   });
 
-  it("rejects comments, embedded objects, macros, and undocumented external relationships", async () => {
+  it("rejects undocumented comments, embedded objects, macros, and external relationships", async () => {
     for (const fixtureName of fixtureNames) {
       const entries = await unzipFixture(fixtureName);
       const entryNames = Array.from(entries.keys());
 
-      expect(entryNames, fixtureName).not.toContain("word/comments.xml");
+      if (intentionallyCommentedFixtures.has(fixtureName)) {
+        expect(entryNames, fixtureName).toContain("word/comments.xml");
+        for (const comment of commentRecords(decodeEntry(entries, "word/comments.xml"))) {
+          expect(comment.getAttribute("w:author"), fixtureName).toBe(null);
+          expect(comment.getAttribute("w:date"), fixtureName).toBe(null);
+          expect(comment.getAttribute("w:initials"), fixtureName).toBe(null);
+        }
+      } else {
+        expect(entryNames, fixtureName).not.toContain("word/comments.xml");
+      }
       expect(entryNames.some((entryName) => entryName.startsWith("word/embeddings/")), fixtureName).toBe(false);
       expect(entryNames, fixtureName).not.toContain("word/vbaProject.bin");
 

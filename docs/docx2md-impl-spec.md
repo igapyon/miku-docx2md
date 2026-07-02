@@ -40,7 +40,15 @@ The current first cut still excludes:
 - inline image layout reproduction
 - drawing / shape layout extraction
 - exact layout reproduction
-- header / footer, footnotes, comments, tracked changes
+- header / footer and footnotes
+- Word comment body extraction from `word/comments.xml`
+
+Tracked insertion and deletion text is preserved in the Markdown text stream:
+
+- `w:ins` -> `<ins>...</ins>`
+- `w:del` / `w:delText` -> `~~...~~`
+
+Word comment range markers are currently surfaced only as unsupported debug traces when debug-style output is enabled. Comment body extraction remains out of scope for the current implementation.
 
 ## 3. Overall Flow
 
