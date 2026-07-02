@@ -112,6 +112,9 @@
       if (element.localName === "t") {
         const text = xmlUtils?.getTextContent(element) || "";
         pieces.push(documentTextStyleParser?.applyTextStyle(text, effectiveStyle) || text);
+      } else if (element.localName === "delText") {
+        const text = xmlUtils?.getTextContent(element) || "";
+        pieces.push(documentTextStyleParser?.applyTextStyle(text, effectiveStyle) || text);
       } else if (element.localName === "br") {
         pieces.push("<br>");
       } else if (element.localName === "drawing" || element.localName === "pict" || element.localName === "object") {
@@ -119,6 +122,23 @@
       }
     }
     return pieces.join("");
+  }
+
+  function renderTrackedChangeElement(
+    changeElement: Element,
+    marker: "inserted" | "deleted",
+    relationships: Map<string, Docx2mdRelationship>,
+    styles: Map<string, Docx2mdParsedStyleDefinition>,
+    numbering: Docx2mdNumberingDefinition,
+    context: Docx2mdParseContext,
+    unsupportedTypes: string[],
+    renderStructuredParagraphText: Docx2mdStructuredParagraphRenderer,
+    inheritedStyle: Docx2mdParsedStyle,
+    suppressUnderline: boolean
+  ): string {
+    const text = extractTextRuns(changeElement, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, suppressUnderline);
+    if (!text) return "";
+    return marker === "inserted" ? `<ins>${text}</ins>` : `~~${text}~~`;
   }
 
   function renderHyperlinkElement(
@@ -162,6 +182,10 @@
         }
       } else if (element.localName === "hyperlink") {
         pieces.push(renderHyperlinkElement(element, relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle));
+      } else if (element.localName === "ins") {
+        pieces.push(renderTrackedChangeElement(element, "inserted", relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, suppressUnderline));
+      } else if (element.localName === "del") {
+        pieces.push(renderTrackedChangeElement(element, "deleted", relationships, styles, numbering, context, unsupportedTypes, renderStructuredParagraphText, inheritedStyle, suppressUnderline));
       } else if (element.localName === "bookmarkStart" || element.localName === "bookmarkEnd" || element.localName === "pPr" || element.localName === "proofErr") {
         continue;
       } else {

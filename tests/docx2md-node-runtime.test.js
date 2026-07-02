@@ -468,6 +468,33 @@ function createProofErrBetweenRunsDocxArrayBuffer() {
   ]);
 }
 
+function createTrackedChangesDocxArrayBuffer() {
+  const encoder = new TextEncoder();
+  return createStoredZipArrayBuffer([
+    {
+      name: "word/document.xml",
+      data: encoder.encode(
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r><w:t xml:space="preserve">Keep </w:t></w:r>
+      <w:ins w:id="1" w:author="Reviewer" w:date="2026-07-02T00:00:00Z">
+        <w:r><w:t>new</w:t></w:r>
+      </w:ins>
+      <w:r><w:t xml:space="preserve"> </w:t></w:r>
+      <w:del w:id="2" w:author="Reviewer" w:date="2026-07-02T00:00:00Z">
+        <w:r><w:delText>old</w:delText></w:r>
+      </w:del>
+      <w:r><w:t xml:space="preserve"> text</w:t></w:r>
+    </w:p>
+  </w:body>
+</w:document>`
+      )
+    }
+  ]);
+}
+
 function createImageAltWithParenthesisDocxArrayBuffer() {
   const encoder = new TextEncoder();
   return createStoredZipArrayBuffer([
@@ -990,6 +1017,30 @@ describe("docx2md node runtime", () => {
     });
   });
 
+  it("preserves Word tracked insertion and deletion text", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await api.parseDocx(createTrackedChangesDocxArrayBuffer());
+    const markdown = api.renderMarkdown(parsed, {
+      includeUnsupportedComments: true
+    });
+
+    expect(parsed.blocks[0]).toMatchObject({
+      kind: "paragraph",
+      text: "Keep <ins>new</ins> ~~old~~ text"
+    });
+    expect(markdown).toContain("Keep <ins>new</ins> ~~old~~ text");
+    expect(markdown).not.toContain("unsupported: ins");
+    expect(markdown).not.toContain("unsupported: del");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 1,
+      unsupportedElements: 0,
+      unsupportedCommentTraces: 0
+    });
+  });
+
   it("converts the Word-authored headings fixture", async () => {
     const api = loadDocx2mdNodeApi({
       rootDir: path.resolve(__dirname, "..")
@@ -1156,6 +1207,51 @@ describe("docx2md node runtime", () => {
       listItems: 0,
       tables: 0,
       links: 0
+    });
+  });
+
+  it("converts the Word-authored reviewing tracked changes fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-reviewing-tracked-changes-basic.docx");
+    const markdown = api.renderMarkdown(parsed, {
+      includeUnsupportedComments: true
+    });
+
+    expect(markdown).toContain("校閲のテスト");
+    expect(markdown).toContain("校閲して<ins>追加の</ins>テスト");
+    expect(markdown).toContain("校閲して~~ここを変更~~<ins>変更についての</ins>テスト");
+    expect(markdown).toContain("校閲して~~削除する~~テスト");
+    expect(markdown).not.toContain("unsupported: ins");
+    expect(markdown).not.toContain("unsupported: del");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 4,
+      unsupportedElements: 0,
+      unsupportedCommentTraces: 0
+    });
+  });
+
+  it("keeps body text from the Word-authored reviewing comments fixture", async () => {
+    const api = loadDocx2mdNodeApi({
+      rootDir: path.resolve(__dirname, "..")
+    });
+
+    const parsed = await parseDocxFixture(api, "word-reviewing-comments-basic.docx");
+    const markdown = api.renderMarkdown(parsed, {
+      includeUnsupportedComments: true
+    });
+
+    expect(markdown).toContain("コメントのテスト");
+    expect(markdown).toContain("コメントってどんなもの。");
+    expect(markdown).toContain("コメントへのコメントとは。");
+    expect(markdown).toContain("unsupported: commentRangeStart");
+    expect(markdown).toContain("unsupported: commentRangeEnd");
+    expect(parsed.summary).toMatchObject({
+      paragraphs: 3,
+      unsupportedElements: 6,
+      unsupportedCommentTraces: 6
     });
   });
 

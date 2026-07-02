@@ -63,9 +63,11 @@ The first cut intentionally excludes visual and layout-heavy reproduction.
 - exact page layout reproduction
 - headers / footers
 - footnotes / endnotes
-- comments
-- tracked changes
+- Word comment body extraction from `word/comments.xml`
 - macros
+
+Tracked insertion and deletion text is preserved as inline Markdown/HTML notation: `w:ins` becomes `<ins>...</ins>`, and `w:del` / `w:delText` becomes `~~...~~`.
+Word comment range markers may appear as unsupported debug traces, but comment body extraction remains out of scope.
 
 Resolved embedded image files may be exposed as sidecar assets, but this does not imply Word-like layout reproduction.
 Other visual features may be considered later, but should not complicate the first implementation.

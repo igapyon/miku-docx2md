@@ -218,6 +218,9 @@
       context.summary.tables += 1;
       return parseTableElement(element, relationships, styles, numbering, context);
     }
+    if (element.localName === "sectPr") {
+      return null;
+    }
     return recordUnsupported(context, describeUnsupportedElement(element, relationships));
   }
 
