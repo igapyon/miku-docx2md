@@ -84,6 +84,12 @@ npm run build
 
 `src/ts/` から Node.js runtime 用の `dist/js/` を再生成します。`dist/` は生成物なので Git 管理しません。CLI runtime bundle は `npm run build:bundle`、Web / adapter 向け runtime bundle は `npm run build:runtime` で生成します。
 
+## Repository operation
+
+- `dist/` と `bundle/` は生成物として Git 管理しません。
+- `workplace/` は sibling repository、検証用ファイル、生成確認用 artifact のための local scratch area です。`workplace/.gitkeep` だけを Git 管理します。
+- `.codex/skills/` と `.vscode/mcp.json` は local deployment / local editor configuration として Git 管理しません。
+
 ## Web App
 
 ブラウザ UI と Single-file Web App 配布物は、分離済みの [miku-docx2md-web](https://github.com/igapyon/miku-docx2md-web) が担当します。この repository は product core、CLI、Node.js runtime bundle を担当します。

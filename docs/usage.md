@@ -83,7 +83,7 @@ title: "sample.docx"
 type: converted
 conversion:
   tool: miku-docx2md
-  version: "1.2.0"
+  version: "1.2.1"
   unsupported_comments: exclude
 ---
 ```
